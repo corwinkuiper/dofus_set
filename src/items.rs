@@ -44,7 +44,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 panic!()
             }
         };
-        let mut stats: stats::Characteristic = [0; 51];
+        let mut stats: stats::Characteristic = stats::new_characteristics();
         if let Some(stat) = item.get("stats") {
             for stat in stat.as_array().unwrap() {
                 let characteristic = stat.get("stat").unwrap().as_str().unwrap();

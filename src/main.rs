@@ -1,28 +1,167 @@
 mod anneal;
+use anneal::Anneal;
 mod items;
 mod stats;
 
 use anyhow;
+use rand::prelude::Rng;
 
 #[macro_use]
 extern crate lazy_static;
 
+#[derive(Clone, Debug, Default)]
+struct State {
+    set: [Option<usize>; 13],
+}
+
+fn state_index_to_item(index: usize) -> Vec<&'static items::Item> {
+    match index {
+        0 => HATS.to_vec(),
+        1 => CLOAKS.to_vec(),
+        2..=3 => RINGS.to_vec(),
+        4 => SHIELDS.to_vec(),
+        5 => BELTS.to_vec(),
+        6 => BOOTS.to_vec(),
+        7..=12 => DOFUS.to_vec(),
+        _ => panic!("Index out of range"),
+    }
+}
+fn state_index_to_item_type<'a>(index: usize) -> &'a str {
+    match index {
+        0 => "Hat",
+        1 => "Cloak",
+        2..=3 => "Ring",
+        4 => "Shield",
+        5 => "Belt",
+        6 => "Boots",
+        7..=12 => "Dofus",
+        _ => panic!("Index out of range"),
+    }
+}
+
+struct DofusSetAnneal;
+
+impl State {
+    fn print(&self) {
+        let mut last_state_name = "";
+
+        for (index, item_id) in self.set.iter().enumerate() {
+            let state_name = state_index_to_item_type(index);
+            if state_name != last_state_name {
+                println!("{}", state_name);
+                println!("-----------------------------");
+            }
+            last_state_name = state_name;
+            if let Some(item_id) = item_id {
+                print_item(state_index_to_item(index)[*item_id]);
+            }
+        }
+        println!("Stats");
+        println!("-----------------------------");
+        print_stats(&self.stats());
+    }
+
+    fn valid(&self) -> bool {
+        for (index, item_id) in self.set.iter().enumerate() {
+            if let Some(item_id) = item_id {
+                if state_index_to_item(index)[*item_id].level > MAX_LEVEL {
+                    return false;
+                }
+            }
+        }
+
+        let dofus = &self.set[7..];
+        let mut unique = std::collections::BTreeSet::new();
+        return dofus
+            .iter()
+            .filter(|x| x.is_some())
+            .map(|x| x.unwrap())
+            .all(move |x| unique.insert(x));
+    }
+    fn stats(&self) -> stats::Characteristic {
+        let mut stat = stats::new_characteristics();
+        for (index, item_id) in self.set.iter().enumerate() {
+            if let Some(item_id) = item_id {
+                let item_stats = state_index_to_item(index)[*item_id].stats;
+                stats::characteristic_add(&mut stat, &item_stats);
+            }
+        }
+
+        stat[stats::Stat::AP as usize] =
+            std::cmp::min(stat[stats::Stat::AP as usize], ADDITIONAL_AP);
+        stat[stats::Stat::MP as usize] =
+            std::cmp::min(stat[stats::Stat::MP as usize], ADDITIONAL_MP);
+        stat[stats::Stat::Range as usize] = std::cmp::min(stat[stats::Stat::Range as usize], 6);
+
+        stat
+    }
+}
+
+impl anneal::Anneal<State> for DofusSetAnneal {
+    fn random() -> f64 {
+        rand::thread_rng().gen_range(0.0, 1.0)
+    }
+
+    fn neighbour(state: &State) -> State {
+        loop {
+            let mut new_state = state.clone();
+            let random_number = rand::thread_rng().gen_range(0, 13);
+            let item_type = state_index_to_item(random_number);
+            new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
+            if new_state.valid() {
+                return new_state;
+            }
+        }
+    }
+
+    fn energy(state: &State) -> f64 {
+        let stats = state.stats();
+        // need to take the negative due to being a minimiser
+        -{
+            stats[stats::Stat::Power as usize] as f64 * 2.0
+                + stats[stats::Stat::Intelligence as usize] as f64 * 1.0
+                + stats[stats::Stat::Strength as usize] as f64 * 1.0
+                + stats[stats::Stat::Chance as usize] as f64 * 1.0
+                + stats[stats::Stat::Agility as usize] as f64 * 1.0
+                + stats[stats::Stat::AP as usize] as f64 * 500.0
+                + stats[stats::Stat::MP as usize] as f64 * 500.0
+                + stats[stats::Stat::Range as usize] as f64 * 200.0
+                + stats[stats::Stat::Vitality as usize] as f64 / 100.0
+                + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 500.0
+        }
+    }
+
+    fn temperature(iteration: f64, energy: f64) -> f64 {
+        30000.0 * std::f64::consts::E.powf(-16.0 * iteration)
+    }
+}
+const MAX_LEVEL: i32 = 150;
+const ADDITIONAL_MP: i32 = 2;
+const ADDITIONAL_AP: i32 = 12 - 7;
+
 fn main() -> Result<(), anyhow::Error> {
-    print_items_ref(&DOFUS);
+    let initial_state = State::default();
+    let final_state = DofusSetAnneal::execute(10_000_000, initial_state);
+    final_state.print();
+    println!("Energy: {}", -DofusSetAnneal::energy(&final_state));
     Ok(())
 }
 
-fn print_item(item: &items::Item) {
-    println!("============");
-    println!("Name: {}", item.name);
-    println!("Level: {}", item.level);
-    println!("Stats:");
-    for (characteristic, value) in item.stats.iter().enumerate() {
+fn print_stats(stat: &stats::Characteristic) {
+    for (characteristic, value) in stat.iter().enumerate() {
         let stat: stats::Stat = unsafe { std::mem::transmute(characteristic as u8) };
         if *value != 0 {
             println!("\t{:#?}: {}", stat, value);
         }
     }
+}
+
+fn print_item(item: &items::Item) {
+    println!("Name: {}", item.name);
+    println!("Level: {}", item.level);
+    println!("Stats:");
+    print_stats(&item.stats);
+    println!("==============================");
 }
 fn print_items_ref(items: &[&items::Item]) {
     for item in items.iter() {

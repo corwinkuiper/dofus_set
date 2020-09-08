@@ -1,6 +1,16 @@
 pub type StatValue = i32;
 pub type Characteristic = [StatValue; 51];
 
+pub fn new_characteristics() -> Characteristic {
+    [0; 51]
+}
+
+pub fn characteristic_add(stats: &mut Characteristic, stat: &Characteristic) {
+    for i in 0..stats.len() {
+        stats[i] += stat[i];
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub enum RestrictionStat {
     Stat(Stat),
