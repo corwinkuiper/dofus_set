@@ -145,14 +145,14 @@ impl anneal::Anneal<State> for DofusSetAnneal {
         let stats = state.stats();
         // need to take the negative due to being a minimiser
         -{
-            stats[stats::Stat::Power as usize] as f64 * 4.0
+            stats[stats::Stat::Power as usize] as f64 * 6.0
                 + stats[stats::Stat::Intelligence as usize] as f64 * 1.0
                 + stats[stats::Stat::Strength as usize] as f64 * 1.0
                 + stats[stats::Stat::Chance as usize] as f64 * 1.0
                 + stats[stats::Stat::Agility as usize] as f64 * 1.0
                 + stats[stats::Stat::AP as usize] as f64 * 300.0
                 + stats[stats::Stat::MP as usize] as f64 * 200.0
-                + stats[stats::Stat::Range as usize] as f64 * 50.0
+                + stats[stats::Stat::Range as usize] as f64 * 100.0
                 + stats[stats::Stat::Vitality as usize] as f64 / 100.0
                 + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
         }
@@ -163,7 +163,7 @@ impl anneal::Anneal<State> for DofusSetAnneal {
     }
 }
 const MAX_LEVEL: i32 = 146;
-const ADDITIONAL_MP: i32 = 2;
+const ADDITIONAL_MP: i32 = 3;
 const ADDITIONAL_AP: i32 = 12 - 7;
 const ADDITIONAL_RANGE: i32 = 6;
 
