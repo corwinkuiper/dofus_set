@@ -38,6 +38,24 @@ impl State {
             .filter_map(|(index, item_id)| item_id.map(|i| state_index_to_item(index)[i]))
     }
 
+    pub fn sets(&self) -> impl std::iter::Iterator<Item = (String, &stats::Characteristic)> {
+        let mut sets = HashMap::<i32, i32>::new(); // map of set ids to number of items in that set
+
+        for item in self.items() {
+            if let Some(set_id) = item.set_id {
+                sets.entry(set_id).and_modify(|i| *i += 1).or_insert(1);
+            }
+        }
+
+        sets.into_iter().filter_map(|(set, number_of_items)| {
+            let set = &SETS[&set];
+
+            set.bonuses
+                .get(&number_of_items)
+                .map(|bonus| (set.name.clone(), bonus))
+        })
+    }
+
     fn valid(&self, config: &config::Config) -> bool {
         for (index, item_id) in self.set.iter().enumerate() {
             if let Some(item_id) = item_id {
@@ -76,41 +94,34 @@ impl State {
         let stats = self.stats(config.max_level);
         // need to take the negative due to being a minimiser
         -{
-            stats[stats::Stat::Power as usize] as f64 * 6.0
-                + stats[stats::Stat::Intelligence as usize] as f64 * 1.0
-                + stats[stats::Stat::Strength as usize] as f64 * 1.0
-                + stats[stats::Stat::Chance as usize] as f64 * 1.0
-                + stats[stats::Stat::Agility as usize] as f64 * 1.0
+            stats[stats::Stat::Power as usize] as f64 * 3.0
+                + stats[stats::Stat::Intelligence as usize] as f64 * 3.0
+            //    + stats[stats::Stat::Strength as usize] as f64 * 3.0
+            //    + stats[stats::Stat::Chance as usize] as f64 * 1.0
+            //    + stats[stats::Stat::Agility as usize] as f64 * 1.0
                 + stats[stats::Stat::AP as usize] as f64 * 300.0
                 + stats[stats::Stat::MP as usize] as f64 * 200.0
-                + stats[stats::Stat::Range as usize] as f64 * 100.0
+            //    + stats[stats::Stat::Range as usize] as f64 * 100.0
                 + stats[stats::Stat::Vitality as usize] as f64 / 100.0
-                + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
+            //    + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
         }
+    }
+
+    fn items(&self) -> impl std::iter::Iterator<Item = &items::Item> {
+        self.set.iter().enumerate().filter_map(|(index, item_id)| {
+            item_id.map(|item_id| state_index_to_item(index)[item_id])
+        })
     }
 
     pub fn stats(&self, current_level: i32) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
 
-        let mut sets = HashMap::<i32, i32>::new(); // map of set ids to number of items in that set
-
-        for (index, item_id) in self.set.iter().enumerate() {
-            if let Some(item_id) = item_id {
-                let item = state_index_to_item(index)[*item_id];
-                let item_stats = item.stats;
-                stats::characteristic_add(&mut stat, &item_stats);
-
-                if let Some(set_id) = item.set_id {
-                    sets.entry(set_id).and_modify(|i| *i += 1).or_insert(1);
-                }
-            }
+        for item in self.items() {
+            stats::characteristic_add(&mut stat, &item.stats);
         }
 
-        for (set_id, number_of_items) in sets.iter() {
-            let set = &SETS[set_id];
-            if let Some(bonus) = set.bonuses.get(number_of_items) {
-                stats::characteristic_add(&mut stat, &bonus);
-            }
+        for (_, bonus) in self.sets() {
+            stats::characteristic_add(&mut stat, &bonus);
         }
 
         stat[stats::Stat::AP as usize] = std::cmp::min(

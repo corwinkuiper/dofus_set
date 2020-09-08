@@ -34,6 +34,12 @@ pub fn print_state(state: &State, config: &config::Config) {
     println!("Stats");
     println!("-----------------------------");
     print_stats(&state.stats(config.max_level));
+    println!("\nSet bonuses");
+    println!("-----------------------------");
+    for (set_name, bonus) in state.sets() {
+        println!("{}", set_name);
+        print_stats(bonus);
+    }
 }
 
 fn print_stats(stat: &stats::Characteristic) {
