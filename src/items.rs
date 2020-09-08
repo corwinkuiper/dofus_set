@@ -32,7 +32,7 @@ struct DofusLabItemStats {
 struct DofusLabItem {
     name: DofusLabItemName,
     itemType: String,
-    setID: String,
+    setID: Option<String>,
     stats: Vec<DofusLabItemStats>,
 }
 
