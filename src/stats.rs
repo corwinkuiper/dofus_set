@@ -1,63 +1,59 @@
-#[derive(Copy, Clone)]
-pub struct Stat {
-    min: Option<i64>,
-    max: i64,
-}
+pub type StatValue = i32;
+pub type Characteristic = [StatValue; 51];
 
-#[derive(Copy, Clone)]
-pub struct RestrictionCondition {
-    stat: RestrictionStat,
-    operator: RestrictionOperator,
-    value: i64,
-}
-
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum RestrictionStat {
-    Vitality,
-    Wisdom,
-    Strength,
-    Intelligence,
-    Chance,
-    Agility,
-    AP,
-    MP,
+    Stat(Stat),
     SetBonus,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
+pub struct RestrictionCondition {
+    stat: RestrictionStat,
+    operator: RestrictionOperator,
+    value: StatValue,
+}
+
+#[derive(Copy, Clone, Debug)]
 pub enum RestrictionOperator {
     LessThan,
     GreaterThan,
 }
 
+#[derive(Copy, Clone, Debug)]
+pub enum RestrictionBooleanOperator {
+    And,
+    Or,
+}
+
+#[derive(Clone, Debug)]
 pub struct Restriction {
     restrictions: Vec<RestrictionCondition>,
+    operator: RestrictionBooleanOperator,
 }
 
 impl Restriction {
-    pub fn validate(&self, stats: &Stats) -> bool {
+    pub fn validate(&self, stats: &Characteristic, set_bonus: StatValue) -> bool {
         for condition in self.restrictions.iter() {
             let value = condition.value;
             let stat_value = match condition.stat {
-                RestrictionStat::Vitality => stats.vitality.max,
-                RestrictionStat::Wisdom => stats.wisdom.max,
-                RestrictionStat::Strength => stats.strength.max,
-                RestrictionStat::Intelligence => stats.intelligence.max,
-                RestrictionStat::Chance => stats.chance.max,
-                RestrictionStat::Agility => stats.agility.max,
-                RestrictionStat::AP => stats.ap.max,
-                RestrictionStat::MP => stats.mp.max,
-                RestrictionStat::SetBonus => stats.set_bonus,
+                RestrictionStat::Stat(stat) => stats[stat as usize],
+                RestrictionStat::SetBonus => set_bonus,
             };
+
             match condition.operator {
                 RestrictionOperator::GreaterThan => {
                     if !(stat_value > value) {
                         return false;
+                    } else if let RestrictionBooleanOperator::Or = self.operator {
+                        return true;
                     }
                 }
                 RestrictionOperator::LessThan => {
                     if !(stat_value < value) {
                         return false;
+                    } else if let RestrictionBooleanOperator::Or = self.operator {
+                        return true;
                     }
                 }
             }
@@ -66,64 +62,123 @@ impl Restriction {
     }
 }
 
+pub fn stat_from_str(s: &str) -> Option<Stat> {
+    Some(match s {
+        "Vitality" => Stat::Vitality,
+        "Wisdom" => Stat::Wisdom,
+        "Strength" => Stat::Strength,
+        "Intelligence" => Stat::Intelligence,
+        "Chance" => Stat::Chance,
+        "Agility" => Stat::Agility,
+
+        "AP" => Stat::AP,
+        "MP" => Stat::MP,
+        "Initiative" => Stat::Initiative,
+        "Prospecting" => Stat::Prospecting,
+        "Range" => Stat::Range,
+        "Summons" => Stat::Summons,
+        "pods" => Stat::Pods,
+
+        "AP Reduction" => Stat::APReduction,
+        "AP Parry" => Stat::APParry,
+        "MP Reduction" => Stat::MPReduction,
+        "MP Parry" => Stat::MPParry,
+        "Critical" => Stat::Critical,
+        "Heals" => Stat::Heal,
+        "Lock" => Stat::Lock,
+        "Dodge" => Stat::Dodge,
+
+        "Damage" => Stat::Damage,
+        "Power" => Stat::Power,
+        "Critical Damage" => Stat::DamageCritical,
+        "Neutral Damage" => Stat::DamageNeutral,
+        "Earth Damage" => Stat::DamageEarth,
+        "Fire Damage" => Stat::DamageFire,
+        "Water Damage" => Stat::DamageWater,
+        "Air Damage" => Stat::DamageAir,
+        "Reflect" => Stat::Reflect,
+        "Trap Damage" => Stat::DamageTrap,
+        "Power (traps)" => Stat::PowerTrap,
+        "Pushback Damage" => Stat::DamagePushback,
+        "% Spell Damage" => Stat::DamageSpell,
+        "% Weapon Damage" => Stat::DamageWeapon,
+        "% Ranged Damage" => Stat::DamageRange,
+        "% Melee Damage" => Stat::DamageMelee,
+
+        "Neutral Resistance" => Stat::ResistanceNeutralFixed,
+        "% Neutral Resistance" => Stat::ResistanceNeutralPercent,
+        "Earth Resistance" => Stat::ResistanceEarthFixed,
+        "% Earth Resistance" => Stat::ResistanceEarthPercent,
+        "Fire Resistance" => Stat::ResistanceFireFixed,
+        "% Fire Resistance" => Stat::ResistanceFirePercent,
+        "Water Resistance" => Stat::ResistanceWaterFixed,
+        "% Water Resistance" => Stat::ResistanceWaterPercent,
+        "Air Resistance" => Stat::ResistanceAirFixed,
+        "% Air Resistance" => Stat::ResistanceAirPercent,
+        "Critical Resistance" => Stat::ResistanceCritical,
+        "Pushback Resistance" => Stat::ResistancePushback,
+        "% Ranged Resistance" => Stat::ResistanceRange,
+        "% Melee Resistance" => Stat::ResistanceMelee,
+        _ => return None,
+    })
+}
+
 // every possible stat an item could have
-pub struct Stats {
-    // main characteristics
-    vitality: Stat,
-    wisdom: Stat,
-    strength: Stat,
-    intelligence: Stat,
-    chance: Stat,
-    agility: Stat,
+#[derive(Copy, Clone, Debug)]
+pub enum Stat {
+    Vitality,
+    Wisdom,
+    Strength,
+    Intelligence,
+    Chance,
+    Agility,
 
-    ap: Stat,
-    mp: Stat,
-    initiative: Stat,
-    prospecting: Stat,
-    range: Stat,
-    summons: Stat,
-    pods: Stat,
+    AP,
+    MP,
+    Initiative,
+    Prospecting,
+    Range,
+    Summons,
+    Pods,
 
-    ap_reduction: Stat,
-    ap_parry: Stat,
-    mp_reduction: Stat,
-    mp_parry: Stat,
-    critical: Stat,
-    heal: Stat,
-    lock: Stat,
-    dodge: Stat,
+    APReduction,
+    APParry,
+    MPReduction,
+    MPParry,
+    Critical,
+    Heal,
+    Lock,
+    Dodge,
 
-    damage: Stat,
-    power: Stat,
-    damage_critical: Stat,
-    damage_neutral: Stat,
-    damage_earth: Stat,
-    damage_fire: Stat,
-    damage_water: Stat,
-    damage_air: Stat,
-    reflect: Stat,
-    damage_trap: Stat,
-    power_trap: Stat,
-    damage_pushback: Stat,
-    damage_spell: Stat,
-    damage_weapon: Stat,
-    damage_range: Stat,
-    damage_melee: Stat,
+    Damage,
+    Power,
+    DamageCritical,
+    DamageNeutral,
+    DamageEarth,
+    DamageFire,
+    DamageWater,
+    DamageAir,
+    Reflect,
+    DamageTrap,
+    PowerTrap,
+    DamagePushback,
+    DamageSpell,
+    DamageWeapon,
+    DamageRange,
+    DamageMelee,
 
-    resistance_neutral_fixed: Stat,
-    resistance_neutral_percent: Stat,
-    resistance_earth_fixed: Stat,
-    resistance_earth_percent: Stat,
-    resistance_fire_fixed: Stat,
-    resistance_fire_percent: Stat,
-    resistance_water_fixed: Stat,
-    resistance_water_percent: Stat,
-    resistance_air_fixed: Stat,
-    resistance_air_percent: Stat,
-    resistance_critical: Stat,
-    resistance_pushback: Stat,
-    resistance_range: Stat,
-    resistance_melee: Stat,
-
-    set_bonus: i64,
+    ResistanceNeutralFixed,
+    ResistanceNeutralPercent,
+    ResistanceEarthFixed,
+    ResistanceEarthPercent,
+    ResistanceFireFixed,
+    ResistanceFirePercent,
+    ResistanceWaterFixed,
+    ResistanceWaterPercent,
+    ResistanceAirFixed,
+    ResistanceAirPercent,
+    ResistanceCritical,
+    ResistancePushback,
+    ResistanceRange,
+    ResistanceMelee,
 }
