@@ -1,6 +1,8 @@
 #[path = "stats.rs"]
 mod stats;
 
+use serde::Deserialize;
+
 pub struct Item {
     pub name: String,
     pub item_type: String,
@@ -9,6 +11,29 @@ pub struct Item {
     pub set_id: Option<i32>,
     pub dofus_id: i32,
     pub restrictions: Option<stats::Restriction>,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct DofusLabItemName {
+    en: String,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct DofusLabItemStats {
+    stat: String,
+    minStat: Option<i32>,
+    maxStat: Option<i32>,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+struct DofusLabItem {
+    name: DofusLabItemName,
+    itemType: String,
+    setID: String,
+    stats: Vec<DofusLabItemStats>,
 }
 
 pub fn parse_items(data: &[u8]) -> Vec<Item> {
