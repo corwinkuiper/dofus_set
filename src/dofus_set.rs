@@ -1,4 +1,5 @@
 use super::anneal;
+use super::config;
 use super::items;
 use super::stats;
 
@@ -100,6 +101,23 @@ impl State {
         true
     }
 
+    pub fn energy(&self) -> f64 {
+        let stats = self.stats();
+        // need to take the negative due to being a minimiser
+        -{
+            stats[stats::Stat::Power as usize] as f64 * 6.0
+                + stats[stats::Stat::Intelligence as usize] as f64 * 1.0
+                + stats[stats::Stat::Strength as usize] as f64 * 1.0
+                + stats[stats::Stat::Chance as usize] as f64 * 1.0
+                + stats[stats::Stat::Agility as usize] as f64 * 1.0
+                + stats[stats::Stat::AP as usize] as f64 * 300.0
+                + stats[stats::Stat::MP as usize] as f64 * 200.0
+                + stats[stats::Stat::Range as usize] as f64 * 100.0
+                + stats[stats::Stat::Vitality as usize] as f64 / 100.0
+                + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
+        }
+    }
+
     fn stats(&self) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
         for (index, item_id) in self.set.iter().enumerate() {
@@ -120,15 +138,26 @@ impl State {
     }
 }
 
-impl anneal::Anneal for State {
-    fn random() -> f64 {
+pub struct Optimiser {
+    pub config: config::Config,
+}
+
+impl Optimiser {
+    pub fn optimise(self) -> State {
+        let initial_state = State::default();
+        anneal::Anneal::optimise(&self, initial_state, 1_000_000)
+    }
+}
+
+impl anneal::Anneal<State> for Optimiser {
+    fn random(&self) -> f64 {
         rand::thread_rng().gen_range(0.0, 1.0)
     }
 
-    fn neighbour(&self) -> State {
+    fn neighbour(&self, state: &State) -> State {
         loop {
-            let mut new_state = self.clone();
-            let random_number = rand::thread_rng().gen_range(0, self.set.len());
+            let mut new_state = state.clone();
+            let random_number = rand::thread_rng().gen_range(0, state.set.len());
             let item_type = state_index_to_item(random_number);
             new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
             if new_state.valid() {
@@ -137,24 +166,11 @@ impl anneal::Anneal for State {
         }
     }
 
-    fn energy(&self) -> f64 {
-        let stats = self.stats();
-        // need to take the negative due to being a minimiser
-        -{
-            stats[stats::Stat::Power as usize] as f64 * 6.0
-                + stats[stats::Stat::Intelligence as usize] as f64 * 1.0
-                + stats[stats::Stat::Strength as usize] as f64 * 1.0
-                + stats[stats::Stat::Chance as usize] as f64 * 1.0
-                + stats[stats::Stat::Agility as usize] as f64 * 1.0
-                + stats[stats::Stat::AP as usize] as f64 * 300.0
-                + stats[stats::Stat::MP as usize] as f64 * 200.0
-                + stats[stats::Stat::Range as usize] as f64 * 100.0
-                + stats[stats::Stat::Vitality as usize] as f64 / 100.0
-                + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
-        }
+    fn energy(&self, state: &State) -> f64 {
+        state.energy()
     }
 
-    fn temperature(iteration: f64, _energy: f64) -> f64 {
+    fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
         30000.0 * std::f64::consts::E.powf(-16.0 * iteration)
     }
 }

@@ -1,5 +1,5 @@
 mod anneal;
-use anneal::Anneal;
+mod config;
 mod dofus_set;
 mod items;
 mod stats;
@@ -8,8 +8,11 @@ mod stats;
 extern crate lazy_static;
 
 fn main() {
-    let initial_state = dofus_set::State::default();
-    let final_state = initial_state.optimise(1_000_000);
+    let optimiser = dofus_set::Optimiser {
+        config: config::Config { max_level: 125 },
+    };
+
+    let final_state = optimiser.optimise();
     final_state.print();
     println!("Set Energy: {}", -final_state.energy());
 }
