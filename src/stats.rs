@@ -1,6 +1,79 @@
 pub type StatValue = i32;
 pub type Characteristic = [StatValue; 51];
 
+pub trait Restriction {
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> bool;
+}
+
+pub enum BooleanOperator {
+    And,
+    Or,
+}
+
+pub struct RestrictionSet {
+    pub operator: BooleanOperator,
+    pub restrictions: Vec<Box<dyn Restriction>>,
+}
+
+impl Restriction for RestrictionSet {
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> bool {
+        match self.operator {
+            BooleanOperator::And => self
+                .restrictions
+                .iter()
+                .all(|restriction| restriction.accepts(characteristics, set_bonus)),
+            BooleanOperator::Or => self
+                .restrictions
+                .iter()
+                .any(|restriction| restriction.accepts(characteristics, set_bonus)),
+        }
+    }
+}
+
+pub enum Operator {
+    GreaterThan,
+    LessThan,
+}
+
+pub struct RestrictionLeaf {
+    pub operator: Operator,
+    pub stat: Stat,
+    pub value: StatValue,
+}
+
+impl Restriction for RestrictionLeaf {
+    fn accepts(&self, characteristics: &Characteristic, _set_bonus: i32) -> bool {
+        let value = characteristics[self.stat as usize];
+
+        match self.operator {
+            Operator::GreaterThan => value > self.value,
+            Operator::LessThan => value < self.value,
+        }
+    }
+}
+
+pub struct SetBonusRestriction {
+    pub operator: Operator,
+    pub value: i32,
+}
+
+impl Restriction for SetBonusRestriction {
+    fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32) -> bool {
+        match self.operator {
+            Operator::GreaterThan => set_bonus > self.value,
+            Operator::LessThan => set_bonus < self.value,
+        }
+    }
+}
+
+pub struct NullRestriction;
+
+impl Restriction for NullRestriction {
+    fn accepts(&self, _characteristics: &Characteristic, _set_bonus: i32) -> bool {
+        true
+    }
+}
+
 pub fn new_characteristics() -> Characteristic {
     [0; 51]
 }
