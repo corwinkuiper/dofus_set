@@ -3,6 +3,7 @@ mod stats;
 
 pub struct Item {
     pub name: String,
+    pub item_type: String,
     pub stats: stats::Characteristic,
     pub level: i32,
     pub set_id: Option<i32>,
@@ -22,6 +23,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
             .as_str()
             .unwrap()
             .to_string();
+        let item_type = item.get("itemType").unwrap().as_str().unwrap().to_string();
         let level = item.get("level").unwrap().as_i64().unwrap() as i32;
         let mut set_id = None;
         if let Some(set) = item.get("setID") {
@@ -54,6 +56,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
 
         let restrictions = None; //todo
         items.push(Item {
+            item_type,
             name,
             level,
             set_id,
