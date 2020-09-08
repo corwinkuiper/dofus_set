@@ -1,5 +1,4 @@
-#[path = "stats.rs"]
-mod stats;
+use super::stats;
 
 use serde::Deserialize;
 
