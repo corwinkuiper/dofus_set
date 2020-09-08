@@ -4,6 +4,7 @@ use super::items;
 use super::stats;
 
 use rand::prelude::Rng;
+use std::collections::HashMap;
 
 fn state_index_to_item<'a>(index: usize) -> &'a [&'static items::Item] {
     match index {
@@ -193,4 +194,6 @@ lazy_static! {
         .filter(|x| x.item_type == "Dofus"
             || x.item_type == "Trophy"
             || x.item_type == "Prysmaradite").collect();
+    static ref SETS: HashMap<i32, items::Set> =
+        items::parse_sets(include_bytes!("../data/sets.json"));
 }
