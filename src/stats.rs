@@ -5,78 +5,12 @@ pub fn new_characteristics() -> Characteristic {
     [0; 51]
 }
 
-#[allow(dead_code)]
 pub fn characteristic_add(stats: &mut Characteristic, stat: &Characteristic) {
     for i in 0..stats.len() {
         stats[i] += stat[i];
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-#[allow(dead_code)]
-pub enum RestrictionStat {
-    Stat(Stat),
-    SetBonus,
-}
-
-#[derive(Copy, Clone, Debug)]
-pub struct RestrictionCondition {
-    pub stat: RestrictionStat,
-    pub operator: RestrictionOperator,
-    pub value: StatValue,
-}
-
-#[derive(Copy, Clone, Debug)]
-#[allow(dead_code)]
-pub enum RestrictionOperator {
-    LessThan,
-    GreaterThan,
-}
-
-#[derive(Copy, Clone, Debug)]
-#[allow(dead_code)]
-pub enum RestrictionBooleanOperator {
-    And,
-    Or,
-}
-
-#[derive(Clone, Debug)]
-pub struct Restriction {
-    pub restrictions: Vec<RestrictionCondition>,
-    pub operator: RestrictionBooleanOperator,
-}
-
-impl Restriction {
-    #[allow(dead_code)]
-    pub fn validate(&self, stats: &Characteristic, set_bonus: StatValue) -> bool {
-        for condition in self.restrictions.iter() {
-            let value = condition.value;
-            let stat_value = match condition.stat {
-                RestrictionStat::Stat(stat) => stats[stat as usize],
-                RestrictionStat::SetBonus => set_bonus,
-            };
-
-            match condition.operator {
-                RestrictionOperator::GreaterThan => {
-                    if !(stat_value > value) {
-                        return false;
-                    } else if let RestrictionBooleanOperator::Or = self.operator {
-                        return true;
-                    }
-                }
-                RestrictionOperator::LessThan => {
-                    if !(stat_value < value) {
-                        return false;
-                    } else if let RestrictionBooleanOperator::Or = self.operator {
-                        return true;
-                    }
-                }
-            }
-        }
-        true
-    }
-}
-#[allow(dead_code)]
 pub fn stat_from_str(s: &str) -> Option<Stat> {
     Some(match s {
         "Vitality" => Stat::Vitality,
@@ -140,7 +74,6 @@ pub fn stat_from_str(s: &str) -> Option<Stat> {
 
 // every possible stat an item could have
 #[derive(Copy, Clone, Debug)]
-#[allow(dead_code)]
 pub enum Stat {
     Vitality,
     Wisdom,

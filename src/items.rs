@@ -10,7 +10,6 @@ pub struct Item {
     pub level: i32,
     pub set_id: Option<i32>,
     pub dofus_id: i32,
-    pub restrictions: Option<stats::Restriction>,
 }
 
 #[allow(non_snake_case)]
@@ -57,7 +56,6 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 dofus_id: 0,
                 level: item.level,
                 set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
-                restrictions: None,
             }
         }).collect()
 }
