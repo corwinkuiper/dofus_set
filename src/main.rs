@@ -4,15 +4,12 @@ mod dofus_set;
 mod items;
 mod stats;
 
-use anyhow;
-
 #[macro_use]
 extern crate lazy_static;
 
-fn main() -> Result<(), anyhow::Error> {
+fn main() {
     let initial_state = dofus_set::State::default();
     let final_state = initial_state.optimise(1_000_000);
     final_state.print();
     println!("Set Energy: {}", -final_state.energy());
-    Ok(())
 }
