@@ -50,8 +50,7 @@ impl State {
         let mut unique = std::collections::BTreeSet::new();
         if !dofus
             .iter()
-            .filter(|x| x.is_some())
-            .map(|x| x.unwrap())
+            .filter_map(|x| x)
             .all(move |x| unique.insert(x))
         {
             return false;
