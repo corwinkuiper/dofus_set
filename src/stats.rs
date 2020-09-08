@@ -12,7 +12,7 @@ pub enum BooleanOperator {
 
 pub struct RestrictionSet {
     pub operator: BooleanOperator,
-    pub restrictions: Vec<Box<dyn Restriction>>,
+    pub restrictions: Vec<Box<dyn Restriction + Sync>>,
 }
 
 impl Restriction for RestrictionSet {

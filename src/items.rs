@@ -9,6 +9,7 @@ pub struct Item {
     pub stats: stats::Characteristic,
     pub level: i32,
     pub set_id: Option<i32>,
+    pub restriction: Box<dyn stats::Restriction + Sync>,
 }
 
 #[allow(non_snake_case)]
@@ -54,6 +55,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 stats: stats,
                 level: item.level,
                 set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
+                restriction: Box::new(stats::NullRestriction {}),
             }
         }).collect()
 }
