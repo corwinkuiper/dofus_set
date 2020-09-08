@@ -10,7 +10,7 @@ use dofus_set::State;
 extern crate lazy_static;
 
 fn main() {
-    let config = config::Config { max_level: 125 };
+    let config = config::Config { max_level: 20 };
     let optimiser = dofus_set::Optimiser { config: &config };
 
     let final_state = optimiser.optimise();

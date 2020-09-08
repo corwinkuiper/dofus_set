@@ -91,10 +91,25 @@ impl State {
 
     pub fn stats(&self, current_level: i32) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
+
+        let mut sets = HashMap::<i32, i32>::new(); // map of set ids to number of items in that set
+
         for (index, item_id) in self.set.iter().enumerate() {
             if let Some(item_id) = item_id {
-                let item_stats = state_index_to_item(index)[*item_id].stats;
+                let item = state_index_to_item(index)[*item_id];
+                let item_stats = item.stats;
                 stats::characteristic_add(&mut stat, &item_stats);
+
+                if let Some(set_id) = item.set_id {
+                    sets.entry(set_id).and_modify(|i| *i += 1).or_insert(1);
+                }
+            }
+        }
+
+        for (set_id, number_of_items) in sets.iter() {
+            let set = &SETS[set_id];
+            if let Some(bonus) = set.bonuses.get(number_of_items) {
+                stats::characteristic_add(&mut stat, &bonus);
             }
         }
 
