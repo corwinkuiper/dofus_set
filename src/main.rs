@@ -11,7 +11,7 @@ extern crate lazy_static;
 
 #[derive(Clone, Debug, Default)]
 struct State {
-    set: [Option<usize>; 15],
+    set: [Option<usize>; 16],
 }
 
 fn state_index_to_item(index: usize) -> Vec<&'static items::Item> {
@@ -25,6 +25,7 @@ fn state_index_to_item(index: usize) -> Vec<&'static items::Item> {
         7 => WEAPONS.to_vec(),
         8 => SHIELDS.to_vec(),
         9..=14 => DOFUS.to_vec(),
+        15 => MOUNTS.to_vec(),
         _ => panic!("Index out of range"),
     }
 }
@@ -39,6 +40,7 @@ fn state_index_to_item_type<'a>(index: usize) -> &'a str {
         7 => "Weapon",
         8 => "Shield",
         9..=14 => "Dofus",
+        15 => "Mount / Pet",
         _ => panic!("Index out of range"),
     }
 }
@@ -74,7 +76,7 @@ impl State {
             }
         }
 
-        let dofus = &self.set[9..];
+        let dofus = &self.set[9..=14];
         let mut unique = std::collections::BTreeSet::new();
         if !dofus
             .iter()
@@ -128,7 +130,7 @@ impl anneal::Anneal<State> for DofusSetAnneal {
         loop {
             let mut new_state = state.clone();
             for _ in 0..2 {
-                let random_number = rand::thread_rng().gen_range(0, 13);
+                let random_number = rand::thread_rng().gen_range(0, state.set.len());
                 let item_type = state_index_to_item(random_number);
                 new_state.set[random_number] =
                     Some(rand::thread_rng().gen_range(0, item_type.len()));
@@ -206,6 +208,18 @@ lazy_static! {
     static ref ITEMS: Vec<items::Item> = items::parse_items(include_bytes!("../data/items.json"));
     static ref WEAPONS_S: Vec<items::Item> =
         items::parse_items(include_bytes!("../data/weapons.json"));
+    static ref MOUNTS_S: Vec<items::Item> = {
+        let mut mounts = items::parse_items(include_bytes!("../data/mounts.json"));
+        mounts.append(&mut items::parse_items(include_bytes!(
+            "../data/mounts.json"
+        )));
+        mounts.append(&mut items::parse_items(include_bytes!(
+            "../data/rhineetles.json"
+        )));
+
+        mounts
+    };
+    static ref MOUNTS: Vec<&'static items::Item> = MOUNTS_S.iter().collect();
     static ref WEAPONS: Vec<&'static items::Item> = WEAPONS_S.iter().collect();
     static ref HATS: Vec<&'static items::Item> =
         ITEMS.iter().filter(|x| x.item_type == "Hat").collect();
