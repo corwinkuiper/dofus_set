@@ -12,6 +12,11 @@ pub struct Item {
     pub restriction: Box<dyn stats::Restriction + Sync>,
 }
 
+#[derive(Deserialize, Debug)]
+struct DofusLabConditions {
+    conditions: serde_json::Map<String, serde_json::value::Value>,
+}
+
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct DofusLabItemName {
@@ -34,6 +39,63 @@ struct DofusLabItem {
     setID: Option<String>,
     stats: Option<Vec<DofusLabItemStats>>,
     level: i32,
+    conditions: Option<DofusLabConditions>,
+}
+
+#[derive(Deserialize)]
+struct DofusLabStatRestriction {
+    stat: String,
+    operator: String,
+    value: i32,
+}
+
+fn parse_restriction(
+    value: &serde_json::Map<String, serde_json::value::Value>,
+) -> Box<dyn stats::Restriction + Sync> {
+    if value.len() == 0 {
+        return Box::new(stats::NullRestriction {});
+    }
+
+    if let Some(and_restriction) = value.get("and") {
+        let and_restriction = and_restriction.as_array().unwrap();
+        Box::new(stats::RestrictionSet {
+            operator: stats::BooleanOperator::And,
+            restrictions: and_restriction
+                .iter()
+                .map(|r| parse_restriction(r.as_object().unwrap()))
+                .collect(),
+        })
+    } else if let Some(or_restriction) = value.get("or") {
+        let or_restriction = or_restriction.as_array().unwrap();
+        Box::new(stats::RestrictionSet {
+            operator: stats::BooleanOperator::Or,
+            restrictions: or_restriction
+                .iter()
+                .map(|r| parse_restriction(r.as_object().unwrap()))
+                .collect(),
+        })
+    } else {
+        let stat: DofusLabStatRestriction =
+            serde_json::from_value(serde_json::Value::Object(value.clone())).unwrap();
+        let operator = match stat.operator.as_str() {
+            "<" => stats::Operator::LessThan,
+            ">" => stats::Operator::GreaterThan,
+            _ => panic!("Bad operator"),
+        };
+
+        if stat.stat == "SET_BONUS" {
+            Box::new(stats::SetBonusRestriction {
+                value: stat.value,
+                operator: operator,
+            })
+        } else {
+            Box::new(stats::RestrictionLeaf {
+                value: stat.value,
+                operator: operator,
+                stat: stats::stat_from_str(&stat.stat).unwrap(),
+            })
+        }
+    }
 }
 
 pub fn parse_items(data: &[u8]) -> Vec<Item> {
