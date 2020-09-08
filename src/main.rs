@@ -119,15 +119,15 @@ impl State {
     }
 }
 
-impl anneal::Anneal<State> for State {
+impl anneal::Anneal for State {
     fn random() -> f64 {
         rand::thread_rng().gen_range(0.0, 1.0)
     }
 
-    fn neighbour(state: &State) -> State {
+    fn neighbour(&self) -> State {
         loop {
-            let mut new_state = state.clone();
-            let random_number = rand::thread_rng().gen_range(0, state.set.len());
+            let mut new_state = self.clone();
+            let random_number = rand::thread_rng().gen_range(0, self.set.len());
             let item_type = state_index_to_item(random_number);
             new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
             if new_state.valid() {
@@ -136,8 +136,8 @@ impl anneal::Anneal<State> for State {
         }
     }
 
-    fn energy(state: &State) -> f64 {
-        let stats = state.stats();
+    fn energy(&self) -> f64 {
+        let stats = self.stats();
         // need to take the negative due to being a minimiser
         -{
             stats[stats::Stat::Power as usize] as f64 * 6.0
@@ -164,9 +164,9 @@ const ADDITIONAL_RANGE: i32 = 6;
 
 fn main() -> Result<(), anyhow::Error> {
     let initial_state = State::default();
-    let final_state = State::execute(1_000_000, initial_state);
+    let final_state = initial_state.optimise(1_000_000);
     final_state.print();
-    println!("Set Energy: {}", -State::energy(&final_state));
+    println!("Set Energy: {}", -final_state.energy());
     Ok(())
 }
 
