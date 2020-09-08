@@ -111,13 +111,19 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 }
             }
 
+            let restriction = item
+                .conditions
+                .as_ref()
+                .map(|conditions| parse_restriction(&conditions.conditions))
+                .unwrap_or_else(|| Box::new(stats::NullRestriction {}));
+
             Item {
                 name: item.name.en.clone(),
                 item_type: item.itemType.clone(),
                 stats: stats,
                 level: item.level,
                 set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
-                restriction: Box::new(stats::NullRestriction {}),
+                restriction: restriction,
             }
         }).collect()
 }
