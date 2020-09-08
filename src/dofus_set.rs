@@ -30,6 +30,12 @@ pub struct State {
     set: [Option<usize>; 16],
 }
 
+pub struct SetBonus {
+    pub name: String,
+    pub bonus: stats::Characteristic,
+    pub number_of_items: i32,
+}
+
 impl State {
     pub fn set(&self) -> impl std::iter::Iterator<Item = &items::Item> {
         self.set
@@ -38,7 +44,7 @@ impl State {
             .filter_map(|(index, item_id)| item_id.map(|i| state_index_to_item(index)[i]))
     }
 
-    pub fn sets(&self) -> impl std::iter::Iterator<Item = (String, &stats::Characteristic)> {
+    pub fn sets(&self) -> impl std::iter::Iterator<Item = SetBonus> {
         let mut sets = HashMap::<i32, i32>::new(); // map of set ids to number of items in that set
 
         for item in self.items() {
@@ -50,18 +56,29 @@ impl State {
         sets.into_iter().filter_map(|(set, number_of_items)| {
             let set = &SETS[&set];
 
-            set.bonuses
-                .get(&number_of_items)
-                .map(|bonus| (set.name.clone(), bonus))
+            set.bonuses.get(&number_of_items).map(|bonus| SetBonus {
+                name: set.name.clone(),
+                bonus: *bonus,
+                number_of_items: number_of_items,
+            })
         })
     }
 
     fn valid(&self, config: &config::Config) -> bool {
-        for (index, item_id) in self.set.iter().enumerate() {
-            if let Some(item_id) = item_id {
-                if state_index_to_item(index)[*item_id].level > config.max_level {
-                    return false;
-                }
+        let mut total_set_bonuses = 0;
+        for set_bonus in self.sets() {
+            total_set_bonuses += set_bonus.number_of_items - 1;
+        }
+
+        let stats = self.stats(config.max_level);
+
+        for item in self.items() {
+            if item.level > config.max_level {
+                return false;
+            }
+
+            if !item.restriction.accepts(&stats, total_set_bonuses) {
+                return false;
             }
         }
 
@@ -94,15 +111,18 @@ impl State {
         let stats = self.stats(config.max_level);
         // need to take the negative due to being a minimiser
         -{
-            stats[stats::Stat::Power as usize] as f64 * 3.0
-                + stats[stats::Stat::Intelligence as usize] as f64 * 3.0
+            stats[stats::Stat::Wisdom as usize] as f64 * 5.0
+                + stats[stats::Stat::Prospecting as usize] as f64 * 2.0
+                + stats[stats::Stat::Chance as usize] as f64 * (2.0 / 10.0)
+            // stats[stats::Stat::Power as usize] as f64 * 3.0
+            //    + stats[stats::Stat::Intelligence as usize] as f64 * 3.0
             //    + stats[stats::Stat::Strength as usize] as f64 * 3.0
             //    + stats[stats::Stat::Chance as usize] as f64 * 1.0
             //    + stats[stats::Stat::Agility as usize] as f64 * 1.0
-                + stats[stats::Stat::AP as usize] as f64 * 300.0
-                + stats[stats::Stat::MP as usize] as f64 * 200.0
+            //    + stats[stats::Stat::AP as usize] as f64 * 300.0
+            //    + stats[stats::Stat::MP as usize] as f64 * 200.0
             //    + stats[stats::Stat::Range as usize] as f64 * 100.0
-                + stats[stats::Stat::Vitality as usize] as f64 / 100.0
+            //    + stats[stats::Stat::Vitality as usize] as f64 / 100.0
             //    + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
         }
     }
@@ -120,8 +140,8 @@ impl State {
             stats::characteristic_add(&mut stat, &item.stats);
         }
 
-        for (_, bonus) in self.sets() {
-            stats::characteristic_add(&mut stat, &bonus);
+        for set_bonus in self.sets() {
+            stats::characteristic_add(&mut stat, &set_bonus.bonus);
         }
 
         stat[stats::Stat::AP as usize] = std::cmp::min(

@@ -10,7 +10,7 @@ use dofus_set::State;
 extern crate lazy_static;
 
 fn main() {
-    let config = config::Config { max_level: 20 };
+    let config = config::Config { max_level: 199 };
     let optimiser = dofus_set::Optimiser { config: &config };
 
     let final_state = optimiser.optimise();
@@ -36,9 +36,9 @@ pub fn print_state(state: &State, config: &config::Config) {
     print_stats(&state.stats(config.max_level));
     println!("\nSet bonuses");
     println!("-----------------------------");
-    for (set_name, bonus) in state.sets() {
-        println!("{}", set_name);
-        print_stats(bonus);
+    for set_bonus in state.sets() {
+        println!("{} - {} items", set_bonus.name, set_bonus.number_of_items);
+        print_stats(&set_bonus.bonus);
     }
 }
 
