@@ -129,12 +129,9 @@ impl anneal::Anneal<State> for DofusSetAnneal {
     fn neighbour(state: &State) -> State {
         loop {
             let mut new_state = state.clone();
-            for _ in 0..1 {
-                let random_number = rand::thread_rng().gen_range(0, state.set.len());
-                let item_type = state_index_to_item(random_number);
-                new_state.set[random_number] =
-                    Some(rand::thread_rng().gen_range(0, item_type.len()));
-            }
+            let random_number = rand::thread_rng().gen_range(0, state.set.len());
+            let item_type = state_index_to_item(random_number);
+            new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
             if new_state.valid() {
                 return new_state;
             }
