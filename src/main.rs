@@ -45,8 +45,6 @@ fn state_index_to_item_type<'a>(index: usize) -> &'a str {
     }
 }
 
-struct DofusSetAnneal;
-
 impl State {
     fn print(&self) {
         let mut last_state_name = "";
@@ -121,7 +119,7 @@ impl State {
     }
 }
 
-impl anneal::Anneal<State> for DofusSetAnneal {
+impl anneal::Anneal<State> for State {
     fn random() -> f64 {
         rand::thread_rng().gen_range(0.0, 1.0)
     }
@@ -166,9 +164,9 @@ const ADDITIONAL_RANGE: i32 = 6;
 
 fn main() -> Result<(), anyhow::Error> {
     let initial_state = State::default();
-    let final_state = DofusSetAnneal::execute(1_000_000, initial_state);
+    let final_state = State::execute(1_000_000, initial_state);
     final_state.print();
-    println!("Set Energy: {}", -DofusSetAnneal::energy(&final_state));
+    println!("Set Energy: {}", -State::energy(&final_state));
     Ok(())
 }
 
@@ -238,6 +236,5 @@ lazy_static! {
         .iter()
         .filter(|x| x.item_type == "Dofus"
             || x.item_type == "Trophy"
-            || x.item_type == "Prysmaradite")
-        .collect();
+            || x.item_type == "Prysmaradite").collect();
 }
