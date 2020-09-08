@@ -129,7 +129,7 @@ impl anneal::Anneal<State> for DofusSetAnneal {
     fn neighbour(state: &State) -> State {
         loop {
             let mut new_state = state.clone();
-            for _ in 0..2 {
+            for _ in 0..1 {
                 let random_number = rand::thread_rng().gen_range(0, state.set.len());
                 let item_type = state_index_to_item(random_number);
                 new_state.set[random_number] =
@@ -169,7 +169,7 @@ const ADDITIONAL_RANGE: i32 = 6;
 
 fn main() -> Result<(), anyhow::Error> {
     let initial_state = State::default();
-    let final_state = DofusSetAnneal::execute(10_000_000, initial_state);
+    let final_state = DofusSetAnneal::execute(1_000_000, initial_state);
     final_state.print();
     println!("Set Energy: {}", -DofusSetAnneal::energy(&final_state));
     Ok(())
