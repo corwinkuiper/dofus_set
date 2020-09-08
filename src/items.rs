@@ -33,7 +33,7 @@ struct DofusLabItem {
     name: DofusLabItemName,
     itemType: String,
     setID: Option<String>,
-    stats: Vec<DofusLabItemStats>,
+    stats: Option<Vec<DofusLabItemStats>>,
     level: i32,
 }
 
@@ -43,9 +43,11 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
     data.iter()
         .map(|item| {
             let mut stats = stats::new_characteristics();
-            for stat in &item.stats {
-                let characteristic_index = stats::stat_from_str(&stat.stat).unwrap() as usize;
-                stats[characteristic_index] = stat.maxStat;
+            if let Some(item_stats) = item.stats.as_ref() {
+                for stat in item_stats {
+                    let characteristic_index = stats::stat_from_str(&stat.stat).unwrap() as usize;
+                    stats[characteristic_index] = stat.maxStat;
+                }
             }
 
             Item {
@@ -54,7 +56,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 stats: stats,
                 dofus_id: 0,
                 level: item.level,
-                set_id: item.setID.as_ref().map(|id| id.parse().unwrap()),
+                set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
                 restrictions: None,
             }
         }).collect()
