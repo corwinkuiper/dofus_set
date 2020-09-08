@@ -8,11 +8,10 @@ mod stats;
 extern crate lazy_static;
 
 fn main() {
-    let optimiser = dofus_set::Optimiser {
-        config: config::Config { max_level: 125 },
-    };
+    let config = config::Config { max_level: 125 };
+    let optimiser = dofus_set::Optimiser { config: &config };
 
     let final_state = optimiser.optimise();
-    final_state.print();
-    println!("Set Energy: {}", -final_state.energy());
+    final_state.print(&config);
+    println!("Set Energy: {}", -final_state.energy(&config));
 }

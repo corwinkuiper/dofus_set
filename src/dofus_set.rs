@@ -36,9 +36,8 @@ fn state_index_to_item_type<'a>(index: usize) -> &'a str {
     }
 }
 
-const ADDITIONAL_MP: i32 = 3;
-const ADDITIONAL_AP: i32 = 12 - 7;
-const ADDITIONAL_RANGE: i32 = 6;
+const MAX_ADDITIONAL_MP: i32 = 3;
+const MAX_ADDITIONAL_RANGE: i32 = 6;
 
 #[derive(Clone, Debug, Default)]
 pub struct State {
@@ -46,7 +45,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn print(&self) {
+    pub fn print(&self, config: &config::Config) {
         let mut last_state_name = "";
 
         for (index, item_id) in self.set.iter().enumerate() {
@@ -62,7 +61,7 @@ impl State {
         }
         println!("Stats");
         println!("-----------------------------");
-        print_stats(&self.stats());
+        print_stats(&self.stats(config.max_level));
     }
 
     fn valid(&self, config: &config::Config) -> bool {
@@ -100,8 +99,8 @@ impl State {
         true
     }
 
-    pub fn energy(&self) -> f64 {
-        let stats = self.stats();
+    pub fn energy(&self, config: &config::Config) -> f64 {
+        let stats = self.stats(config.max_level);
         // need to take the negative due to being a minimiser
         -{
             stats[stats::Stat::Power as usize] as f64 * 6.0
@@ -117,7 +116,7 @@ impl State {
         }
     }
 
-    fn stats(&self) -> stats::Characteristic {
+    fn stats(&self, current_level: i32) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
         for (index, item_id) in self.set.iter().enumerate() {
             if let Some(item_id) = item_id {
@@ -126,29 +125,39 @@ impl State {
             }
         }
 
-        stat[stats::Stat::AP as usize] =
-            std::cmp::min(stat[stats::Stat::AP as usize], ADDITIONAL_AP);
+        stat[stats::Stat::AP as usize] = std::cmp::min(
+            stat[stats::Stat::AP as usize],
+            max_additional_ap(current_level),
+        );
         stat[stats::Stat::MP as usize] =
-            std::cmp::min(stat[stats::Stat::MP as usize], ADDITIONAL_MP);
+            std::cmp::min(stat[stats::Stat::MP as usize], MAX_ADDITIONAL_MP);
         stat[stats::Stat::Range as usize] =
-            std::cmp::min(stat[stats::Stat::Range as usize], ADDITIONAL_RANGE);
+            std::cmp::min(stat[stats::Stat::Range as usize], MAX_ADDITIONAL_RANGE);
 
         stat
     }
 }
 
-pub struct Optimiser {
-    pub config: config::Config,
+fn max_additional_ap(level: i32) -> i32 {
+    if level >= 100 {
+        5
+    } else {
+        6
+    }
 }
 
-impl Optimiser {
+pub struct Optimiser<'a> {
+    pub config: &'a config::Config,
+}
+
+impl<'a> Optimiser<'a> {
     pub fn optimise(self) -> State {
         let initial_state = State::default();
         anneal::Anneal::optimise(&self, initial_state, 1_000_000)
     }
 }
 
-impl anneal::Anneal<State> for Optimiser {
+impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     fn random(&self) -> f64 {
         rand::thread_rng().gen_range(0.0, 1.0)
     }
@@ -159,14 +168,14 @@ impl anneal::Anneal<State> for Optimiser {
             let random_number = rand::thread_rng().gen_range(0, state.set.len());
             let item_type = state_index_to_item(random_number);
             new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
-            if new_state.valid(&self.config) {
+            if new_state.valid(self.config) {
                 return new_state;
             }
         }
     }
 
     fn energy(&self, state: &State) -> f64 {
-        state.energy()
+        state.energy(self.config)
     }
 
     fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
