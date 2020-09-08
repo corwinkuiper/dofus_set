@@ -14,18 +14,18 @@ struct State {
     set: [Option<usize>; 16],
 }
 
-fn state_index_to_item(index: usize) -> Vec<&'static items::Item> {
+fn state_index_to_item<'a>(index: usize) -> &'a [&'static items::Item] {
     match index {
-        0 => HATS.to_vec(),
-        1 => CLOAKS.to_vec(),
-        2 => AMULETS.to_vec(),
-        3..=4 => RINGS.to_vec(),
-        5 => BELTS.to_vec(),
-        6 => BOOTS.to_vec(),
-        7 => WEAPONS.to_vec(),
-        8 => SHIELDS.to_vec(),
-        9..=14 => DOFUS.to_vec(),
-        15 => MOUNTS.to_vec(),
+        0 => &HATS,
+        1 => &CLOAKS,
+        2 => &AMULETS,
+        3..=4 => &RINGS,
+        5 => &BELTS,
+        6 => &BOOTS,
+        7 => &WEAPONS,
+        8 => &SHIELDS,
+        9..=14 => &DOFUS,
+        15 => &MOUNTS,
         _ => panic!("Index out of range"),
     }
 }
