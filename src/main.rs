@@ -143,12 +143,12 @@ impl anneal::Anneal<State> for DofusSetAnneal {
         let stats = state.stats();
         // need to take the negative due to being a minimiser
         -{
-            stats[stats::Stat::Power as usize] as f64 * 2.0
+            stats[stats::Stat::Power as usize] as f64 * 4.0
                 + stats[stats::Stat::Intelligence as usize] as f64 * 1.0
                 + stats[stats::Stat::Strength as usize] as f64 * 1.0
                 + stats[stats::Stat::Chance as usize] as f64 * 1.0
                 + stats[stats::Stat::Agility as usize] as f64 * 1.0
-                + stats[stats::Stat::AP as usize] as f64 * 200.0
+                + stats[stats::Stat::AP as usize] as f64 * 300.0
                 + stats[stats::Stat::MP as usize] as f64 * 200.0
                 + stats[stats::Stat::Range as usize] as f64 * 50.0
                 + stats[stats::Stat::Vitality as usize] as f64 / 100.0
@@ -156,7 +156,7 @@ impl anneal::Anneal<State> for DofusSetAnneal {
         }
     }
 
-    fn temperature(iteration: f64, energy: f64) -> f64 {
+    fn temperature(iteration: f64, _energy: f64) -> f64 {
         30000.0 * std::f64::consts::E.powf(-16.0 * iteration)
     }
 }
@@ -189,11 +189,13 @@ fn print_item(item: &items::Item) {
     print_stats(&item.stats);
     println!("==============================");
 }
+#[allow(dead_code)]
 fn print_items_ref(items: &[&items::Item]) {
     for item in items.iter() {
         print_item(item);
     }
 }
+#[allow(dead_code)]
 fn print_items(items: &[items::Item]) {
     for item in items.iter() {
         print_item(item);
