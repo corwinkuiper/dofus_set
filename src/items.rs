@@ -1,6 +1,7 @@
 use super::stats;
 
 use serde::Deserialize;
+use std::collections::HashMap;
 
 pub struct Item {
     pub name: String,
@@ -58,5 +59,54 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
                 restrictions: None,
             }
+        }).collect()
+}
+
+pub struct Set {
+    pub name: String,
+    pub bonuses: HashMap<i32, stats::Characteristic>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DofusLabSetStat {
+    stat: Option<String>,
+    value: Option<i32>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DofusLabSet {
+    name: DofusLabItemName,
+    id: String,
+    bonuses: HashMap<String, Vec<DofusLabSetStat>>,
+}
+
+pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
+    let data: Vec<DofusLabSet> = serde_json::from_slice(data).unwrap();
+
+    data.iter()
+        .map(|set| {
+            let bonuses: HashMap<_, _> = set
+                .bonuses
+                .iter()
+                .map(|(number_of_items, bonus)| {
+                    let mut stats = stats::new_characteristics();
+                    for stat in bonus {
+                        if let (Some(stat), Some(value)) = (&stat.stat, stat.value) {
+                            let characteristic_index =
+                                stats::stat_from_str(&stat).unwrap() as usize;
+                            stats[characteristic_index] = value;
+                        }
+                    }
+
+                    (number_of_items.parse().unwrap(), stats)
+                }).collect();
+
+            (
+                set.id.parse().unwrap(),
+                Set {
+                    name: set.name.en.to_owned(),
+                    bonuses: bonuses,
+                },
+            )
         }).collect()
 }
