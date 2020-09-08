@@ -36,7 +36,6 @@ fn state_index_to_item_type<'a>(index: usize) -> &'a str {
     }
 }
 
-const MAX_LEVEL: i32 = 146;
 const ADDITIONAL_MP: i32 = 3;
 const ADDITIONAL_AP: i32 = 12 - 7;
 const ADDITIONAL_RANGE: i32 = 6;
@@ -66,10 +65,10 @@ impl State {
         print_stats(&self.stats());
     }
 
-    fn valid(&self) -> bool {
+    fn valid(&self, config: &config::Config) -> bool {
         for (index, item_id) in self.set.iter().enumerate() {
             if let Some(item_id) = item_id {
-                if state_index_to_item(index)[*item_id].level > MAX_LEVEL {
+                if state_index_to_item(index)[*item_id].level > config.max_level {
                     return false;
                 }
             }
@@ -160,7 +159,7 @@ impl anneal::Anneal<State> for Optimiser {
             let random_number = rand::thread_rng().gen_range(0, state.set.len());
             let item_type = state_index_to_item(random_number);
             new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
-            if new_state.valid() {
+            if new_state.valid(&self.config) {
                 return new_state;
             }
         }
