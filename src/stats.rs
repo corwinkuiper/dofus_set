@@ -21,9 +21,9 @@ pub enum RestrictionStat {
 
 #[derive(Copy, Clone, Debug)]
 pub struct RestrictionCondition {
-    stat: RestrictionStat,
-    operator: RestrictionOperator,
-    value: StatValue,
+    pub stat: RestrictionStat,
+    pub operator: RestrictionOperator,
+    pub value: StatValue,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -42,8 +42,8 @@ pub enum RestrictionBooleanOperator {
 
 #[derive(Clone, Debug)]
 pub struct Restriction {
-    restrictions: Vec<RestrictionCondition>,
-    operator: RestrictionBooleanOperator,
+    pub restrictions: Vec<RestrictionCondition>,
+    pub operator: RestrictionBooleanOperator,
 }
 
 impl Restriction {
