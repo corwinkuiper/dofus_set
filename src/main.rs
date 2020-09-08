@@ -11,18 +11,20 @@ extern crate lazy_static;
 
 #[derive(Clone, Debug, Default)]
 struct State {
-    set: [Option<usize>; 13],
+    set: [Option<usize>; 15],
 }
 
 fn state_index_to_item(index: usize) -> Vec<&'static items::Item> {
     match index {
         0 => HATS.to_vec(),
         1 => CLOAKS.to_vec(),
-        2..=3 => RINGS.to_vec(),
-        4 => SHIELDS.to_vec(),
+        2 => AMULETS.to_vec(),
+        3..=4 => RINGS.to_vec(),
         5 => BELTS.to_vec(),
         6 => BOOTS.to_vec(),
-        7..=12 => DOFUS.to_vec(),
+        7 => WEAPONS.to_vec(),
+        8 => SHIELDS.to_vec(),
+        9..=14 => DOFUS.to_vec(),
         _ => panic!("Index out of range"),
     }
 }
@@ -30,11 +32,13 @@ fn state_index_to_item_type<'a>(index: usize) -> &'a str {
     match index {
         0 => "Hat",
         1 => "Cloak",
-        2..=3 => "Ring",
-        4 => "Shield",
+        2 => "Amulet",
+        3..=4 => "Ring",
         5 => "Belt",
         6 => "Boots",
-        7..=12 => "Dofus",
+        7 => "Weapon",
+        8 => "Shield",
+        9..=14 => "Dofus",
         _ => panic!("Index out of range"),
     }
 }
@@ -70,13 +74,30 @@ impl State {
             }
         }
 
-        let dofus = &self.set[7..];
+        let dofus = &self.set[9..];
         let mut unique = std::collections::BTreeSet::new();
-        return dofus
+        if !dofus
             .iter()
             .filter(|x| x.is_some())
             .map(|x| x.unwrap())
-            .all(move |x| unique.insert(x));
+            .all(move |x| unique.insert(x))
+        {
+            return false;
+        }
+
+        // forbid two rings from the same set
+        let rings = &self.set[3..=4];
+        if rings[0].is_some() && rings[1].is_some() {
+            let ring0_set = RINGS[rings[0].unwrap()].set_id;
+            let ring1_set = RINGS[rings[1].unwrap()].set_id;
+            if ring0_set.is_some() && ring1_set.is_some() {
+                if ring0_set.unwrap() == ring1_set.unwrap() {
+                    return false;
+                }
+            }
+        }
+
+        true
     }
     fn stats(&self) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
@@ -91,7 +112,8 @@ impl State {
             std::cmp::min(stat[stats::Stat::AP as usize], ADDITIONAL_AP);
         stat[stats::Stat::MP as usize] =
             std::cmp::min(stat[stats::Stat::MP as usize], ADDITIONAL_MP);
-        stat[stats::Stat::Range as usize] = std::cmp::min(stat[stats::Stat::Range as usize], 6);
+        stat[stats::Stat::Range as usize] =
+            std::cmp::min(stat[stats::Stat::Range as usize], ADDITIONAL_RANGE);
 
         stat
     }
@@ -105,9 +127,12 @@ impl anneal::Anneal<State> for DofusSetAnneal {
     fn neighbour(state: &State) -> State {
         loop {
             let mut new_state = state.clone();
-            let random_number = rand::thread_rng().gen_range(0, 13);
-            let item_type = state_index_to_item(random_number);
-            new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
+            for _ in 0..2 {
+                let random_number = rand::thread_rng().gen_range(0, 13);
+                let item_type = state_index_to_item(random_number);
+                new_state.set[random_number] =
+                    Some(rand::thread_rng().gen_range(0, item_type.len()));
+            }
             if new_state.valid() {
                 return new_state;
             }
@@ -123,11 +148,11 @@ impl anneal::Anneal<State> for DofusSetAnneal {
                 + stats[stats::Stat::Strength as usize] as f64 * 1.0
                 + stats[stats::Stat::Chance as usize] as f64 * 1.0
                 + stats[stats::Stat::Agility as usize] as f64 * 1.0
-                + stats[stats::Stat::AP as usize] as f64 * 500.0
-                + stats[stats::Stat::MP as usize] as f64 * 500.0
-                + stats[stats::Stat::Range as usize] as f64 * 200.0
+                + stats[stats::Stat::AP as usize] as f64 * 200.0
+                + stats[stats::Stat::MP as usize] as f64 * 200.0
+                + stats[stats::Stat::Range as usize] as f64 * 50.0
                 + stats[stats::Stat::Vitality as usize] as f64 / 100.0
-                + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 500.0
+                + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
         }
     }
 
@@ -135,15 +160,16 @@ impl anneal::Anneal<State> for DofusSetAnneal {
         30000.0 * std::f64::consts::E.powf(-16.0 * iteration)
     }
 }
-const MAX_LEVEL: i32 = 150;
+const MAX_LEVEL: i32 = 146;
 const ADDITIONAL_MP: i32 = 2;
 const ADDITIONAL_AP: i32 = 12 - 7;
+const ADDITIONAL_RANGE: i32 = 6;
 
 fn main() -> Result<(), anyhow::Error> {
     let initial_state = State::default();
     let final_state = DofusSetAnneal::execute(10_000_000, initial_state);
     final_state.print();
-    println!("Energy: {}", -DofusSetAnneal::energy(&final_state));
+    println!("Set Energy: {}", -DofusSetAnneal::energy(&final_state));
     Ok(())
 }
 
@@ -176,8 +202,9 @@ fn print_items(items: &[items::Item]) {
 
 lazy_static! {
     static ref ITEMS: Vec<items::Item> = items::parse_items(include_bytes!("../data/items.json"));
-    static ref WEAPONS: Vec<items::Item> =
+    static ref WEAPONS_S: Vec<items::Item> =
         items::parse_items(include_bytes!("../data/weapons.json"));
+    static ref WEAPONS: Vec<&'static items::Item> = WEAPONS_S.iter().collect();
     static ref HATS: Vec<&'static items::Item> =
         ITEMS.iter().filter(|x| x.item_type == "Hat").collect();
     static ref CLOAKS: Vec<&'static items::Item> = ITEMS
