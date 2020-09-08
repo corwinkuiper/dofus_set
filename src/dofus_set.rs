@@ -20,21 +20,6 @@ fn state_index_to_item<'a>(index: usize) -> &'a [&'static items::Item] {
         _ => panic!("Index out of range"),
     }
 }
-fn state_index_to_item_type<'a>(index: usize) -> &'a str {
-    match index {
-        0 => "Hat",
-        1 => "Cloak",
-        2 => "Amulet",
-        3..=4 => "Ring",
-        5 => "Belt",
-        6 => "Boots",
-        7 => "Weapon",
-        8 => "Shield",
-        9..=14 => "Dofus",
-        15 => "Mount / Pet",
-        _ => panic!("Index out of range"),
-    }
-}
 
 const MAX_ADDITIONAL_MP: i32 = 3;
 const MAX_ADDITIONAL_RANGE: i32 = 6;
@@ -45,23 +30,11 @@ pub struct State {
 }
 
 impl State {
-    pub fn print(&self, config: &config::Config) {
-        let mut last_state_name = "";
-
-        for (index, item_id) in self.set.iter().enumerate() {
-            let state_name = state_index_to_item_type(index);
-            if state_name != last_state_name {
-                println!("{}", state_name);
-                println!("-----------------------------");
-            }
-            last_state_name = state_name;
-            if let Some(item_id) = item_id {
-                print_item(state_index_to_item(index)[*item_id]);
-            }
-        }
-        println!("Stats");
-        println!("-----------------------------");
-        print_stats(&self.stats(config.max_level));
+    pub fn set(&self) -> impl std::iter::Iterator<Item = &items::Item> {
+        self.set
+            .iter()
+            .enumerate()
+            .filter_map(|(index, item_id)| item_id.map(|i| state_index_to_item(index)[i]))
     }
 
     fn valid(&self, config: &config::Config) -> bool {
@@ -116,7 +89,7 @@ impl State {
         }
     }
 
-    fn stats(&self, current_level: i32) -> stats::Characteristic {
+    pub fn stats(&self, current_level: i32) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
         for (index, item_id) in self.set.iter().enumerate() {
             if let Some(item_id) = item_id {
@@ -221,21 +194,4 @@ lazy_static! {
         .filter(|x| x.item_type == "Dofus"
             || x.item_type == "Trophy"
             || x.item_type == "Prysmaradite").collect();
-}
-
-fn print_stats(stat: &stats::Characteristic) {
-    for (characteristic, value) in stat.iter().enumerate() {
-        let stat: stats::Stat = unsafe { std::mem::transmute(characteristic as u8) };
-        if *value != 0 {
-            println!("\t{:#?}: {}", stat, value);
-        }
-    }
-}
-
-fn print_item(item: &items::Item) {
-    println!("Name: {}", item.name);
-    println!("Level: {}", item.level);
-    println!("Stats:");
-    print_stats(&item.stats);
-    println!("==============================");
 }
