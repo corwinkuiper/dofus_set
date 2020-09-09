@@ -103,6 +103,13 @@ class App extends React.Component<{}, AppState> {
   }
 
   weightOptionChange(index: number, newOption: WeightOption) {
+    // first check if the stat choice is valid
+    const existing = this.state.statWeights.find((weightOption, i) => i !== index && weightOption.statId === newOption.statId)
+    if (existing) {
+      // TODO(GK): Let the user know that they've selected this stat already
+      return
+    }
+
     const statWeights = this.state.statWeights.slice()
     statWeights[index] = newOption
     this.setState(Object.assign(this.state, { statWeights }))
