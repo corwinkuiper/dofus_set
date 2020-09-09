@@ -178,20 +178,20 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     fn neighbour(&self, state: &State) -> State {
         loop {
             let mut new_state = state.clone();
-            let (random_number, item) = loop {
-                let random_number = *self
+            let (item_slot, item) = loop {
+                let item_slot = *self
                     .config
                     .changable
                     .choose(&mut rand::thread_rng())
                     .unwrap();
-                let item_type = state_index_to_item(random_number);
+                let item_type = state_index_to_item(item_slot);
                 let item_index = rand::thread_rng().gen_range(0, item_type.len());
                 if item_type[item_index].level <= self.config.max_level {
-                    break (random_number, item_index);
+                    break (item_slot, item_index);
                 }
             };
 
-            new_state.set[random_number] = Some(item);
+            new_state.set[item_slot] = Some(item);
             if new_state.valid(self.config) {
                 return new_state;
             }
