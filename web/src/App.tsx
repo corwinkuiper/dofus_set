@@ -3,17 +3,20 @@ import './App.css'
 
 import * as DofusStats from './dofus/stats'
 
-class Weight extends React.Component<{}, { value: number }> {
+class StatSelector extends React.Component<{ onStatChange?: (statId: number) => void }, { value: number }> {
   state = { value: 0 }
 
-  constructor(props: {}) {
+  constructor(props: { onStatChange?: (statId: number) => void }) {
     super(props)
 
     this.handleChange = this.handleChange.bind(this);
   }
 
   private handleChange(event: React.FormEvent<HTMLSelectElement>) {
-    this.setState({ value: parseInt(event.currentTarget.value, 10) })
+    const newStatId = parseInt(event.currentTarget.value, 10)
+    this.setState({ value: newStatId })
+
+    this.props.onStatChange?.(newStatId)
   }
 
   render() {
@@ -25,6 +28,6 @@ class Weight extends React.Component<{}, { value: number }> {
   }
 }
 
-const App = () => <Weight />
+const App = () => <StatSelector />
 
 export default App
