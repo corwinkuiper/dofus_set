@@ -4,6 +4,7 @@ use super::items;
 use super::stats;
 
 use rand::prelude::Rng;
+use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
 fn state_index_to_item<'a>(index: usize) -> &'a [&'static items::Item] {
@@ -111,19 +112,12 @@ impl State {
         let stats = self.stats(config.max_level);
         // need to take the negative due to being a minimiser
         -{
-            stats[stats::Stat::Wisdom as usize] as f64 * 5.0
-                + stats[stats::Stat::Prospecting as usize] as f64 * 2.0
-                + stats[stats::Stat::Chance as usize] as f64 * (2.0 / 10.0)
-            // stats[stats::Stat::Power as usize] as f64 * 3.0
-            //    + stats[stats::Stat::Intelligence as usize] as f64 * 3.0
-            //    + stats[stats::Stat::Strength as usize] as f64 * 3.0
-            //    + stats[stats::Stat::Chance as usize] as f64 * 1.0
-            //    + stats[stats::Stat::Agility as usize] as f64 * 1.0
-            //    + stats[stats::Stat::AP as usize] as f64 * 300.0
-            //    + stats[stats::Stat::MP as usize] as f64 * 200.0
-            //    + stats[stats::Stat::Range as usize] as f64 * 100.0
-            //    + stats[stats::Stat::Vitality as usize] as f64 / 100.0
-            //    + std::cmp::min(stats[stats::Stat::Critical as usize], 0) as f64 * 20.0
+            stats
+                .iter()
+                .zip(config.weights.iter())
+                .fold(0.0, |accumulate, (stat, weight)| {
+                    accumulate + *stat as f64 * weight
+                })
         }
     }
 
@@ -185,11 +179,15 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
         loop {
             let mut new_state = state.clone();
             let (random_number, item) = loop {
-                let random_number = rand::thread_rng().gen_range(0, state.set.len());
+                let random_number = *self
+                    .config
+                    .changable
+                    .choose(&mut rand::thread_rng())
+                    .unwrap();
                 let item_type = state_index_to_item(random_number);
-                let item = rand::thread_rng().gen_range(0, item_type.len());
-                if item_type[item].level <= self.config.max_level {
-                    break (random_number, item);
+                let item_index = rand::thread_rng().gen_range(0, item_type.len());
+                if item_type[item_index].level <= self.config.max_level {
+                    break (random_number, item_index);
                 }
             };
 

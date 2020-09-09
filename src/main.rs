@@ -5,12 +5,24 @@ mod items;
 mod stats;
 
 use dofus_set::State;
+use stats::Stat;
 
 #[macro_use]
 extern crate lazy_static;
 
 fn main() {
-    let config = config::Config { max_level: 199 };
+    let mut weights = [0.0; 51];
+    weights[Stat::Power as usize] = 1.0;
+    weights[Stat::Strength as usize] = 1.0;
+    weights[Stat::AP as usize] = 400.0;
+    weights[Stat::MP as usize] = 300.0;
+    weights[Stat::Range as usize] = 5.0;
+
+    let config = config::Config {
+        max_level: 148,
+        weights,
+        changable: (0..16).collect(),
+    };
     let optimiser = dofus_set::Optimiser { config: &config };
 
     let final_state = optimiser.optimise();
