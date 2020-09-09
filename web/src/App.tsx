@@ -83,6 +83,25 @@ class App extends React.Component<{}, AppState> {
     this.addWeightOption = this.addWeightOption.bind(this)
   }
 
+  unusedStatId(): number | undefined {
+    const usedIds = []
+
+    for (const statWeight of this.state.statWeights) {
+      usedIds.push(statWeight.statId)
+    }
+    if (usedIds.length === DofusStats.StatNames.length) {
+      return undefined
+    }
+
+    for (let i = 0; i < usedIds.length; i++) {
+      if (!usedIds.includes(i)) {
+        return i
+      }
+    }
+
+    return usedIds.length
+  }
+
   weightOptionChange(index: number, newOption: WeightOption) {
     const statWeights = this.state.statWeights.slice()
     statWeights[index] = newOption
@@ -90,10 +109,15 @@ class App extends React.Component<{}, AppState> {
   }
 
   addWeightOption() {
+    const unusedStatId = this.unusedStatId()
+    if (unusedStatId == undefined) {
+      return
+    }
+
     const statWeights = this.state.statWeights.slice()
     statWeights.push({
       weightNumber: 0,
-      statId: 0,
+      statId: unusedStatId,
     })
 
     this.setState(Object.assign(this.state, { statWeights }))
