@@ -1,16 +1,8 @@
-mod anneal;
-mod config;
-mod dofus_set;
-mod items;
-mod stats;
-
-use dofus_set::State;
-use stats::Stat;
-
-use std::convert::TryInto;
-
-#[macro_use]
-extern crate lazy_static;
+use ::dofus_set::config;
+use ::dofus_set::dofus_set::{Optimiser, State};
+use ::dofus_set::items;
+use ::dofus_set::stats;
+use ::dofus_set::stats::Stat;
 
 fn main() {
     let mut weights = [0.0; 51];
@@ -25,7 +17,7 @@ fn main() {
         weights,
         changable: (0..16).collect(),
     };
-    let optimiser = dofus_set::Optimiser { config: &config };
+    let optimiser = Optimiser { config: &config };
 
     let final_state = optimiser.optimise();
     print_state(&final_state, &config);
