@@ -69,6 +69,6 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![create_optimised_set])
+        .mount("/api", routes![create_optimised_set])
         .launch();
 }
