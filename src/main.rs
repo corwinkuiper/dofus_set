@@ -1,10 +1,10 @@
 mod anneal;
 mod config;
-mod dofus_set;
 mod items;
+mod set_build;
 mod stats;
 
-use dofus_set::State;
+use set_build::State;
 use stats::Stat;
 
 #[macro_use]
@@ -23,7 +23,7 @@ fn main() {
         weights,
         changable: (0..16).collect(),
     };
-    let optimiser = dofus_set::Optimiser { config: &config };
+    let optimiser = set_build::Optimiser { config: &config };
 
     let final_state = optimiser.optimise();
     print_state(&final_state, &config);
