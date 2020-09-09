@@ -41,12 +41,12 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
   weightValueChange(event: React.FormEvent<HTMLInputElement>) {
     const newWeightValue = parseInt(event.currentTarget.value, 10)
     this.setState(Object.assign({}, this.state, { currentWeightValue: event.currentTarget.value }))
-    if (newWeightValue !== newWeightValue) {
+    if (isNaN(newWeightValue)) {
       return
     }
 
     this.props.onWeightOptionChange(Object.assign({}, this.props.weight, {
-      weightNumber: newWeightValue,
+      weightValue: newWeightValue,
     }))
   }
 
@@ -110,7 +110,7 @@ export class WeightsState {
 
   public addWeightOption(): WeightsState {
     const unusedStatId = this.unusedStatId()
-    if (unusedStatId == undefined) {
+    if (unusedStatId === undefined) {
       return this
     }
 
