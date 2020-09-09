@@ -134,7 +134,11 @@ class App extends React.Component<{}, AppState> {
     return (
       <div className="app-weights">
         <div>
-          {this.state.statWeights.map((statWeight, i) => <Weight weight={statWeight} key={i} onWeightOptionChange={this.weightOptionChange.bind(this, i)} />)}
+          {
+            this.state.statWeights
+              .map((statWeight, i) =>
+                <Weight weight={statWeight} key={i} onWeightOptionChange={this.weightOptionChange.bind(this, i)} />)
+          }
         </div>
         <button onClick={this.addWeightOption}>+ Add weight</button>
       </div>
