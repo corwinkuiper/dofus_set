@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 extern crate rocket;
 
 use rocket_contrib::json::Json;
+use rocket_contrib::serve::StaticFiles;
 
 #[derive(Deserialize)]
 struct OptimiseRequest {
@@ -70,5 +71,9 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
 fn main() {
     rocket::ignite()
         .mount("/api", routes![create_optimised_set])
+        .mount(
+            "/",
+            StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/web")),
+        )
         .launch();
 }
