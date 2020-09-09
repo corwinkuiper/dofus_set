@@ -73,7 +73,7 @@ fn main() {
         .mount("/api", routes![create_optimised_set])
         .mount(
             "/",
-            StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/web")),
+            StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/web/build")),
         )
         .launch();
 }
