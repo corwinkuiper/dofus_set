@@ -17,8 +17,17 @@ struct OptimiseRequest {
 }
 
 #[derive(Serialize)]
-struct OptimiseResponse {
+struct OptimiseResponseItem {
     characteristics: Vec<i32>,
+    name: String,
+    item_type: String,
+    level: i32,
+}
+
+#[derive(Serialize)]
+struct OptimiseResponse {
+    overall_characteristics: Vec<i32>,
+    items: Vec<OptimiseResponseItem>,
 }
 
 #[post("/optimise", data = "<config>")]
@@ -45,7 +54,16 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
     let final_state = optimiser.optimise();
 
     Some(Json(OptimiseResponse {
-        characteristics: final_state.stats(config.max_level).to_vec(),
+        overall_characteristics: final_state.stats(config.max_level).to_vec(),
+        items: final_state
+            .set()
+            .map(|item| OptimiseResponseItem {
+                characteristics: item.stats.to_vec(),
+                name: item.name.clone(),
+                item_type: item.item_type.clone(),
+                level: item.level,
+            })
+            .collect(),
     }))
 }
 
