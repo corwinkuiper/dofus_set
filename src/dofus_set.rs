@@ -188,7 +188,7 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
                 let random_number = rand::thread_rng().gen_range(0, state.set.len());
                 let item_type = state_index_to_item(random_number);
                 let item = rand::thread_rng().gen_range(0, item_type.len());
-                if item_type[item].level < self.config.max_level {
+                if item_type[item].level <= self.config.max_level {
                     break (random_number, item);
                 }
             };
