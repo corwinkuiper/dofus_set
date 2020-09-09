@@ -12,11 +12,14 @@ extern crate lazy_static;
 
 fn main() {
     let mut weights = [0.0; 51];
-    weights[Stat::Power as usize] = 1.0;
+    weights[Stat::Power as usize] = 6.0;
     weights[Stat::Strength as usize] = 1.0;
+    weights[Stat::Agility as usize] = 1.0;
+    weights[Stat::Chance as usize] = 1.0;
+    weights[Stat::Intelligence as usize] = 1.0;
     weights[Stat::AP as usize] = 400.0;
-    weights[Stat::MP as usize] = 300.0;
-    weights[Stat::Range as usize] = 5.0;
+    weights[Stat::MP as usize] = 200.0;
+    weights[Stat::Range as usize] = 100.0;
 
     let config = config::Config {
         max_level: 148,

@@ -125,7 +125,8 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
                 restriction: restriction,
             }
-        }).collect()
+        })
+        .collect()
 }
 
 pub struct Set {
@@ -165,7 +166,8 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
                     }
 
                     (number_of_items.parse().unwrap(), stats)
-                }).collect();
+                })
+                .collect();
 
             (
                 set.id.parse().unwrap(),
@@ -174,5 +176,6 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
                     bonuses: bonuses,
                 },
             )
-        }).collect()
+        })
+        .collect()
 }

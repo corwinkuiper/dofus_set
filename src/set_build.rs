@@ -166,7 +166,7 @@ pub struct Optimiser<'a> {
 impl<'a> Optimiser<'a> {
     pub fn optimise(self) -> State {
         let initial_state = State::default();
-        anneal::Anneal::optimise(&self, initial_state, 1_000_000)
+        anneal::Anneal::optimise(&self, initial_state, 100_000_000)
     }
 }
 
