@@ -184,9 +184,16 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     fn neighbour(&self, state: &State) -> State {
         loop {
             let mut new_state = state.clone();
-            let random_number = rand::thread_rng().gen_range(0, state.set.len());
-            let item_type = state_index_to_item(random_number);
-            new_state.set[random_number] = Some(rand::thread_rng().gen_range(0, item_type.len()));
+            let (random_number, item) = loop {
+                let random_number = rand::thread_rng().gen_range(0, state.set.len());
+                let item_type = state_index_to_item(random_number);
+                let item = rand::thread_rng().gen_range(0, item_type.len());
+                if item_type[item].level < self.config.max_level {
+                    break (random_number, item);
+                }
+            };
+
+            new_state.set[random_number] = Some(item);
             if new_state.valid(self.config) {
                 return new_state;
             }
@@ -239,7 +246,8 @@ lazy_static! {
         .iter()
         .filter(|x| x.item_type == "Dofus"
             || x.item_type == "Trophy"
-            || x.item_type == "Prysmaradite").collect();
+            || x.item_type == "Prysmaradite")
+        .collect();
     static ref SETS: HashMap<i32, items::Set> =
         items::parse_sets(include_bytes!("../data/sets.json"));
 }
