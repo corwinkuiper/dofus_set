@@ -1,5 +1,6 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #![deny(clippy::all)]
+#![allow(clippy::unit_arg)] // because create_optimised_set_options had an error
 
 use ::dofus_set::config;
 use ::dofus_set::dofus_set;
@@ -45,13 +46,11 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
     }
 
     let mut weights = [0.0f64; 51];
-    for i in 0..51 {
-        weights[i] = config.weights[i];
-    }
+    weights[..51].clone_from_slice(&config.weights[..51]);
 
     let dofus_set_config = config::Config {
         max_level: config.max_level,
-        weights: weights,
+        weights,
         changable: (0..16).collect(),
     };
 
