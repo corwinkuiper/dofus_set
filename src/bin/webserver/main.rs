@@ -23,6 +23,7 @@ struct OptimiseResponseItem {
     name: String,
     item_type: String,
     level: i32,
+    image_url: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -63,6 +64,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
                 name: item.name.clone(),
                 item_type: item.item_type.clone(),
                 level: item.level,
+                image_url: item.image_url.clone(),
             })
             .collect(),
     }))

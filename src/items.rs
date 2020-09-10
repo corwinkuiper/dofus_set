@@ -11,6 +11,7 @@ pub struct Item {
     pub level: i32,
     pub set_id: Option<i32>,
     pub restriction: Box<dyn stats::Restriction + Sync>,
+    pub image_url: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -41,6 +42,7 @@ struct DofusLabItem {
     stats: Option<Vec<DofusLabItemStats>>,
     level: i32,
     conditions: Option<DofusLabConditions>,
+    imageUrl: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -125,6 +127,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 level: item.level,
                 set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
                 restriction,
+                image_url: item.imageUrl.clone(),
             }
         })
         .collect()
