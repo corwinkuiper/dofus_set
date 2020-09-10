@@ -19,8 +19,10 @@
     padding: 5px;
     background-color: #eee;
     display: flex;
-    
-    flex: 1 1 20%;
+}
+
+.itembox-container {
+    flex: 1 1 24%;
 }
 
 .itembox-data {
@@ -44,4 +46,65 @@
 
 .resulting-characteristics {
     flex-grow: 1;
+}
+
+.weights-container {
+    padding: 10px;
+    width: 420px;
+    max-width: 420px;
+}
+
+.app-weights {
+    width: 100%;
+}
+
+.app-weights table {
+    width: 100%;
+}
+
+.app-weights table th {
+    text-align: left;
+}
+
+.weights-container .max-level {
+    display: flex;
+    align-items: baseline;
+}
+
+.weights-container .max-level input {
+    width: 50px;
+    margin-left: 20px;
+}
+
+button {
+    background-color: #333;
+    color: #eee;
+    border-radius: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    cursor: pointer;
+
+    border: none;
+}
+
+button:hover {
+    background-color: #444;
+}
+
+.optimise-button {
+    margin: 10px;
+    width: calc(100% - 20px);
+}
+
+.add-weight-button {
+    margin-left: 10px;
+}
+
+.characteristics-hover {
+    position: absolute;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(200, 200, 200, 0.9);
 }

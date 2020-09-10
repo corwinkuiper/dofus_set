@@ -5,6 +5,7 @@ import { StatNames } from './dofus/stats'
 import { OptimiseApi } from './dofus/OptimiseApi'
 
 import { WeightsSelector, WeightsState } from './WeightsSelector'
+import { Spinner } from './Spinner'
 
 function getImageUrl(imageUrl: string): string {
   const suffix = imageUrl.slice(imageUrl.lastIndexOf('/') + 1)
@@ -26,16 +27,48 @@ class Item {
       this.imageUrl = getImageUrl(imageUrl)
     }
   }
-
-  public displayString(): string {
-    return `${this.name} - ${this.level}`
-  }
 }
 
 class AppState {
   weightsState = new WeightsState([])
   bestItems: Item[] = []
   resultingCharacteristics: number[] = []
+  maxLevel: number = 149
+  optimising: boolean = false
+}
+
+class ItemHoverContainer extends React.Component<{ children: React.ReactNode, characteristics: number[], weights: WeightsState }, { showBox: boolean, x: number, y: number }> {
+  state = { x: 0, y: 0, showBox: false }
+
+  constructor(props: { children: React.ReactNode, characteristics: number[], weights: WeightsState }) {
+    super(props)
+
+    this.onMouseMove = this.onMouseMove.bind(this)
+    this.onMouseOut = this.onMouseOut.bind(this)
+  }
+
+  onMouseMove(event: React.MouseEvent) {
+    this.setState({
+      x: event.clientX,
+      y: event.clientY,
+      showBox: true
+    })
+  }
+
+  onMouseOut(event: React.MouseEvent) {
+    this.setState({ showBox: false })
+  }
+
+  render() {
+    return (
+      <>
+        <div onMouseMove={this.onMouseMove} onMouseOut={this.onMouseOut} className="itembox-container">
+          {this.props.children}
+        </div>
+        {this.state.showBox && <HoverStatDisplay x={this.state.x} y={this.state.y} characteristics={this.props.characteristics} weights={this.props.weights} />}
+      </>
+    )
+  }
 }
 
 function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
@@ -52,16 +85,18 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
   }
 
   return (
-    <div className="itembox">
-      {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
-      <div className="itembox-data">
-        <div className="itembox-options">
-          <span className="itembox-itemname">{item.name}</span>
-          <span className="itembox-level">{item.level}</span>
+    <ItemHoverContainer characteristics={item.characteristics} weights={weights}>
+      <div className="itembox">
+        {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
+        <div className="itembox-data">
+          <div className="itembox-options">
+            <span className="itembox-itemname">{item.name}</span>
+            <span className="itembox-level">{item.level}</span>
+          </div>
+          <span>{`${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}`}</span>
         </div>
-        <span>{`${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}`}</span>
       </div>
-    </div>
+    </ItemHoverContainer>
   )
 }
 
@@ -86,6 +121,59 @@ function OverallCharacteristics({ characteristics }: { characteristics: number[]
   )
 }
 
+class LevelSelector extends React.Component<{ maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }> {
+  constructor(props: { maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
+    super(props)
+
+    this.maxLevelChanged = this.maxLevelChanged.bind(this)
+  }
+
+  private maxLevelChanged(event: React.FormEvent<HTMLInputElement>) {
+    const parsed = parseInt(event.currentTarget.value, 10)
+    if (isNaN(parsed)) {
+      return
+    }
+
+    this.props.setMaxLevel(Math.floor(parsed))
+  }
+
+  render() {
+    return (
+      <div className="max-level">
+        <span>Maximum Level</span>
+        <input type="text" value={this.props.maxLevel.toString()} onChange={this.maxLevelChanged} />
+      </div>
+    )
+  }
+}
+
+function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
+  return (
+    <div>
+      <LevelSelector maxLevel={maxLevel} setMaxLevel={setMaxLevel} />
+      <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
+    </div>
+  )
+}
+
+function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: number, characteristics: number[], weights: WeightsState }) {
+  const totalEnergy = characteristics.reduce((acc, characteristic, index) => weights.weightWithStatId(index) * characteristic + acc, 0)
+
+  return (
+    <div style={{ top: y, left: x }} className="characteristics-hover">
+      <table>
+        {characteristics.map((characteristic, index) => characteristic !== 0 &&
+          <tr key={index}>
+            <td>{characteristic}</td>
+            <td>{StatNames[index]}</td>
+            <td>{totalEnergy ? (weights.weightWithStatId(index) * characteristic * 100 / totalEnergy).toFixed(0) : '~'}%</td>
+          </tr>
+        )}
+      </table>
+    </div>
+  )
+}
+
 class App extends React.Component<{}, AppState> {
   state = new AppState()
 
@@ -96,36 +184,54 @@ class App extends React.Component<{}, AppState> {
 
     this.api = new OptimiseApi('http://localhost:8000')
     this.updateWeightsState = this.updateWeightsState.bind(this)
+    this.setMaxLevel = this.setMaxLevel.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
   }
 
   private updateWeightsState(newWeightsState: WeightsState) {
-    this.setState(Object.assign(this.state, { weightsState: newWeightsState }));
+    this.setState(Object.assign({}, this.state, { weightsState: newWeightsState }))
+  }
+
+  private setMaxLevel(newMaxLevel: number) {
+    this.setState(Object.assign({}, this.state, { maxLevel: newMaxLevel }))
   }
 
   private async runOptimiser() {
-    const weights = []
-    for (let i = 0; i < 51; i++) {
-      const weightValue = this.state.weightsState.weights.find(weight => weight.statId === i)?.weightValue ?? 0
-      weights.push(weightValue)
+    if (this.state.optimising) {
+      return
     }
 
-    const setResult = await this.api.optimiseSet({
-      weights: weights,
-      maxLevel: 155,
-    })
+    try {
+      this.setState(Object.assign({}, this.state, { optimising: true }))
 
-    const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
-    this.setState(Object.assign({}, this.state, { bestItems, resultingCharacteristics: setResult.overallCharacteristics }))
+      const weights = []
+      for (let i = 0; i < 51; i++) {
+        const weightValue = this.state.weightsState.weights.find(weight => weight.statId === i)?.weightValue ?? 0
+        weights.push(weightValue)
+      }
+
+      const setResult = await this.api.optimiseSet({
+        weights: weights,
+        maxLevel: this.state.maxLevel,
+      })
+
+      const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
+      this.setState(Object.assign({}, this.state, { bestItems, resultingCharacteristics: setResult.overallCharacteristics }))
+    } finally {
+      this.setState(Object.assign({}, this.state, { optimising: false }))
+    }
   }
 
   render() {
     return (
       <div className="app-container">
         <div className="weights-container">
-          <WeightsSelector weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
-          <button onClick={this.runOptimiser}>Optimise!</button>
+          <OptimisationSettings weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} maxLevel={this.state.maxLevel} setMaxLevel={this.setMaxLevel} />
+          <button className="optimise-button" disabled={this.state.optimising} onClick={this.runOptimiser}>
+            Optimise!
+            {this.state.optimising && <Spinner />}
+          </button>
         </div>
         <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />

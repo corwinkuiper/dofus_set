@@ -39,7 +39,7 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
   }
 
   weightValueChange(event: React.FormEvent<HTMLInputElement>) {
-    const newWeightValue = parseInt(event.currentTarget.value, 10)
+    const newWeightValue = parseFloat(event.currentTarget.value)
     this.setState(Object.assign({}, this.state, { currentWeightValue: event.currentTarget.value }))
     if (isNaN(newWeightValue)) {
       return
@@ -58,10 +58,14 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
 
   render() {
     return (
-      <div className="app-weight-option">
-        <StatSelector onStatChange={this.statChange} value={this.props.weight.statId} />
-        <input type="text" value={this.state.currentWeightValue} onChange={this.weightValueChange} />
-      </div>
+      <tr className="app-weight-option">
+        <td>
+          <StatSelector onStatChange={this.statChange} value={this.props.weight.statId} />
+        </td>
+        <td>
+          <input type="text" value={this.state.currentWeightValue} onChange={this.weightValueChange} />
+        </td>
+      </tr>
     )
   }
 }
@@ -70,7 +74,14 @@ export class WeightsState {
   public readonly weights: WeightOption[]
 
   constructor(weights: WeightOption[]) {
-    this.weights = weights
+    if (weights.length === 0) {
+      this.weights = [{
+        weightValue: 1,
+        statId: 0,
+      }]
+    } else {
+      this.weights = weights
+    }
 
     this.weightOptionChange = this.weightOptionChange.bind(this)
     this.addWeightOption = this.addWeightOption.bind(this)
@@ -93,6 +104,10 @@ export class WeightsState {
     }
 
     return usedIds.length
+  }
+
+  public weightWithStatId(id: number): number {
+    return this.weights.find(w => w.statId === id)?.weightValue ?? 0
   }
 
   public weightOptionChange(index: number, newOption: WeightOption): WeightsState {
@@ -142,14 +157,21 @@ export class WeightsSelector extends React.Component<{ weights: WeightsState, up
   render() {
     return (
       <div className="app-weights">
-        <div>
-          {
-            this.props.weights.weights
-              .map((statWeight, i) =>
-                <Weight weight={statWeight} key={i} onWeightOptionChange={(this.weightOptionChange.bind(this, i))} />)
-          }
-        </div>
-        <button onClick={this.addWeightOption}>+ Add weight</button>
+        <table>
+          <thead>
+            <tr>
+              <th>Stat</th><th>Weight</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              this.props.weights.weights
+                .map((statWeight, i) =>
+                  <Weight weight={statWeight} key={i} onWeightOptionChange={(this.weightOptionChange.bind(this, i))} />)
+            }
+          </tbody>
+        </table>
+        <button onClick={this.addWeightOption} className="add-weight-button">+ Add weight</button>
       </div>
     )
   }
