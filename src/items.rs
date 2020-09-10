@@ -2,6 +2,7 @@ use super::stats;
 
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::convert::TryInto;
 
 pub struct Item {
     pub name: String,
@@ -92,7 +93,7 @@ fn parse_restriction(
             Box::new(stats::RestrictionLeaf {
                 value: stat.value,
                 operator,
-                stat: stats::stat_from_str(&stat.stat).unwrap(),
+                stat: stat.stat.as_str().try_into().unwrap(),
             })
         }
     }
@@ -106,8 +107,8 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
             let mut stats = stats::new_characteristics();
             if let Some(item_stats) = item.stats.as_ref() {
                 for stat in item_stats {
-                    let characteristic_index = stats::stat_from_str(&stat.stat).unwrap() as usize;
-                    stats[characteristic_index] = stat.maxStat;
+                    let characteristic: stats::Stat = stat.stat.as_str().try_into().unwrap();
+                    stats[characteristic as usize] = stat.maxStat;
                 }
             }
 
@@ -159,8 +160,8 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
                     let mut stats = stats::new_characteristics();
                     for stat in bonus {
                         if let (Some(stat), Some(value)) = (&stat.stat, stat.value) {
-                            let characteristic_index =
-                                stats::stat_from_str(&stat).unwrap() as usize;
+                            let characteristic: stats::Stat = stat.as_str().try_into().unwrap();
+                            let characteristic_index = characteristic as usize;
                             stats[characteristic_index] = value;
                         }
                     }

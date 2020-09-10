@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 pub type StatValue = i32;
 pub type Characteristic = [StatValue; 51];
 
@@ -84,69 +86,67 @@ pub fn characteristic_add(stats: &mut Characteristic, stat: &Characteristic) {
     }
 }
 
-pub fn stat_from_str(s: &str) -> Option<Stat> {
-    Some(match s.to_ascii_lowercase().as_str() {
-        "vitality" => Stat::Vitality,
-        "wisdom" => Stat::Wisdom,
-        "strength" => Stat::Strength,
-        "intelligence" => Stat::Intelligence,
-        "chance" => Stat::Chance,
-        "agility" => Stat::Agility,
-
-        "ap" => Stat::AP,
-        "mp" => Stat::MP,
-        "initiative" => Stat::Initiative,
-        "prospecting" => Stat::Prospecting,
-        "range" => Stat::Range,
-        "summons" => Stat::Summons,
-        "pods" => Stat::Pods,
-
-        "ap reduction" => Stat::APReduction,
-        "ap parry" => Stat::APParry,
-        "mp reduction" => Stat::MPReduction,
-        "mp parry" => Stat::MPParry,
-        "critical" => Stat::Critical,
-        "heals" => Stat::Heal,
-        "lock" => Stat::Lock,
-        "dodge" => Stat::Dodge,
-
-        "damage" => Stat::Damage,
-        "power" => Stat::Power,
-        "critical damage" => Stat::DamageCritical,
-        "neutral damage" => Stat::DamageNeutral,
-        "earth damage" => Stat::DamageEarth,
-        "fire damage" => Stat::DamageFire,
-        "water damage" => Stat::DamageWater,
-        "air damage" => Stat::DamageAir,
-        "reflect" => Stat::Reflect,
-        "trap damage" => Stat::DamageTrap,
-        "power (traps)" => Stat::PowerTrap,
-        "pushback damage" => Stat::DamagePushback,
-        "% spell damage" => Stat::DamageSpell,
-        "% weapon damage" => Stat::DamageWeapon,
-        "% ranged damage" => Stat::DamageRange,
-        "% melee damage" => Stat::DamageMelee,
-
-        "neutral resistance" => Stat::ResistanceNeutralFixed,
-        "% neutral resistance" => Stat::ResistanceNeutralPercent,
-        "earth resistance" => Stat::ResistanceEarthFixed,
-        "% earth resistance" => Stat::ResistanceEarthPercent,
-        "fire resistance" => Stat::ResistanceFireFixed,
-        "% fire resistance" => Stat::ResistanceFirePercent,
-        "water resistance" => Stat::ResistanceWaterFixed,
-        "% water resistance" => Stat::ResistanceWaterPercent,
-        "air resistance" => Stat::ResistanceAirFixed,
-        "% air resistance" => Stat::ResistanceAirPercent,
-        "critical resistance" => Stat::ResistanceCritical,
-        "pushback resistance" => Stat::ResistancePushback,
-        "% ranged resistance" => Stat::ResistanceRange,
-        "% melee resistance" => Stat::ResistanceMelee,
-        _ => return None,
-    })
+lazy_static! {
+    static ref STAT_NAMES: Vec<&'static str> = vec![
+        "Vitality",
+        "Wisdom",
+        "Strength",
+        "Intelligence",
+        "Chance",
+        "Agility",
+        "AP",
+        "MP",
+        "Initiative",
+        "Prospecting",
+        "Range",
+        "Summons",
+        "pods",
+        "AP Reduction",
+        "AP Parry",
+        "MP Reduction",
+        "MP Parry",
+        "Critical",
+        "Heals",
+        "Lock",
+        "Dodge",
+        "Damage",
+        "Power",
+        "Critical Damage",
+        "Neutral Damage",
+        "Earth Damage",
+        "Fire Damage",
+        "Water Damage",
+        "Air Damage",
+        "Reflect",
+        "Trap Damage",
+        "Power (traps)",
+        "Pushback Damage",
+        "% Spell Damage",
+        "% Weapon Damage",
+        "% Ranged Damage",
+        "% Melee Damage",
+        "Neutral Resistance",
+        "% Neutral Resistance",
+        "Earth Resistance",
+        "% Earth Resistance",
+        "Fire Resistance",
+        "% Fire Resistance",
+        "Water Resistance",
+        "% Water Resistance",
+        "Air Resistance",
+        "% Air Resistance",
+        "Critical Resistance",
+        "Pushback Resistance",
+        "% Ranged Resistance",
+        "% Melee Resistance",
+    ];
+    static ref STAT_NAMES_LOWERCASE: Vec<String> =
+        STAT_NAMES.iter().map(|x| x.to_ascii_lowercase()).collect();
 }
 
 // every possible stat an item could have
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
+#[allow(dead_code)]
 pub enum Stat {
     Vitality,
     Wisdom,
@@ -213,5 +213,55 @@ impl std::convert::TryFrom<usize> for Stat {
         } else {
             Ok(unsafe { std::mem::transmute(value as u8) })
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::convert::TryFrom;
+    #[test]
+    fn stat_try_from() {
+        assert_eq!(1_usize.try_into(), Ok(Stat::Wisdom));
+    }
+
+    #[test]
+    #[should_panic]
+    fn stat_try_from_overflow() {
+        Stat::try_from(60_usize).unwrap();
+    }
+
+    #[test]
+    fn stat_convert_from_str() {
+        assert_eq!("Vitality".try_into(), Ok(Stat::Vitality));
+        assert_eq!("Agility".try_into(), Ok(Stat::Agility));
+        assert_eq!("AgIlITY".try_into(), Ok(Stat::Agility));
+    }
+
+    #[test]
+    fn stat_convert_to_str() {
+        assert_eq!(Stat::Vitality.to_string(), "Vitality");
+        assert_eq!(Stat::ResistanceAirFixed.to_string(), "Air Resistance");
+    }
+}
+
+impl std::convert::TryFrom<&str> for Stat {
+    type Error = &'static str;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let value = value.to_ascii_lowercase();
+        for (index, stat_name) in STAT_NAMES_LOWERCASE.iter().enumerate() {
+            if *stat_name == value {
+                return index.try_into();
+            }
+        }
+
+        Err("Cannot find stat type")
+    }
+}
+
+impl std::fmt::Display for Stat {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let s = STAT_NAMES[*self as usize];
+        write!(f, "{}", s)
     }
 }

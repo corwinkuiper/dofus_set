@@ -60,7 +60,7 @@ fn print_stats(stat: &stats::Characteristic) {
     for (characteristic, value) in stat.iter().enumerate() {
         let stat: Stat = characteristic.try_into().unwrap();
         if *value != 0 {
-            println!("\t{:#?}: {}", stat, value);
+            println!("\t{}: {}", stat, value);
         }
     }
 }
