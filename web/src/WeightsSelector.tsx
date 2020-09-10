@@ -74,7 +74,14 @@ export class WeightsState {
   public readonly weights: WeightOption[]
 
   constructor(weights: WeightOption[]) {
-    this.weights = weights
+    if (weights.length === 0) {
+      this.weights = [{
+        weightValue: 1,
+        statId: 0,
+      }]
+    } else {
+      this.weights = weights
+    }
 
     this.weightOptionChange = this.weightOptionChange.bind(this)
     this.addWeightOption = this.addWeightOption.bind(this)
@@ -160,7 +167,7 @@ export class WeightsSelector extends React.Component<{ weights: WeightsState, up
             }
           </tbody>
         </table>
-        <button onClick={this.addWeightOption}>+ Add weight</button>
+        <button onClick={this.addWeightOption} className="add-weight-button">+ Add weight</button>
       </div>
     )
   }

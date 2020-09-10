@@ -48,8 +48,8 @@
 
 .weights-container {
     padding: 10px;
-    max-width: 500px;
-    min-width: 400px;
+    width: 420px;
+    max-width: 420px;
 }
 
 .app-weights {
@@ -75,7 +75,6 @@
 }
 
 button {
-    display: inline-block;
     background-color: #333;
     color: #eee;
     border-radius: 10px;
@@ -94,5 +93,9 @@ button:hover {
 
 .optimise-button {
     margin: 10px;
-    width: 100%;
+    width: calc(100% - 20px);
+}
+
+.add-weight-button {
+    margin-left: 10px;
 }
