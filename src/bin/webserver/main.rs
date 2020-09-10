@@ -11,6 +11,8 @@ extern crate rocket;
 use rocket_contrib::json::Json;
 use rocket_contrib::serve::StaticFiles;
 
+use rocket::fairing;
+
 #[derive(Deserialize)]
 struct OptimiseRequest {
     weights: Vec<f64>,
@@ -31,6 +33,9 @@ struct OptimiseResponse {
     overall_characteristics: Vec<i32>,
     items: Vec<OptimiseResponseItem>,
 }
+
+#[options("/optimise")]
+fn create_optimised_set_options() {}
 
 #[post("/optimise", data = "<config>")]
 fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseResponse>> {
@@ -72,7 +77,17 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
 
 fn main() {
     rocket::ignite()
-        .mount("/api", routes![create_optimised_set])
+        .attach(fairing::AdHoc::on_response(
+            "Add CORS headers",
+            |_: &rocket::Request, response: &mut rocket::Response| {
+                response.adjoin_raw_header("Access-Control-Allow-Origin", "*");
+                response.adjoin_raw_header("Access-Control-Allow-Headers", "Content-Type");
+            },
+        ))
+        .mount(
+            "/api",
+            routes![create_optimised_set, create_optimised_set_options],
+        )
         .mount(
             "/",
             StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/web/build")),

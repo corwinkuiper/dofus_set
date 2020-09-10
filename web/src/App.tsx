@@ -5,15 +5,25 @@ import { OptimiseApi } from './dofus/OptimiseApi'
 
 import { WeightsSelector, WeightsState } from './WeightsSelector'
 
-class Items {
+function getImageUrl(imageUrl: string): string {
+  const suffix = imageUrl.slice(imageUrl.lastIndexOf('/') + 1)
+  return `https://d2iuiayak06k8j.cloudfront.net/item/${suffix}`
+}
+
+class Item {
   readonly name: string
   readonly characteristics: number[]
   readonly level: number
+  readonly imageUrl?: string
 
-  constructor(name: string, characteristics: number[], level: number) {
+  constructor(name: string, characteristics: number[], level: number, imageUrl?: string) {
     this.name = name
     this.characteristics = characteristics
     this.level = level
+
+    if (imageUrl) {
+      this.imageUrl = getImageUrl(imageUrl)
+    }
   }
 
   public displayString(): string {
@@ -23,7 +33,17 @@ class Items {
 
 class AppState {
   weightsState = new WeightsState([])
-  bestItems: Items[] = []
+  bestItems: Item[] = []
+}
+
+function ItemBox({ item }: { item: Item }) {
+  return (
+    <div className="itembox">
+      {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
+      <span className="itembox-itemname">{item.name}</span>
+      <span className="itembox-level">{item.level}</span>
+    </div>
+  )
 }
 
 class App extends React.Component<{}, AppState> {
@@ -34,7 +54,7 @@ class App extends React.Component<{}, AppState> {
   constructor(props: {}) {
     super(props)
 
-    this.api = new OptimiseApi('')
+    this.api = new OptimiseApi('http://localhost:8000')
     this.updateWeightsState = this.updateWeightsState.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
@@ -56,19 +76,17 @@ class App extends React.Component<{}, AppState> {
       maxLevel: 155,
     })
 
-    const bestItems = setResult.items.map(item => new Items(item.name, item.characteristics, item.level))
+    const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
     this.setState(Object.assign({}, this.state, { bestItems }))
-  }
-
-  private itemText(): string {
-    return this.state.bestItems.map(item => item.displayString()).join('\n')
   }
 
   render() {
     return (
       <>
         <WeightsSelector weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
-        <p>{this.itemText()}</p>
+        <div>
+          {this.state.bestItems.map((item, i) => <ItemBox item={item} key={i} />)}
+        </div>
         <button onClick={this.runOptimiser}>Optimise!</button>
       </>
     )
