@@ -37,6 +37,40 @@ class AppState {
   optimising: boolean = false
 }
 
+class ItemHoverContainer extends React.Component<{ children: React.ReactNode, characteristics: number[] }, { showBox: boolean, x: number, y: number }> {
+  state = { x: 0, y: 0, showBox: false }
+
+  constructor(props: { children: React.ReactNode, characteristics: number[] }) {
+    super(props)
+
+    this.onMouseMove = this.onMouseMove.bind(this)
+    this.onMouseOut = this.onMouseOut.bind(this)
+  }
+
+  onMouseMove(event: React.MouseEvent) {
+    this.setState({
+      x: event.clientX,
+      y: event.clientY,
+      showBox: true
+    })
+  }
+
+  onMouseOut(event: React.MouseEvent) {
+    this.setState({ showBox: false })
+  }
+
+  render() {
+    return (
+      <>
+        <div onMouseMove={this.onMouseMove} onMouseOut={this.onMouseOut} className="itembox-container">
+          {this.props.children}
+        </div>
+        {this.state.showBox && <HoverStatDisplay x={this.state.x} y={this.state.y} characteristics={this.props.characteristics} />}
+      </>
+    )
+  }
+}
+
 function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
   let topStatIndex = 0;
   let topStatValue = 0;
@@ -51,16 +85,18 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
   }
 
   return (
-    <div className="itembox">
-      {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
-      <div className="itembox-data">
-        <div className="itembox-options">
-          <span className="itembox-itemname">{item.name}</span>
-          <span className="itembox-level">{item.level}</span>
+    <ItemHoverContainer characteristics={item.characteristics}>
+      <div className="itembox">
+        {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
+        <div className="itembox-data">
+          <div className="itembox-options">
+            <span className="itembox-itemname">{item.name}</span>
+            <span className="itembox-level">{item.level}</span>
+          </div>
+          <span>{`${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}`}</span>
         </div>
-        <span>{`${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}`}</span>
       </div>
-    </div>
+    </ItemHoverContainer>
   )
 }
 
@@ -116,6 +152,21 @@ function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLev
     <div>
       <LevelSelector maxLevel={maxLevel} setMaxLevel={setMaxLevel} />
       <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
+    </div>
+  )
+}
+
+function HoverStatDisplay({ x, y, characteristics }: { x: number, y: number, characteristics: number[] }) {
+  return (
+    <div style={{ top: y, left: x }} className="characteristics-hover">
+      <table>
+        {characteristics.map((characteristic, index) => characteristic !== 0 &&
+          <tr key={index}>
+            <td>{characteristic}</td>
+            <td>{StatNames[index]}</td>
+          </tr>
+        )}
+      </table>
     </div>
   )
 }
