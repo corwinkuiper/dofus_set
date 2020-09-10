@@ -157,7 +157,7 @@ function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLev
 }
 
 function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: number, characteristics: number[], weights: WeightsState }) {
-  const totalEnergy = characteristics.reduce((acc, characteristic, index) => weights.weightWithStatId(index) * characteristic + acc, 0) || 1
+  const totalEnergy = characteristics.reduce((acc, characteristic, index) => weights.weightWithStatId(index) * characteristic + acc, 0)
 
   return (
     <div style={{ top: y, left: x }} className="characteristics-hover">
@@ -166,7 +166,7 @@ function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: nu
           <tr key={index}>
             <td>{characteristic}</td>
             <td>{StatNames[index]}</td>
-            <td>{(weights.weightWithStatId(index) * characteristic * 100 / totalEnergy).toFixed(0)}%</td>
+            <td>{totalEnergy ? (weights.weightWithStatId(index) * characteristic * 100 / totalEnergy).toFixed(0) : '~'}%</td>
           </tr>
         )}
       </table>
