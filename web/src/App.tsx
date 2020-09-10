@@ -1,5 +1,6 @@
 import React from 'react'
 import './App.css'
+import { StatNames } from './dofus/stats'
 
 import { OptimiseApi } from './dofus/OptimiseApi'
 
@@ -34,15 +35,39 @@ class Item {
 class AppState {
   weightsState = new WeightsState([])
   bestItems: Item[] = []
+  resultingCharacteristics: number[] = []
 }
 
 function ItemBox({ item }: { item: Item }) {
   return (
     <div className="itembox">
       {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
-      <span className="itembox-itemname">{item.name}</span>
-      <span className="itembox-level">{item.level}</span>
+      <div className="itembox-options">
+        <span className="itembox-itemname">{item.name}</span>
+        <span className="itembox-level">{item.level}</span>
+      </div>
     </div>
+  )
+}
+
+function BestItemDisplay({ items }: { items: Item[] }) {
+  return (
+    <div className="best-item-display">
+      {items.map((item, i) => <ItemBox item={item} key={i} />)}
+    </div>
+  )
+}
+
+function OverallCharacteristics({ characteristics }: { characteristics: number[] }) {
+  return (
+    <table className="resulting-characteristics">
+      {characteristics.map((value, index) => (
+        <tr key={index}>
+          <td>{value}</td>
+          <td>{StatNames[index]}</td>
+        </tr>
+      ))}
+    </table>
   )
 }
 
@@ -77,18 +102,19 @@ class App extends React.Component<{}, AppState> {
     })
 
     const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
-    this.setState(Object.assign({}, this.state, { bestItems }))
+    this.setState(Object.assign({}, this.state, { bestItems, resultingCharacteristics: setResult.overallCharacteristics }))
   }
 
   render() {
     return (
-      <>
-        <WeightsSelector weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
-        <div>
-          {this.state.bestItems.map((item, i) => <ItemBox item={item} key={i} />)}
+      <div className="app-container">
+        <div className="weights-container">
+          <WeightsSelector weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
+          <button onClick={this.runOptimiser}>Optimise!</button>
         </div>
-        <button onClick={this.runOptimiser}>Optimise!</button>
-      </>
+        <BestItemDisplay items={this.state.bestItems} />
+        <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
+      </div>
     )
   }
 }
