@@ -26,10 +26,6 @@ class Item {
       this.imageUrl = getImageUrl(imageUrl)
     }
   }
-
-  public displayString(): string {
-    return `${this.name} - ${this.level}`
-  }
 }
 
 class AppState {
