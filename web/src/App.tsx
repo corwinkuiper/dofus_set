@@ -29,10 +29,23 @@ class Item {
   }
 }
 
+class SetBonus {
+  readonly name: string
+  readonly characteristics: number[]
+  readonly numberOfItems: number
+
+  constructor(name: string, characteristics: number[], numberOfItems: number) {
+    this.name = name
+    this.characteristics = characteristics
+    this.numberOfItems = numberOfItems
+  }
+}
+
 class AppState {
   weightsState = new WeightsState([])
   bestItems: Item[] = []
   resultingCharacteristics: number[] = []
+  setBonuses: SetBonus[] = []
   maxLevel: number = 149
   optimising: boolean = false
 }
@@ -217,7 +230,8 @@ class App extends React.Component<{}, AppState> {
       })
 
       const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
-      this.setState(Object.assign({}, this.state, { bestItems, resultingCharacteristics: setResult.overallCharacteristics }))
+      const setBonuses = setResult.setBonuses.map(bonus => new SetBonus(bonus.name, bonus.characteristics, bonus.numberOfItems))
+      this.setState(Object.assign({}, this.state, { bestItems, setBonuses, resultingCharacteristics: setResult.overallCharacteristics }))
     } finally {
       this.setState(Object.assign({}, this.state, { optimising: false }))
     }

@@ -6,6 +6,7 @@ interface SetWeightOptions {
 interface OptimiseSetResponse {
   overallCharacteristics: number[]
   items: { name: string, characteristics: number[], itemType: string, level: number, imageUrl?: string }[]
+  setBonuses: { name: string, characteristics: number[], numberOfItems: number }[]
 }
 
 export class OptimiseApi {
@@ -28,11 +29,31 @@ export class OptimiseApi {
     })
 
     const content = await response.json()
+
+    interface OptimiseApiResponseItem {
+      characteristics: number[]
+      name: string
+      item_type: string
+      level: number
+      image_url?: string
+    }
+
+    interface OptimiseApiResponseSetBonus {
+      name: string
+      number_of_items: number
+      characteristics: number[]
+    }
+
     return {
       overallCharacteristics: content.overall_characteristics,
-      items: (content.items as any[]).map((item: { characteristics: number[], name: string, item_type: string, level: number, image_url?: string }) => ({
+      items: (content.items as OptimiseApiResponseItem[]).map(item => ({
         name: item.name, characteristics: item.characteristics, itemType: item.item_type, level: item.level, imageUrl: item.image_url
-      }))
+      })),
+      setBonuses: (content.set_bonuses as OptimiseApiResponseSetBonus[]).map(setBonus => ({
+        name: setBonus.name,
+        numberOfItems: setBonus.number_of_items,
+        characteristics: setBonus.characteristics,
+      })),
     }
   }
 }
