@@ -32,6 +32,7 @@ class AppState {
   weightsState = new WeightsState([])
   bestItems: Item[] = []
   resultingCharacteristics: number[] = []
+  maxLevel: number = 149
 }
 
 function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
@@ -82,6 +83,12 @@ function OverallCharacteristics({ characteristics }: { characteristics: number[]
   )
 }
 
+function OptimisationSettings({ weights, updateWeightsState }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void }) {
+  return (
+    <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
+  )
+}
+
 class App extends React.Component<{}, AppState> {
   state = new AppState()
 
@@ -109,7 +116,7 @@ class App extends React.Component<{}, AppState> {
 
     const setResult = await this.api.optimiseSet({
       weights: weights,
-      maxLevel: 155,
+      maxLevel: this.state.maxLevel,
     })
 
     const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
@@ -120,7 +127,7 @@ class App extends React.Component<{}, AppState> {
     return (
       <div className="app-container">
         <div className="weights-container">
-          <WeightsSelector weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
+          <OptimisationSettings weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
           <button onClick={this.runOptimiser}>Optimise!</button>
         </div>
         <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} />
