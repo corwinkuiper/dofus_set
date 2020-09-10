@@ -1,4 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
+#![deny(clippy::all)]
 
 use ::dofus_set::config;
 use ::dofus_set::dofus_set;

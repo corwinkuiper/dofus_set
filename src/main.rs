@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 use ::dofus_set::config;
 use ::dofus_set::dofus_set::{Optimiser, State};
 use ::dofus_set::items;
