@@ -4,6 +4,8 @@ use ::dofus_set::items;
 use ::dofus_set::stats;
 use ::dofus_set::stats::Stat;
 
+use std::convert::TryInto;
+
 fn main() {
     let mut weights = [0.0; 51];
     weights[Stat::Power as usize] = 1.0;

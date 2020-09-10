@@ -1,7 +1,7 @@
-use super::anneal;
-use super::config;
-use super::items;
-use super::stats;
+use crate::anneal;
+use crate::config;
+use crate::items;
+use crate::stats;
 
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
