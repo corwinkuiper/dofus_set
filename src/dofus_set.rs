@@ -60,7 +60,7 @@ impl State {
             set.bonuses.get(&number_of_items).map(|bonus| SetBonus {
                 name: set.name.clone(),
                 bonus: *bonus,
-                number_of_items: number_of_items,
+                number_of_items,
             })
         })
     }
@@ -98,8 +98,8 @@ impl State {
         if rings[0].is_some() && rings[1].is_some() {
             let ring0_set = RINGS[rings[0].unwrap()].set_id;
             let ring1_set = RINGS[rings[1].unwrap()].set_id;
-            if ring0_set.is_some() && ring1_set.is_some() {
-                if ring0_set.unwrap() == ring1_set.unwrap() {
+            if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
+                if ring0_set == ring1_set {
                     return false;
                 }
             }

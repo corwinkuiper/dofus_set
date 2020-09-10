@@ -52,7 +52,7 @@ struct DofusLabStatRestriction {
 fn parse_restriction(
     value: &serde_json::Map<String, serde_json::value::Value>,
 ) -> Box<dyn stats::Restriction + Sync> {
-    if value.len() == 0 {
+    if value.is_empty() {
         return Box::new(stats::NullRestriction {});
     }
 
@@ -86,12 +86,12 @@ fn parse_restriction(
         if stat.stat == "SET_BONUS" {
             Box::new(stats::SetBonusRestriction {
                 value: stat.value,
-                operator: operator,
+                operator,
             })
         } else {
             Box::new(stats::RestrictionLeaf {
                 value: stat.value,
-                operator: operator,
+                operator,
                 stat: stats::stat_from_str(&stat.stat).unwrap(),
             })
         }
@@ -120,12 +120,13 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
             Item {
                 name: item.name.en.clone(),
                 item_type: item.itemType.clone(),
-                stats: stats,
+                stats,
                 level: item.level,
                 set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
-                restriction: restriction,
+                restriction,
             }
-        }).collect()
+        })
+        .collect()
 }
 
 pub struct Set {
@@ -165,14 +166,16 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
                     }
 
                     (number_of_items.parse().unwrap(), stats)
-                }).collect();
+                })
+                .collect();
 
             (
                 set.id.parse().unwrap(),
                 Set {
                     name: set.name.en.to_owned(),
-                    bonuses: bonuses,
+                    bonuses,
                 },
             )
-        }).collect()
+        })
+        .collect()
 }
