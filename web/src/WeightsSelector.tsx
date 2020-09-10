@@ -106,6 +106,10 @@ export class WeightsState {
     return usedIds.length
   }
 
+  public weightWithStatId(id: number): number {
+    return this.weights.find(w => w.statId === id)?.weightValue ?? 0
+  }
+
   public weightOptionChange(index: number, newOption: WeightOption): WeightsState {
     // first check if the stat choice is valid
     const existing = this.weights.find((weightOption, i) => i !== index && weightOption.statId === newOption.statId)

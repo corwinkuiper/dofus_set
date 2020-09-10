@@ -37,10 +37,10 @@ class AppState {
   optimising: boolean = false
 }
 
-class ItemHoverContainer extends React.Component<{ children: React.ReactNode, characteristics: number[] }, { showBox: boolean, x: number, y: number }> {
+class ItemHoverContainer extends React.Component<{ children: React.ReactNode, characteristics: number[], weights: WeightsState }, { showBox: boolean, x: number, y: number }> {
   state = { x: 0, y: 0, showBox: false }
 
-  constructor(props: { children: React.ReactNode, characteristics: number[] }) {
+  constructor(props: { children: React.ReactNode, characteristics: number[], weights: WeightsState }) {
     super(props)
 
     this.onMouseMove = this.onMouseMove.bind(this)
@@ -65,7 +65,7 @@ class ItemHoverContainer extends React.Component<{ children: React.ReactNode, ch
         <div onMouseMove={this.onMouseMove} onMouseOut={this.onMouseOut} className="itembox-container">
           {this.props.children}
         </div>
-        {this.state.showBox && <HoverStatDisplay x={this.state.x} y={this.state.y} characteristics={this.props.characteristics} />}
+        {this.state.showBox && <HoverStatDisplay x={this.state.x} y={this.state.y} characteristics={this.props.characteristics} weights={this.props.weights} />}
       </>
     )
   }
@@ -85,7 +85,7 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
   }
 
   return (
-    <ItemHoverContainer characteristics={item.characteristics}>
+    <ItemHoverContainer characteristics={item.characteristics} weights={weights}>
       <div className="itembox">
         {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
         <div className="itembox-data">
@@ -156,7 +156,9 @@ function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLev
   )
 }
 
-function HoverStatDisplay({ x, y, characteristics }: { x: number, y: number, characteristics: number[] }) {
+function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: number, characteristics: number[], weights: WeightsState }) {
+  const totalEnergy = characteristics.reduce((acc, characteristic, index) => weights.weightWithStatId(index) * characteristic + acc, 0) || 1
+
   return (
     <div style={{ top: y, left: x }} className="characteristics-hover">
       <table>
@@ -164,6 +166,7 @@ function HoverStatDisplay({ x, y, characteristics }: { x: number, y: number, cha
           <tr key={index}>
             <td>{characteristic}</td>
             <td>{StatNames[index]}</td>
+            <td>{(weights.weightWithStatId(index) * characteristic * 100 / totalEnergy).toFixed(0)}%</td>
           </tr>
         )}
       </table>
