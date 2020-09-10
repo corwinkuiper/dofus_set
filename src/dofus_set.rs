@@ -111,14 +111,12 @@ impl State {
     pub fn energy(&self, config: &config::Config) -> f64 {
         let stats = self.stats(config.max_level);
         // need to take the negative due to being a minimiser
-        -{
-            stats
-                .iter()
-                .zip(config.weights.iter())
-                .fold(0.0, |accumulate, (stat, weight)| {
-                    accumulate + *stat as f64 * weight
-                })
-        }
+        -stats
+            .iter()
+            .zip(config.weights.iter())
+            .fold(0.0, |accumulate, (stat, weight)| {
+                accumulate + *stat as f64 * weight
+            })
     }
 
     fn items(&self) -> impl std::iter::Iterator<Item = &items::Item> {
