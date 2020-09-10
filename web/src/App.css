@@ -10,6 +10,8 @@
 .best-item-display {
     display: flex;
     flex-wrap: wrap;
+
+    height: 1px;
 }
 
 .itembox {
@@ -19,6 +21,12 @@
     display: flex;
     
     flex: 1 1 20%;
+}
+
+.itembox-data {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .itembox .itembox-image {

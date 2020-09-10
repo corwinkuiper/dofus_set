@@ -38,22 +38,37 @@ class AppState {
   resultingCharacteristics: number[] = []
 }
 
-function ItemBox({ item }: { item: Item }) {
+function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
+  let topStatIndex = 0;
+  let topStatValue = 0;
+  for (let i = 0; i < item.characteristics.length; i++) {
+    const characteristicWeight = weights.weights.find(w => w.statId === i)?.weightValue ?? 0;
+    const value = characteristicWeight * item.characteristics[i];
+
+    if (value > topStatValue) {
+      topStatValue = value;
+      topStatIndex = i;
+    }
+  }
+
   return (
     <div className="itembox">
       {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
-      <div className="itembox-options">
-        <span className="itembox-itemname">{item.name}</span>
-        <span className="itembox-level">{item.level}</span>
+      <div className="itembox-data">
+        <div className="itembox-options">
+          <span className="itembox-itemname">{item.name}</span>
+          <span className="itembox-level">{item.level}</span>
+        </div>
+        <span>{`${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}`}</span>
       </div>
     </div>
   )
 }
 
-function BestItemDisplay({ items }: { items: Item[] }) {
+function BestItemDisplay({ items, weights }: { items: Item[], weights: WeightsState }) {
   return (
     <div className="best-item-display">
-      {items.map((item, i) => <ItemBox item={item} key={i} />)}
+      {items.map((item, i) => <ItemBox item={item} key={i} weights={weights} />)}
     </div>
   )
 }
@@ -112,7 +127,7 @@ class App extends React.Component<{}, AppState> {
           <WeightsSelector weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
           <button onClick={this.runOptimiser}>Optimise!</button>
         </div>
-        <BestItemDisplay items={this.state.bestItems} />
+        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )
