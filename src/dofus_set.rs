@@ -217,22 +217,50 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
 }
 
 lazy_static! {
-    static ref ITEMS: Vec<items::Item> = items::parse_items(include_bytes!("../data/items.json"));
-    static ref WEAPONS_S: Vec<items::Item> =
-        items::parse_items(include_bytes!("../data/weapons.json"));
-    static ref MOUNTS_S: Vec<items::Item> = {
-        let mut mounts = items::parse_items(include_bytes!("../data/mounts.json"));
-        mounts.append(&mut items::parse_items(include_bytes!(
+    static ref ITEMS: Vec<items::Item> = {
+        let mut items = Vec::new();
+        items.append(&mut items::parse_items(include_bytes!(
+            "../data/items.json"
+        )));
+        items.append(&mut items::parse_items(include_bytes!(
+            "../data/weapons.json"
+        )));
+        items.append(&mut items::parse_items(include_bytes!(
             "../data/mounts.json"
         )));
-        mounts.append(&mut items::parse_items(include_bytes!(
+        items.append(&mut items::parse_items(include_bytes!(
+            "../data/mounts.json"
+        )));
+        items.append(&mut items::parse_items(include_bytes!(
             "../data/rhineetles.json"
         )));
 
-        mounts
+        items
     };
-    static ref MOUNTS: Vec<&'static items::Item> = MOUNTS_S.iter().collect();
-    static ref WEAPONS: Vec<&'static items::Item> = WEAPONS_S.iter().collect();
+    static ref MOUNTS: Vec<&'static items::Item> = ITEMS
+        .iter()
+        .filter(|x| x.item_type == "Pet" || x.item_type == "Petsmount" || x.item_type == "Mount")
+        .collect();
+    static ref WEAPONS: Vec<&'static items::Item> = {
+        let weapon_types = &[
+            "Axe",
+            "Bow",
+            "Dagger",
+            "Hammer",
+            "Pickaxe",
+            "Scythe",
+            "Shovel",
+            "Soul stone",
+            "Staff",
+            "Sword",
+            "Tool",
+            "Wand",
+        ];
+        ITEMS
+            .iter()
+            .filter(|x| weapon_types.contains(&x.item_type.as_str()))
+            .collect()
+    };
     static ref HATS: Vec<&'static items::Item> =
         ITEMS.iter().filter(|x| x.item_type == "Hat").collect();
     static ref CLOAKS: Vec<&'static items::Item> = ITEMS
