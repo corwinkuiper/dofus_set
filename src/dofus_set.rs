@@ -147,6 +147,17 @@ impl State {
         stat[stats::Stat::Range as usize] =
             std::cmp::min(stat[stats::Stat::Range as usize], MAX_ADDITIONAL_RANGE);
 
+        stat[stats::Stat::ResistanceNeutralPercent as usize] =
+            std::cmp::min(stat[stats::Stat::ResistanceNeutralPercent as usize], 50);
+        stat[stats::Stat::ResistanceEarthPercent as usize] =
+            std::cmp::min(stat[stats::Stat::ResistanceEarthPercent as usize], 50);
+        stat[stats::Stat::ResistanceFirePercent as usize] =
+            std::cmp::min(stat[stats::Stat::ResistanceFirePercent as usize], 50);
+        stat[stats::Stat::ResistanceWaterPercent as usize] =
+            std::cmp::min(stat[stats::Stat::ResistanceWaterPercent as usize], 50);
+        stat[stats::Stat::ResistanceAirPercent as usize] =
+            std::cmp::min(stat[stats::Stat::ResistanceAirPercent as usize], 50);
+
         stat
     }
 }
