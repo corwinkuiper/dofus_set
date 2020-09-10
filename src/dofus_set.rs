@@ -228,9 +228,7 @@ lazy_static! {
         items.append(&mut items::parse_items(include_bytes!(
             "../data/mounts.json"
         )));
-        items.append(&mut items::parse_items(include_bytes!(
-            "../data/mounts.json"
-        )));
+        items.append(&mut items::parse_items(include_bytes!("../data/pets.json")));
         items.append(&mut items::parse_items(include_bytes!(
             "../data/rhineetles.json"
         )));
