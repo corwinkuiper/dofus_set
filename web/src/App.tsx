@@ -5,6 +5,7 @@ import { StatNames } from './dofus/stats'
 import { OptimiseApi } from './dofus/OptimiseApi'
 
 import { WeightsSelector, WeightsState } from './WeightsSelector'
+import { Spinner } from './Spinner'
 
 function getImageUrl(imageUrl: string): string {
   const suffix = imageUrl.slice(imageUrl.lastIndexOf('/') + 1)
@@ -33,6 +34,7 @@ class AppState {
   bestItems: Item[] = []
   resultingCharacteristics: number[] = []
   maxLevel: number = 149
+  optimising: boolean = false
 }
 
 function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
@@ -83,9 +85,38 @@ function OverallCharacteristics({ characteristics }: { characteristics: number[]
   )
 }
 
-function OptimisationSettings({ weights, updateWeightsState }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void }) {
+class LevelSelector extends React.Component<{ maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }> {
+  constructor(props: { maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
+    super(props)
+
+    this.maxLevelChanged = this.maxLevelChanged.bind(this)
+  }
+
+  private maxLevelChanged(event: React.FormEvent<HTMLInputElement>) {
+    const parsed = parseInt(event.currentTarget.value, 10)
+    if (isNaN(parsed)) {
+      return
+    }
+
+    this.props.setMaxLevel(Math.floor(parsed))
+  }
+
+  render() {
+    return (
+      <div className="max-level">
+        <span>Maximum Level</span>
+        <input type="text" value={this.props.maxLevel.toString()} onChange={this.maxLevelChanged} />
+      </div>
+    )
+  }
+}
+
+function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
   return (
-    <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
+    <div>
+      <LevelSelector maxLevel={maxLevel} setMaxLevel={setMaxLevel} />
+      <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
+    </div>
   )
 }
 
@@ -99,36 +130,54 @@ class App extends React.Component<{}, AppState> {
 
     this.api = new OptimiseApi('http://localhost:8000')
     this.updateWeightsState = this.updateWeightsState.bind(this)
+    this.setMaxLevel = this.setMaxLevel.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
   }
 
   private updateWeightsState(newWeightsState: WeightsState) {
-    this.setState(Object.assign(this.state, { weightsState: newWeightsState }));
+    this.setState(Object.assign({}, this.state, { weightsState: newWeightsState }))
+  }
+
+  private setMaxLevel(newMaxLevel: number) {
+    this.setState(Object.assign({}, this.state, { maxLevel: newMaxLevel }))
   }
 
   private async runOptimiser() {
-    const weights = []
-    for (let i = 0; i < 51; i++) {
-      const weightValue = this.state.weightsState.weights.find(weight => weight.statId === i)?.weightValue ?? 0
-      weights.push(weightValue)
+    if (this.state.optimising) {
+      return
     }
 
-    const setResult = await this.api.optimiseSet({
-      weights: weights,
-      maxLevel: this.state.maxLevel,
-    })
+    try {
+      this.setState(Object.assign({}, this.state, { optimising: true }))
 
-    const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
-    this.setState(Object.assign({}, this.state, { bestItems, resultingCharacteristics: setResult.overallCharacteristics }))
+      const weights = []
+      for (let i = 0; i < 51; i++) {
+        const weightValue = this.state.weightsState.weights.find(weight => weight.statId === i)?.weightValue ?? 0
+        weights.push(weightValue)
+      }
+
+      const setResult = await this.api.optimiseSet({
+        weights: weights,
+        maxLevel: this.state.maxLevel,
+      })
+
+      const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
+      this.setState(Object.assign({}, this.state, { bestItems, resultingCharacteristics: setResult.overallCharacteristics }))
+    } finally {
+      this.setState(Object.assign({}, this.state, { optimising: false }))
+    }
   }
 
   render() {
     return (
       <div className="app-container">
         <div className="weights-container">
-          <OptimisationSettings weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} />
-          <button onClick={this.runOptimiser}>Optimise!</button>
+          <OptimisationSettings weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} maxLevel={this.state.maxLevel} setMaxLevel={this.setMaxLevel} />
+          <button className="optimise-button" disabled={this.state.optimising} onClick={this.runOptimiser}>
+            Optimise!
+            {this.state.optimising && <Spinner />}
+          </button>
         </div>
         <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />

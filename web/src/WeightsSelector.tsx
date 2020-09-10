@@ -58,10 +58,14 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
 
   render() {
     return (
-      <div className="app-weight-option">
-        <StatSelector onStatChange={this.statChange} value={this.props.weight.statId} />
-        <input type="text" value={this.state.currentWeightValue} onChange={this.weightValueChange} />
-      </div>
+      <tr className="app-weight-option">
+        <td>
+          <StatSelector onStatChange={this.statChange} value={this.props.weight.statId} />
+        </td>
+        <td>
+          <input type="text" value={this.state.currentWeightValue} onChange={this.weightValueChange} />
+        </td>
+      </tr>
     )
   }
 }
@@ -142,13 +146,20 @@ export class WeightsSelector extends React.Component<{ weights: WeightsState, up
   render() {
     return (
       <div className="app-weights">
-        <div>
-          {
-            this.props.weights.weights
-              .map((statWeight, i) =>
-                <Weight weight={statWeight} key={i} onWeightOptionChange={(this.weightOptionChange.bind(this, i))} />)
-          }
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Stat</th><th>Weight</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              this.props.weights.weights
+                .map((statWeight, i) =>
+                  <Weight weight={statWeight} key={i} onWeightOptionChange={(this.weightOptionChange.bind(this, i))} />)
+            }
+          </tbody>
+        </table>
         <button onClick={this.addWeightOption}>+ Add weight</button>
       </div>
     )

@@ -45,3 +45,54 @@
 .resulting-characteristics {
     flex-grow: 1;
 }
+
+.weights-container {
+    padding: 10px;
+    max-width: 500px;
+    min-width: 400px;
+}
+
+.app-weights {
+    width: 100%;
+}
+
+.app-weights table {
+    width: 100%;
+}
+
+.app-weights table th {
+    text-align: left;
+}
+
+.weights-container .max-level {
+    display: flex;
+    align-items: baseline;
+}
+
+.weights-container .max-level input {
+    width: 50px;
+    margin-left: 20px;
+}
+
+button {
+    display: inline-block;
+    background-color: #333;
+    color: #eee;
+    border-radius: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    cursor: pointer;
+
+    border: none;
+}
+
+button:hover {
+    background-color: #444;
+}
+
+.optimise-button {
+    margin: 10px;
+    width: 100%;
+}
