@@ -46,6 +46,7 @@
 
 .resulting-characteristics {
     flex-grow: 1;
+    min-width: 300px;
 }
 
 .weights-container {
