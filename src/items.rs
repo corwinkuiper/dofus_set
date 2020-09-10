@@ -183,3 +183,57 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
         })
         .collect()
 }
+
+fn item_filter(
+    items: &'static [Item],
+    filter: &'static [&str],
+) -> impl std::iter::Iterator<Item = usize> {
+    items
+        .iter()
+        .enumerate()
+        .filter(move |(_, x)| filter.contains(&x.item_type.as_str()))
+        .map(|(index, _)| index)
+}
+
+lazy_static! {
+    pub static ref ITEMS: Vec<Item> = {
+        let mut items = Vec::new();
+        items.append(&mut parse_items(include_bytes!("../data/items.json")));
+        items.append(&mut parse_items(include_bytes!("../data/weapons.json")));
+        items.append(&mut parse_items(include_bytes!("../data/mounts.json")));
+        items.append(&mut parse_items(include_bytes!("../data/pets.json")));
+        items.append(&mut parse_items(include_bytes!("../data/rhineetles.json")));
+
+        items
+    };
+    pub static ref MOUNTS: Vec<usize> =
+        item_filter(&ITEMS, &["Pet", "Petsmount", "Mount"]).collect();
+    pub static ref WEAPONS: Vec<usize> = item_filter(
+        &ITEMS,
+        &[
+            "Axe",
+            "Bow",
+            "Dagger",
+            "Hammer",
+            "Pickaxe",
+            "Scythe",
+            "Shovel",
+            "Soul stone",
+            "Staff",
+            "Sword",
+            "Tool",
+            "Wand",
+        ]
+    )
+    .collect();
+    pub static ref HATS: Vec<usize> = item_filter(&ITEMS, &["Hat"]).collect();
+    pub static ref CLOAKS: Vec<usize> = item_filter(&ITEMS, &["Cloak", "Backpack"]).collect();
+    pub static ref AMULETS: Vec<usize> = item_filter(&ITEMS, &["Amulet"]).collect();
+    pub static ref RINGS: Vec<usize> = item_filter(&ITEMS, &["Ring"]).collect();
+    pub static ref BELTS: Vec<usize> = item_filter(&ITEMS, &["Belt"]).collect();
+    pub static ref BOOTS: Vec<usize> = item_filter(&ITEMS, &["Boots"]).collect();
+    pub static ref SHIELDS: Vec<usize> = item_filter(&ITEMS, &["Shield"]).collect();
+    pub static ref DOFUS: Vec<usize> =
+        item_filter(&ITEMS, &["Dofus", "Trophy", "Prysmaradite"]).collect();
+    pub static ref SETS: HashMap<i32, Set> = parse_sets(include_bytes!("../data/sets.json"));
+}

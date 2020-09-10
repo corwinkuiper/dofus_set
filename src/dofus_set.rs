@@ -7,18 +7,18 @@ use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
-fn state_index_to_item<'a>(index: usize) -> &'a [&'static items::Item] {
+fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     match index {
-        0 => &HATS,
-        1 => &CLOAKS,
-        2 => &AMULETS,
-        3..=4 => &RINGS,
-        5 => &BELTS,
-        6 => &BOOTS,
-        7 => &WEAPONS,
-        8 => &SHIELDS,
-        9..=14 => &DOFUS,
-        15 => &MOUNTS,
+        0 => &items::HATS,
+        1 => &items::CLOAKS,
+        2 => &items::AMULETS,
+        3..=4 => &items::RINGS,
+        5 => &items::BELTS,
+        6 => &items::BOOTS,
+        7 => &items::WEAPONS,
+        8 => &items::SHIELDS,
+        9..=14 => &items::DOFUS,
+        15 => &items::MOUNTS,
         _ => panic!("Index out of range"),
     }
 }
@@ -41,8 +41,7 @@ impl State {
     pub fn set(&self) -> impl std::iter::Iterator<Item = &items::Item> {
         self.set
             .iter()
-            .enumerate()
-            .filter_map(|(index, item_id)| item_id.map(|i| state_index_to_item(index)[i]))
+            .filter_map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
     }
 
     pub fn sets(&self) -> impl std::iter::Iterator<Item = SetBonus> {
@@ -55,7 +54,7 @@ impl State {
         }
 
         sets.into_iter().filter_map(|(set, number_of_items)| {
-            let set = &SETS[&set];
+            let set = &items::SETS[&set];
 
             set.bonuses.get(&number_of_items).map(|bonus| SetBonus {
                 name: set.name.clone(),
@@ -96,8 +95,8 @@ impl State {
         // forbid two rings from the same set
         let rings = &self.set[3..=4];
         if rings[0].is_some() && rings[1].is_some() {
-            let ring0_set = RINGS[rings[0].unwrap()].set_id;
-            let ring1_set = RINGS[rings[1].unwrap()].set_id;
+            let ring0_set = items::ITEMS[rings[0].unwrap()].set_id;
+            let ring1_set = items::ITEMS[rings[1].unwrap()].set_id;
             if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
                 if ring0_set == ring1_set {
                     return false;
@@ -120,9 +119,9 @@ impl State {
     }
 
     fn items(&self) -> impl std::iter::Iterator<Item = &items::Item> {
-        self.set.iter().enumerate().filter_map(|(index, item_id)| {
-            item_id.map(|item_id| state_index_to_item(index)[item_id])
-        })
+        self.set
+            .iter()
+            .filter_map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
     }
 
     pub fn stats(&self, current_level: i32) -> stats::Characteristic {
@@ -194,8 +193,8 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
                     .choose(&mut rand::thread_rng())
                     .unwrap();
                 let item_type = state_index_to_item(item_slot);
-                let item_index = rand::thread_rng().gen_range(0, item_type.len());
-                if item_type[item_index].level <= self.config.max_level {
+                let item_index = item_type[rand::thread_rng().gen_range(0, item_type.len())];
+                if items::ITEMS[item_index].level <= self.config.max_level {
                     break (item_slot, item_index);
                 }
             };
@@ -214,73 +213,4 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
         30000.0 * std::f64::consts::E.powf(-16.0 * iteration)
     }
-}
-
-lazy_static! {
-    static ref ITEMS: Vec<items::Item> = {
-        let mut items = Vec::new();
-        items.append(&mut items::parse_items(include_bytes!(
-            "../data/items.json"
-        )));
-        items.append(&mut items::parse_items(include_bytes!(
-            "../data/weapons.json"
-        )));
-        items.append(&mut items::parse_items(include_bytes!(
-            "../data/mounts.json"
-        )));
-        items.append(&mut items::parse_items(include_bytes!("../data/pets.json")));
-        items.append(&mut items::parse_items(include_bytes!(
-            "../data/rhineetles.json"
-        )));
-
-        items
-    };
-    static ref MOUNTS: Vec<&'static items::Item> = ITEMS
-        .iter()
-        .filter(|x| x.item_type == "Pet" || x.item_type == "Petsmount" || x.item_type == "Mount")
-        .collect();
-    static ref WEAPONS: Vec<&'static items::Item> = {
-        let weapon_types = &[
-            "Axe",
-            "Bow",
-            "Dagger",
-            "Hammer",
-            "Pickaxe",
-            "Scythe",
-            "Shovel",
-            "Soul stone",
-            "Staff",
-            "Sword",
-            "Tool",
-            "Wand",
-        ];
-        ITEMS
-            .iter()
-            .filter(|x| weapon_types.contains(&x.item_type.as_str()))
-            .collect()
-    };
-    static ref HATS: Vec<&'static items::Item> =
-        ITEMS.iter().filter(|x| x.item_type == "Hat").collect();
-    static ref CLOAKS: Vec<&'static items::Item> = ITEMS
-        .iter()
-        .filter(|x| x.item_type == "Cloak" || x.item_type == "Backpack")
-        .collect();
-    static ref AMULETS: Vec<&'static items::Item> =
-        ITEMS.iter().filter(|x| x.item_type == "Amulet").collect();
-    static ref RINGS: Vec<&'static items::Item> =
-        ITEMS.iter().filter(|x| x.item_type == "Ring").collect();
-    static ref BELTS: Vec<&'static items::Item> =
-        ITEMS.iter().filter(|x| x.item_type == "Belt").collect();
-    static ref BOOTS: Vec<&'static items::Item> =
-        ITEMS.iter().filter(|x| x.item_type == "Boots").collect();
-    static ref SHIELDS: Vec<&'static items::Item> =
-        ITEMS.iter().filter(|x| x.item_type == "Shield").collect();
-    static ref DOFUS: Vec<&'static items::Item> = ITEMS
-        .iter()
-        .filter(|x| x.item_type == "Dofus"
-            || x.item_type == "Trophy"
-            || x.item_type == "Prysmaradite")
-        .collect();
-    static ref SETS: HashMap<i32, items::Set> =
-        items::parse_sets(include_bytes!("../data/sets.json"));
 }
