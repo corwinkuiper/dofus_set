@@ -39,7 +39,7 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
   }
 
   weightValueChange(event: React.FormEvent<HTMLInputElement>) {
-    const newWeightValue = parseInt(event.currentTarget.value, 10)
+    const newWeightValue = parseFloat(event.currentTarget.value)
     this.setState(Object.assign({}, this.state, { currentWeightValue: event.currentTarget.value }))
     if (isNaN(newWeightValue)) {
       return
