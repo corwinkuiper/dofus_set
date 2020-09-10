@@ -22,6 +22,13 @@ struct OptimiseRequest {
 }
 
 #[derive(Serialize)]
+struct OptimiseResponseSetBonus {
+    name: String,
+    number_of_items: i32,
+    characteristics: Vec<i32>,
+}
+
+#[derive(Serialize)]
 struct OptimiseResponseItem {
     characteristics: Vec<i32>,
     name: String,
