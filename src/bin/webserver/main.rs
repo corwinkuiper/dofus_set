@@ -41,6 +41,7 @@ struct OptimiseResponseItem {
 struct OptimiseResponse {
     overall_characteristics: Vec<i32>,
     items: Vec<OptimiseResponseItem>,
+    set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
 
 #[options("/optimise")]
@@ -67,6 +68,15 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
 
     let final_state = optimiser.optimise();
 
+    let set_bonuses = final_state
+        .sets()
+        .map(|set| OptimiseResponseSetBonus {
+            name: set.name.clone(),
+            number_of_items: set.number_of_items,
+            characteristics: set.bonus.to_vec(),
+        })
+        .collect();
+
     Some(Json(OptimiseResponse {
         overall_characteristics: final_state.stats(config.max_level).to_vec(),
         items: final_state
@@ -79,6 +89,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
                 image_url: item.image_url.clone(),
             })
             .collect(),
+        set_bonuses,
     }))
 }
 
