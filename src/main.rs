@@ -7,6 +7,8 @@ mod stats;
 use dofus_set::State;
 use stats::Stat;
 
+use std::convert::TryInto;
+
 #[macro_use]
 extern crate lazy_static;
 
@@ -56,7 +58,7 @@ pub fn print_state(state: &State, config: &config::Config) {
 
 fn print_stats(stat: &stats::Characteristic) {
     for (characteristic, value) in stat.iter().enumerate() {
-        let stat: stats::Stat = unsafe { std::mem::transmute(characteristic as u8) };
+        let stat: Stat = characteristic.try_into().unwrap();
         if *value != 0 {
             println!("\t{:#?}: {}", stat, value);
         }

@@ -204,3 +204,14 @@ pub enum Stat {
     ResistanceRange,
     ResistanceMelee,
 }
+
+impl std::convert::TryFrom<usize> for Stat {
+    type Error = &'static str;
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        if value > Stat::ResistanceMelee as usize {
+            Err("Cannot convert too large value")
+        } else {
+            Ok(unsafe { std::mem::transmute(value as u8) })
+        }
+    }
+}
