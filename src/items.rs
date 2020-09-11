@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::convert::TryInto;
 
 pub struct Item {
+    pub dofus_id: i32,
     pub name: String,
     pub item_type: String,
     pub stats: stats::Characteristic,
@@ -36,6 +37,8 @@ struct DofusLabItemStats {
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct DofusLabItem {
+    #[serde(deserialize_with = "number_deserialize")]
+    dofusID: i32,
     name: DofusLabItemName,
     itemType: String,
     setID: Option<String>,
@@ -43,6 +46,17 @@ struct DofusLabItem {
     level: i32,
     conditions: Option<DofusLabConditions>,
     imageUrl: Option<String>,
+}
+
+fn number_deserialize<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<i32, D::Error> {
+    Ok(match serde_json::Value::deserialize(deserializer)? {
+        serde_json::Value::String(s) => s.parse().map_err(serde::de::Error::custom)?,
+        serde_json::Value::Number(s) => {
+            s.as_i64()
+                .ok_or_else(|| serde::de::Error::custom("Invalid number"))? as i32
+        }
+        _ => return Err(serde::de::Error::custom("Wrong type, expected number")),
+    })
 }
 
 #[derive(Deserialize)]
@@ -121,6 +135,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 .unwrap_or_else(|| Box::new(stats::NullRestriction {}));
 
             Item {
+                dofus_id: item.dofusID,
                 name: item.name.en.clone(),
                 item_type: item.itemType.clone(),
                 stats,
@@ -184,6 +199,14 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
         .collect()
 }
 
+pub fn dofus_id_to_index(dofus_id: i32) -> Option<usize> {
+    ITEMS.binary_search_by(|x| x.dofus_id.cmp(&dofus_id)).ok()
+}
+
+pub fn dofus_id_to_item(dofus_id: i32) -> Option<&'static Item> {
+    dofus_id_to_index(dofus_id).map(|index| &ITEMS[index])
+}
+
 fn item_filter(
     items: &'static [Item],
     filter: &'static [&str],
@@ -204,6 +227,7 @@ lazy_static! {
         items.append(&mut parse_items(include_bytes!("../data/pets.json")));
         items.append(&mut parse_items(include_bytes!("../data/rhineetles.json")));
 
+        items.sort_by(|a, b| a.dofus_id.cmp(&b.dofus_id));
         items
     };
     pub static ref MOUNTS: Vec<usize> =
