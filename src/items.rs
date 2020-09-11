@@ -199,6 +199,25 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
         .collect()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn find_item_by_dofus_id() {
+        let index = ITEMS.len() / 3;
+        let id = ITEMS[index].dofus_id;
+        assert_eq!(dofus_id_to_index(id), Some(index));
+    }
+
+    #[test]
+    fn dofus_id_name_check() {
+        let id = 8818;
+        let name = "Mopy King Sovereign Cape";
+        assert_eq!(dofus_id_to_item(id).unwrap().name, name);
+    }
+}
+
 pub fn dofus_id_to_index(dofus_id: i32) -> Option<usize> {
     ITEMS.binary_search_by(|x| x.dofus_id.cmp(&dofus_id)).ok()
 }
