@@ -19,12 +19,16 @@ fn main() {
     let config = config::Config {
         max_level: 148,
         weights,
-        changable: (0..16).collect(),
+        changable: (1..16).collect(),
         ban_list: Vec::new(),
     };
+
+    let mut initial_set: [Option<i32>; 16] = [None; 16];
+    initial_set[0] = Some(8243);
+
     let optimiser = Optimiser { config: &config };
 
-    let final_state = optimiser.optimise([None; 16]);
+    let final_state = optimiser.optimise(initial_set);
     print_state(&final_state, &config);
     println!("Set Energy: {}", -final_state.energy(&config));
 }
