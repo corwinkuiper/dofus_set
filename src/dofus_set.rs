@@ -243,16 +243,27 @@ fn max_additional_ap(level: i32) -> i32 {
 }
 
 pub struct Optimiser<'a> {
-    pub config: &'a config::Config,
+    config: &'a config::Config,
+    initial_state: State,
 }
 
 impl<'a> Optimiser<'a> {
-    pub fn optimise(self, initial_set: [Option<i32>; 16]) -> State {
-        let initial_state: State = State::new_from_initial_equipment(initial_set).unwrap();
-        if !initial_state.valid(&self.config) {
-            return initial_state;
+    pub fn new(
+        config: &'a config::Config,
+        initial_set: [Option<i32>; 16],
+    ) -> Result<Optimiser<'a>, &'static str> {
+        let initial_state: State = State::new_from_initial_equipment(initial_set)?;
+        if !initial_state.valid(config) {
+            return Err("Initial state is not valid");
         }
-        anneal::Anneal::optimise(&self, initial_state, 1_000_000)
+        Ok(Optimiser {
+            config,
+            initial_state,
+        })
+    }
+
+    pub fn optimise(self) -> State {
+        anneal::Anneal::optimise(&self, self.initial_state.clone(), 1_000_000)
     }
 }
 

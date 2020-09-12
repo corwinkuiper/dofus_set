@@ -55,11 +55,9 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         ban_list: Vec::new(),
     };
 
-    let optimiser = dofus_set::Optimiser {
-        config: &dofus_set_config,
-    };
+    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, [None; 16]).unwrap();
 
-    let final_state = optimiser.optimise([None; 16]);
+    let final_state = optimiser.optimise();
 
     Some(Json(OptimiseResponse {
         overall_characteristics: final_state.stats(config.max_level).to_vec(),

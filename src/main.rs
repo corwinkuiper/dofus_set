@@ -26,9 +26,9 @@ fn main() {
     let mut initial_set: [Option<i32>; 16] = [None; 16];
     initial_set[0] = Some(8243);
 
-    let optimiser = Optimiser { config: &config };
+    let optimiser = Optimiser::new(&config, initial_set).unwrap();
 
-    let final_state = optimiser.optimise(initial_set);
+    let final_state = optimiser.optimise();
     print_state(&final_state, &config);
     println!("Set Energy: {}", -final_state.energy(&config));
 }
