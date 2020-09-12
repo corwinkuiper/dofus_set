@@ -6,7 +6,6 @@ use crate::stats;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
-use std::convert::TryInto;
 
 fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     match index {
@@ -59,6 +58,26 @@ const MAX_ADDITIONAL_RANGE: i32 = 6;
 #[derive(Clone, Debug, Default)]
 pub struct State {
     set: [Option<usize>; 16],
+}
+
+impl State {
+    fn new_from_initial_equipment(equipment: [Option<i32>; 16]) -> Result<State, &'static str> {
+        let mut set = [None; 16];
+        for (index, equipment) in equipment.iter().enumerate() {
+            if let Some(equipment) = equipment {
+                if let Some(item_index) = items::dofus_id_to_index(*equipment) {
+                    if state_index_to_item(index).contains(&item_index) {
+                        set[index] = Some(item_index);
+                    } else {
+                        return Err("Equipment in wrong slot");
+                    }
+                } else {
+                    return Err("Dofus ID does not exist");
+                }
+            }
+        }
+        Ok(State { set })
+    }
 }
 
 pub struct SetBonus {
@@ -203,27 +222,7 @@ pub struct Optimiser<'a> {
 
 impl<'a> Optimiser<'a> {
     pub fn optimise(self, initial_set: [Option<i32>; 16]) -> State {
-        let initial_set: Vec<Option<usize>> = initial_set
-            .iter()
-            .enumerate()
-            .map(|(index, x)| {
-                x.map(|x| {
-                    items::dofus_id_to_index(x).map(|x| {
-                        if state_index_to_item(index).contains(&x) {
-                            Some(x)
-                        } else {
-                            None
-                        }
-                    })
-                })
-                .flatten()
-                .flatten()
-            })
-            .collect();
-        let initial_set: &[Option<usize>] = &initial_set;
-        let initial_state = State {
-            set: initial_set.try_into().unwrap(),
-        };
+        let initial_state: State = State::new_from_initial_equipment(initial_set).unwrap();
         if !initial_state.valid(&self.config) {
             return initial_state;
         }
