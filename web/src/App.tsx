@@ -93,7 +93,7 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
             <span className="itembox-itemname">{item.name}</span>
             <span className="itembox-level">{item.level}</span>
           </div>
-          <span>{topStatIndex ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
+          <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
         </div>
       </div>
     </ItemHoverContainer>
