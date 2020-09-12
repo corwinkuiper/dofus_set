@@ -22,6 +22,7 @@ struct OptimiseRequest {
 
 #[derive(Serialize)]
 struct OptimiseResponseItem {
+    dofus_id: i32,
     characteristics: Vec<i32>,
     name: String,
     item_type: String,
@@ -67,6 +68,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         items: final_state
             .set()
             .map(|item| OptimiseResponseItem {
+                dofus_id: item.dofus_id,
                 characteristics: item.stats.to_vec(),
                 name: item.name.clone(),
                 item_type: item.item_type.clone(),
