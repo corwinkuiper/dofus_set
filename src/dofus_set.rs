@@ -216,9 +216,9 @@ impl<'a> Optimiser<'a> {
                         }
                     })
                 })
+                .flatten()
+                .flatten()
             })
-            .flatten()
-            .flatten()
             .collect();
         let initial_set: &[Option<usize>] = &initial_set;
         let initial_state = State {
