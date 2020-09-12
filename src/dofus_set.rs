@@ -194,7 +194,10 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
                     .unwrap();
                 let item_type = state_index_to_item(item_slot);
                 let item_index = item_type[rand::thread_rng().gen_range(0, item_type.len())];
-                if items::ITEMS[item_index].level <= self.config.max_level {
+                let item = &items::ITEMS[item_index];
+                if item.level <= self.config.max_level
+                    && !self.config.ban_list.contains(&item.dofus_id)
+                {
                     break (item_slot, item_index);
                 }
             };

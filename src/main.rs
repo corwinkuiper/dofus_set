@@ -20,6 +20,7 @@ fn main() {
         max_level: 148,
         weights,
         changable: (0..16).collect(),
+        ban_list: Vec::new(),
     };
     let optimiser = Optimiser { config: &config };
 

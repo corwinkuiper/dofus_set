@@ -53,6 +53,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         max_level: config.max_level,
         weights: weights,
         changable: (0..16).collect(),
+        ban_list: Vec::new(),
     };
 
     let optimiser = dofus_set::Optimiser {
