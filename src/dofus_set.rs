@@ -24,6 +24,35 @@ fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     }
 }
 
+fn slot_to_item_type<'a>(slot: usize) -> &'a [&'a str] {
+    match slot {
+        0 => &["Hat"],
+        1 => &["Cloak", "Backpack"],
+        2 => &["Amulet"],
+        3..=4 => &["Ring"],
+        5 => &["Belt"],
+        6 => &["Boots"],
+        7 => &[
+            "Axe",
+            "Bow",
+            "Dagger",
+            "Hammer",
+            "Pickaxe",
+            "Scythe",
+            "Shovel",
+            "Soul stone",
+            "Staff",
+            "Sword",
+            "Tool",
+            "Wand",
+        ],
+        8 => &["Shield"],
+        9..=14 => &["Dofus", "Trophy", "Prysmaradite"],
+        15 => &["Pet", "Petsmount", "Mount"],
+        _ => panic!("Slot index out of range"),
+    }
+}
+
 const MAX_ADDITIONAL_MP: i32 = 3;
 const MAX_ADDITIONAL_RANGE: i32 = 6;
 
@@ -176,7 +205,19 @@ impl<'a> Optimiser<'a> {
     pub fn optimise(self, initial_set: [Option<i32>; 16]) -> State {
         let initial_set: Vec<Option<usize>> = initial_set
             .iter()
-            .map(|x| x.map(items::dofus_id_to_index))
+            .enumerate()
+            .map(|(index, x)| {
+                x.map(|x| {
+                    items::dofus_id_to_index(x).map(|x| {
+                        if state_index_to_item(index).contains(&x) {
+                            Some(x)
+                        } else {
+                            None
+                        }
+                    })
+                })
+            })
+            .flatten()
             .flatten()
             .collect();
         let initial_set: &[Option<usize>] = &initial_set;
