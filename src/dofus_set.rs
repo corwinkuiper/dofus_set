@@ -23,12 +23,87 @@ fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     }
 }
 
+fn slot_to_item_type<'a>(slot: usize) -> &'a [&'a str] {
+    match slot {
+        0 => &["Hat"],
+        1 => &["Cloak", "Backpack"],
+        2 => &["Amulet"],
+        3..=4 => &["Ring"],
+        5 => &["Belt"],
+        6 => &["Boots"],
+        7 => &[
+            "Axe",
+            "Bow",
+            "Dagger",
+            "Hammer",
+            "Pickaxe",
+            "Scythe",
+            "Shovel",
+            "Soul stone",
+            "Staff",
+            "Sword",
+            "Tool",
+            "Wand",
+        ],
+        8 => &["Shield"],
+        9..=14 => &["Dofus", "Trophy", "Prysmaradite"],
+        15 => &["Pet", "Petsmount", "Mount"],
+        _ => panic!("Slot index out of range"),
+    }
+}
+
 const MAX_ADDITIONAL_MP: i32 = 3;
 const MAX_ADDITIONAL_RANGE: i32 = 6;
 
 #[derive(Clone, Debug, Default)]
 pub struct State {
     set: [Option<usize>; 16],
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn new_state_invalid_id() {
+        let mut set = [None; 16];
+        set[0] = Some(21474836);
+
+        assert_eq!(
+            State::new_from_initial_equipment(set).unwrap_err(),
+            "Dofus ID does not exist"
+        );
+    }
+
+    #[test]
+    fn new_state_wrong_slot() {
+        let mut set = [None; 16];
+        set[0] = Some(8231); // red piwi cape in hat slot
+
+        assert_eq!(
+            State::new_from_initial_equipment(set).unwrap_err(),
+            "Equipment in wrong slot"
+        );
+    }
+}
+
+impl State {
+    fn new_from_initial_equipment(equipment: [Option<i32>; 16]) -> Result<State, &'static str> {
+        let mut set = [None; 16];
+        for (index, equipment) in equipment.iter().enumerate() {
+            if let Some(equipment) = equipment {
+                if let Some(item_index) = items::dofus_id_to_index(*equipment) {
+                    if state_index_to_item(index).contains(&item_index) {
+                        set[index] = Some(item_index);
+                    } else {
+                        return Err("Equipment in wrong slot");
+                    }
+                } else {
+                    return Err("Dofus ID does not exist");
+                }
+            }
+        }
+        Ok(State { set })
+    }
 }
 
 pub struct SetBonus {
@@ -168,13 +243,27 @@ fn max_additional_ap(level: i32) -> i32 {
 }
 
 pub struct Optimiser<'a> {
-    pub config: &'a config::Config,
+    config: &'a config::Config,
+    initial_state: State,
 }
 
 impl<'a> Optimiser<'a> {
+    pub fn new(
+        config: &'a config::Config,
+        initial_set: [Option<i32>; 16],
+    ) -> Result<Optimiser<'a>, &'static str> {
+        let initial_state: State = State::new_from_initial_equipment(initial_set)?;
+        if !initial_state.valid(config) {
+            return Err("Initial state is not valid");
+        }
+        Ok(Optimiser {
+            config,
+            initial_state,
+        })
+    }
+
     pub fn optimise(self) -> State {
-        let initial_state = State::default();
-        anneal::Anneal::optimise(&self, initial_state, 1_000_000)
+        anneal::Anneal::optimise(&self, self.initial_state.clone(), 1_000_000)
     }
 }
 

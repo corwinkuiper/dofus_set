@@ -55,9 +55,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         ban_list: Vec::new(),
     };
 
-    let optimiser = dofus_set::Optimiser {
-        config: &dofus_set_config,
-    };
+    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, [None; 16]).unwrap();
 
     let final_state = optimiser.optimise();
 
