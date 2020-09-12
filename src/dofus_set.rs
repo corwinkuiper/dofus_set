@@ -60,6 +60,32 @@ pub struct State {
     set: [Option<usize>; 16],
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn new_state_invalid_id() {
+        let mut set = [None; 16];
+        set[0] = Some(21474836);
+
+        assert_eq!(
+            State::new_from_initial_equipment(set).unwrap_err(),
+            "Dofus ID does not exist"
+        );
+    }
+
+    #[test]
+    fn new_state_wrong_slot() {
+        let mut set = [None; 16];
+        set[0] = Some(8231); // red piwi cape in hat slot
+
+        assert_eq!(
+            State::new_from_initial_equipment(set).unwrap_err(),
+            "Equipment in wrong slot"
+        );
+    }
+}
+
 impl State {
     fn new_from_initial_equipment(equipment: [Option<i32>; 16]) -> Result<State, &'static str> {
         let mut set = [None; 16];
