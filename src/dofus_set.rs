@@ -183,6 +183,9 @@ impl<'a> Optimiser<'a> {
         let initial_state = State {
             set: initial_set.try_into().unwrap(),
         };
+        if !initial_state.valid(&self.config) {
+            return initial_state;
+        }
         anneal::Anneal::optimise(&self, initial_state, 1_000_000)
     }
 }
