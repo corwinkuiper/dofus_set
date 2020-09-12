@@ -6,6 +6,7 @@ use crate::stats;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
+use std::convert::TryInto;
 
 fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     match index {
@@ -172,8 +173,16 @@ pub struct Optimiser<'a> {
 }
 
 impl<'a> Optimiser<'a> {
-    pub fn optimise(self) -> State {
-        let initial_state = State::default();
+    pub fn optimise(self, initial_set: [Option<i32>; 16]) -> State {
+        let initial_set: Vec<Option<usize>> = initial_set
+            .iter()
+            .map(|x| x.map(items::dofus_id_to_index))
+            .flatten()
+            .collect();
+        let initial_set: &[Option<usize>] = &initial_set;
+        let initial_state = State {
+            set: initial_set.try_into().unwrap(),
+        };
         anneal::Anneal::optimise(&self, initial_state, 1_000_000)
     }
 }

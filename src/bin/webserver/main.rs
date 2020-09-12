@@ -59,7 +59,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         config: &dofus_set_config,
     };
 
-    let final_state = optimiser.optimise();
+    let final_state = optimiser.optimise([None; 16]);
 
     Some(Json(OptimiseResponse {
         overall_characteristics: final_state.stats(config.max_level).to_vec(),

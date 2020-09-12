@@ -24,7 +24,7 @@ fn main() {
     };
     let optimiser = Optimiser { config: &config };
 
-    let final_state = optimiser.optimise();
+    let final_state = optimiser.optimise([None; 16]);
     print_state(&final_state, &config);
     println!("Set Energy: {}", -final_state.energy(&config));
 }
