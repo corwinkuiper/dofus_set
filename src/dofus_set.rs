@@ -23,35 +23,6 @@ fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     }
 }
 
-fn slot_to_item_type<'a>(slot: usize) -> &'a [&'a str] {
-    match slot {
-        0 => &["Hat"],
-        1 => &["Cloak", "Backpack"],
-        2 => &["Amulet"],
-        3..=4 => &["Ring"],
-        5 => &["Belt"],
-        6 => &["Boots"],
-        7 => &[
-            "Axe",
-            "Bow",
-            "Dagger",
-            "Hammer",
-            "Pickaxe",
-            "Scythe",
-            "Shovel",
-            "Soul stone",
-            "Staff",
-            "Sword",
-            "Tool",
-            "Wand",
-        ],
-        8 => &["Shield"],
-        9..=14 => &["Dofus", "Trophy", "Prysmaradite"],
-        15 => &["Pet", "Petsmount", "Mount"],
-        _ => panic!("Slot index out of range"),
-    }
-}
-
 const MAX_ADDITIONAL_MP: i32 = 3;
 const MAX_ADDITIONAL_RANGE: i32 = 6;
 
