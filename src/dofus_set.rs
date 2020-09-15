@@ -7,7 +7,7 @@ use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
-fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
+pub fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     match index {
         0 => &items::HATS,
         1 => &items::CLOAKS,
