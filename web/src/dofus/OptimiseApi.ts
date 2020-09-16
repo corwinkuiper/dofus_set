@@ -1,6 +1,7 @@
 interface SetWeightOptions {
   weights: number[]
   maxLevel: number
+  fixedItems: (number | undefined)[]
 }
 
 interface OptimiseSetItemResponse {
@@ -34,6 +35,7 @@ export class OptimiseApi {
       body: JSON.stringify({
         weights: options.weights,
         max_level: options.maxLevel,
+        fixed_items: options.fixedItems,
       })
     })
 

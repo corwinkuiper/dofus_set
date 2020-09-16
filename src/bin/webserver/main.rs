@@ -20,6 +20,7 @@ use rocket::fairing;
 struct OptimiseRequest {
     weights: Vec<f64>,
     max_level: i32,
+    fixed_items: Vec<Option<i32>>,
 }
 
 #[derive(Serialize)]
@@ -100,14 +101,24 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
     let mut weights = [0.0f64; 51];
     weights[..51].clone_from_slice(&config.weights[..51]);
 
+    let mut fixed_items = [None; 16];
+    fixed_items[..16].clone_from_slice(&config.fixed_items[..16]);
+
     let dofus_set_config = config::Config {
         max_level: config.max_level,
         weights,
-        changable: (0..16).collect(),
+        changable: fixed_items
+            .iter()
+            .enumerate()
+            .filter_map(|(index, item)| match item {
+                None => Some(index),
+                _ => None,
+            })
+            .collect(),
         ban_list: Vec::new(),
     };
 
-    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, [None; 16]).unwrap();
+    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
 
     let final_state = optimiser.optimise();
 

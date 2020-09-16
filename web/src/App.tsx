@@ -258,9 +258,20 @@ class App extends React.Component<{}, AppState> {
         weights.push(weightValue)
       }
 
+      const fixedItems: (number | undefined)[] = []
+      for (let slot = 0; slot < 16; slot++) {
+        if (this.state.pinnedSlots.includes(slot)) {
+          const bestItem = this.state.bestItems[slot]?.dofusId
+          fixedItems.push(bestItem)
+        } else {
+          fixedItems.push(undefined)
+        }
+      }
+
       const setResult = await this.api.optimiseSet({
         weights: weights,
         maxLevel: this.state.maxLevel,
+        fixedItems
       })
 
       const bestItems = setResult.items.map(item => item && new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))
