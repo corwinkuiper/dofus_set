@@ -50,6 +50,7 @@ class SetBonus {
 class AppState {
   weightsState = new WeightsState([])
   bestItems: (Item | null)[] = []
+  bannedItems: Item[] = []
   pinnedSlots: number[] = []
   resultingCharacteristics: number[] = []
   setBonuses: SetBonus[] = []
@@ -91,7 +92,7 @@ class ItemHoverContainer extends React.Component<{ children: React.ReactNode, ch
   }
 }
 
-function ItemBox({ item, weights, pinned, togglePinned }: { item: Item, weights: WeightsState, pinned: boolean, togglePinned: () => void }) {
+function ItemBox({ item, weights, pinned, togglePinned, ban }: { item: Item, weights: WeightsState, pinned: boolean, togglePinned: () => void, ban: () => void }) {
   let topStatIndex = null;
   let topStatValue = 0;
   for (let i = 0; i < item.characteristics.length; i++) {
@@ -116,7 +117,7 @@ function ItemBox({ item, weights, pinned, togglePinned }: { item: Item, weights:
           <div className="itembox-bottom-section">
             <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
             <div className="itembox-actions">
-              <button className="itembox-ban" />
+              <button className="itembox-ban" onClick={ban} />
               <button className={classNames({ 'itembox-pin': true, 'itembox-pin-active': pinned })} onClick={togglePinned} />
             </div>
           </div>
@@ -141,10 +142,10 @@ function SetBonusBox({ bonus, weights }: { bonus: SetBonus, weights: WeightsStat
   )
 }
 
-function BestItemDisplay({ items, weights, setBonuses, pinnedSlots, togglePinned }: { items: (Item | null)[], weights: WeightsState, setBonuses: SetBonus[], pinnedSlots: number[], togglePinned: (slot: number) => void }) {
+function BestItemDisplay({ items, weights, setBonuses, pinnedSlots, togglePinned, banItem }: { items: (Item | null)[], weights: WeightsState, setBonuses: SetBonus[], pinnedSlots: number[], togglePinned: (slot: number) => void, banItem: (item: Item) => void }) {
   return (
     <div className="best-item-display">
-      {items.map((item, i) => item && <ItemBox item={item} key={i} weights={weights} pinned={pinnedSlots.includes(i)} togglePinned={togglePinned.bind(null, i)} />)}
+      {items.map((item, i) => item && <ItemBox item={item} key={i} weights={weights} pinned={pinnedSlots.includes(i)} togglePinned={togglePinned.bind(null, i)} ban={banItem.bind(null, item)} />)}
       {setBonuses.map((bonus, i) => <SetBonusBox bonus={bonus} key={i} weights={weights} />)}
     </div>
   )
@@ -216,6 +217,34 @@ function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: nu
   )
 }
 
+function BannedItem({ item, unban }: { item: Item, unban: () => void }) {
+  return (
+    <div className="itembox">
+      {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
+      <div className="itembox-data">
+        <div className="itembox-options">
+          <span className="itembox-itemname">{item.name}</span>
+          <span className="itembox-level">{item.level}</span>
+        </div>
+        <div className="itembox-bottom-section">
+          <div className="itembox-actions">
+            <button className="itembox-ban" onClick={unban} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BannedItems({ items, unban }: { items: Item[], unban: (item: Item) => void }) {
+  return (
+    <div className="banlist">
+      {items.length > 0 && <h3>Banned Items</h3>}
+      {items.map((item, i) => <BannedItem item={item} unban={unban.bind(null, item)} key={i} />)}
+    </div>
+  )
+}
+
 class App extends React.Component<{}, AppState> {
   state = new AppState()
 
@@ -228,6 +257,8 @@ class App extends React.Component<{}, AppState> {
     this.updateWeightsState = this.updateWeightsState.bind(this)
     this.setMaxLevel = this.setMaxLevel.bind(this)
     this.togglePinned = this.togglePinned.bind(this)
+    this.banItem = this.banItem.bind(this)
+    this.unbanItem = this.unbanItem.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
   }
@@ -289,6 +320,21 @@ class App extends React.Component<{}, AppState> {
     this.setState({ pinnedSlots: newPinnedSlots })
   }
 
+  banItem(item: Item) {
+    const newBannedItems = this.state.bannedItems
+    if (!newBannedItems.find(i => i.dofusId === item.dofusId)) {
+      newBannedItems.push(item)
+    }
+
+    this.setState({ bannedItems: newBannedItems })
+  }
+
+  unbanItem(item: Item) {
+    this.setState({
+      bannedItems: this.state.bannedItems.filter(i => i.dofusId !== item.dofusId)
+    })
+  }
+
   render() {
     return (
       <div className="app-container">
@@ -298,8 +344,9 @@ class App extends React.Component<{}, AppState> {
             Optimise!
             {this.state.optimising && <Spinner />}
           </button>
+          <BannedItems items={this.state.bannedItems} unban={this.unbanItem} />
         </div>
-        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} pinnedSlots={this.state.pinnedSlots} togglePinned={this.togglePinned} />
+        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} pinnedSlots={this.state.pinnedSlots} togglePinned={this.togglePinned} banItem={this.banItem} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )
