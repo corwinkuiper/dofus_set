@@ -7,6 +7,10 @@ import { OptimiseApi } from './dofus/OptimiseApi'
 import { WeightsSelector, WeightsState } from './WeightsSelector'
 import { Spinner } from './Spinner'
 
+function classNames(classes: { [className: string]: boolean }) {
+  return Object.entries(classes).filter(entry => entry[1]).map(entry => entry[0]).join(' ')
+}
+
 function getImageUrl(imageUrl: string): string {
   const suffix = imageUrl.slice(imageUrl.lastIndexOf('/') + 1)
   return `https://d2iuiayak06k8j.cloudfront.net/item/${suffix}`
@@ -46,6 +50,7 @@ class SetBonus {
 class AppState {
   weightsState = new WeightsState([])
   bestItems: Item[] = []
+  pinnedItems: Item[] = []
   resultingCharacteristics: number[] = []
   setBonuses: SetBonus[] = []
   maxLevel: number = 149
@@ -86,7 +91,7 @@ class ItemHoverContainer extends React.Component<{ children: React.ReactNode, ch
   }
 }
 
-function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
+function ItemBox({ item, weights, pinned }: { item: Item, weights: WeightsState, pinned: boolean }) {
   let topStatIndex = null;
   let topStatValue = 0;
   for (let i = 0; i < item.characteristics.length; i++) {
@@ -112,7 +117,7 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
             <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
             <div className="itembox-actions">
               <button className="itembox-ban" />
-              <button className="itembox-pin" />
+              <button className={classNames({ 'itembox-pin': true, 'itembox-pin-active': pinned })} />
             </div>
           </div>
         </div>
@@ -136,10 +141,14 @@ function SetBonusBox({ bonus, weights }: { bonus: SetBonus, weights: WeightsStat
   )
 }
 
-function BestItemDisplay({ items, weights, setBonuses }: { items: Item[], weights: WeightsState, setBonuses: SetBonus[] }) {
+function isPinned(item: Item, pinnedItems: Item[]) {
+  return pinnedItems.find(i => i.dofusId === item.dofusId) !== undefined
+}
+
+function BestItemDisplay({ items, weights, setBonuses, pinnedItems }: { items: Item[], weights: WeightsState, setBonuses: SetBonus[], pinnedItems: Item[] }) {
   return (
     <div className="best-item-display">
-      {items.map((item, i) => <ItemBox item={item} key={i} weights={weights} />)}
+      {items.map((item, i) => <ItemBox item={item} key={i} weights={weights} pinned={isPinned(item, pinnedItems)} />)}
       {setBonuses.map((bonus, i) => <SetBonusBox bonus={bonus} key={i} weights={weights} />)}
     </div>
   )
@@ -271,7 +280,7 @@ class App extends React.Component<{}, AppState> {
             {this.state.optimising && <Spinner />}
           </button>
         </div>
-        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} />
+        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} pinnedItems={this.state.pinnedItems} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )
