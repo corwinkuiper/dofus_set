@@ -20,6 +20,8 @@ use rocket::fairing;
 struct OptimiseRequest {
     weights: Vec<f64>,
     max_level: i32,
+    fixed_items: Vec<Option<i32>>,
+    banned_items: Vec<i32>,
 }
 
 #[derive(Serialize)]
@@ -42,7 +44,7 @@ struct OptimiseResponseItem {
 #[derive(Serialize)]
 struct OptimiseResponse {
     overall_characteristics: Vec<i32>,
-    items: Vec<OptimiseResponseItem>,
+    items: Vec<Option<OptimiseResponseItem>>,
     set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
 
@@ -100,14 +102,24 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
     let mut weights = [0.0f64; 51];
     weights[..51].clone_from_slice(&config.weights[..51]);
 
+    let mut fixed_items = [None; 16];
+    fixed_items[..16].clone_from_slice(&config.fixed_items[..16]);
+
     let dofus_set_config = config::Config {
         max_level: config.max_level,
         weights,
-        changable: (0..16).collect(),
-        ban_list: Vec::new(),
+        changable: fixed_items
+            .iter()
+            .enumerate()
+            .filter_map(|(index, item)| match item {
+                None => Some(index),
+                _ => None,
+            })
+            .collect(),
+        ban_list: config.banned_items.clone(),
     };
 
-    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, [None; 16]).unwrap();
+    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
 
     let final_state = optimiser.optimise();
 
@@ -124,13 +136,15 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         overall_characteristics: final_state.stats(config.max_level).to_vec(),
         items: final_state
             .set()
-            .map(|item| OptimiseResponseItem {
-                dofus_id: item.dofus_id,
-                characteristics: item.stats.to_vec(),
-                name: item.name.clone(),
-                item_type: item.item_type.clone(),
-                level: item.level,
-                image_url: item.image_url.clone(),
+            .map(|item| {
+                item.map(|item| OptimiseResponseItem {
+                    dofus_id: item.dofus_id,
+                    characteristics: item.stats.to_vec(),
+                    name: item.name.clone(),
+                    item_type: item.item_type.clone(),
+                    level: item.level,
+                    image_url: item.image_url.clone(),
+                })
             })
             .collect(),
         set_bonuses,

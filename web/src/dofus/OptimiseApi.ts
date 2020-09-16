@@ -1,11 +1,22 @@
 interface SetWeightOptions {
   weights: number[]
   maxLevel: number
+  fixedItems: (number | undefined)[]
+  bannedItems: number[]
+}
+
+interface OptimiseSetItemResponse {
+  name: string
+  characteristics: number[]
+  itemType: string
+  level: number
+  imageUrl?: string
+  dofusId: number
 }
 
 interface OptimiseSetResponse {
   overallCharacteristics: number[]
-  items: { name: string, characteristics: number[], itemType: string, level: number, imageUrl?: string }[]
+  items: (OptimiseSetItemResponse | null)[]
   setBonuses: { name: string, characteristics: number[], numberOfItems: number }[]
 }
 
@@ -25,6 +36,8 @@ export class OptimiseApi {
       body: JSON.stringify({
         weights: options.weights,
         max_level: options.maxLevel,
+        fixed_items: options.fixedItems,
+        banned_items: options.bannedItems,
       })
     })
 
@@ -36,6 +49,7 @@ export class OptimiseApi {
       item_type: string
       level: number
       image_url?: string
+      dofus_id: number
     }
 
     interface OptimiseApiResponseSetBonus {
@@ -46,8 +60,8 @@ export class OptimiseApi {
 
     return {
       overallCharacteristics: content.overall_characteristics,
-      items: (content.items as OptimiseApiResponseItem[]).map(item => ({
-        name: item.name, characteristics: item.characteristics, itemType: item.item_type, level: item.level, imageUrl: item.image_url
+      items: (content.items as (OptimiseApiResponseItem | null)[]).map(item => item && ({
+        name: item.name, characteristics: item.characteristics, itemType: item.item_type, level: item.level, imageUrl: item.image_url, dofusId: item.dofus_id
       })),
       setBonuses: (content.set_bonuses as OptimiseApiResponseSetBonus[]).map(setBonus => ({
         name: setBonus.name,

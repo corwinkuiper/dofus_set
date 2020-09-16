@@ -84,10 +84,10 @@ pub struct SetBonus {
 }
 
 impl State {
-    pub fn set(&self) -> impl std::iter::Iterator<Item = &items::Item> {
+    pub fn set(&self) -> impl std::iter::Iterator<Item = Option<&items::Item>> {
         self.set
             .iter()
-            .filter_map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
+            .map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
     }
 
     pub fn sets(&self) -> impl std::iter::Iterator<Item = SetBonus> {
