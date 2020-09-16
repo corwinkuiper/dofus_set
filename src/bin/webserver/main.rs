@@ -1,5 +1,6 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #![deny(clippy::all)]
+#![allow(clippy::unit_arg)] // because create_optimised_set_options had an error
 
 use ::dofus_set::config;
 use ::dofus_set::dofus_set;
@@ -22,6 +23,13 @@ struct OptimiseRequest {
 }
 
 #[derive(Serialize)]
+struct OptimiseResponseSetBonus {
+    name: String,
+    number_of_items: i32,
+    characteristics: Vec<i32>,
+}
+
+#[derive(Serialize)]
 struct OptimiseResponseItem {
     dofus_id: i32,
     characteristics: Vec<i32>,
@@ -35,6 +43,7 @@ struct OptimiseResponseItem {
 struct OptimiseResponse {
     overall_characteristics: Vec<i32>,
     items: Vec<OptimiseResponseItem>,
+    set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
 
 fn item_list(items: &[usize]) -> Json<Vec<OptimiseResponseItem>> {
@@ -102,6 +111,15 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
 
     let final_state = optimiser.optimise();
 
+    let set_bonuses = final_state
+        .sets()
+        .map(|set| OptimiseResponseSetBonus {
+            name: set.name.clone(),
+            number_of_items: set.number_of_items,
+            characteristics: set.bonus.to_vec(),
+        })
+        .collect();
+
     Some(Json(OptimiseResponse {
         overall_characteristics: final_state.stats(config.max_level).to_vec(),
         items: final_state
@@ -115,6 +133,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
                 image_url: item.image_url.clone(),
             })
             .collect(),
+        set_bonuses,
     }))
 }
 

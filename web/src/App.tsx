@@ -29,10 +29,23 @@ class Item {
   }
 }
 
+class SetBonus {
+  readonly name: string
+  readonly characteristics: number[]
+  readonly numberOfItems: number
+
+  constructor(name: string, characteristics: number[], numberOfItems: number) {
+    this.name = name
+    this.characteristics = characteristics
+    this.numberOfItems = numberOfItems
+  }
+}
+
 class AppState {
   weightsState = new WeightsState([])
   bestItems: Item[] = []
   resultingCharacteristics: number[] = []
+  setBonuses: SetBonus[] = []
   maxLevel: number = 149
   optimising: boolean = false
 }
@@ -100,10 +113,26 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
   )
 }
 
-function BestItemDisplay({ items, weights }: { items: Item[], weights: WeightsState }) {
+function SetBonusBox({ bonus, weights }: { bonus: SetBonus, weights: WeightsState }) {
+  return (
+    <ItemHoverContainer characteristics={bonus.characteristics} weights={weights}>
+      <div className="itembox">
+        <div className="itembox-data">
+          <div className="itembox-options">
+            <span className="itembox-itemname">{bonus.name}</span>
+            <span className="itembox-level">{bonus.numberOfItems} items</span>
+          </div>
+        </div>
+      </div>
+    </ItemHoverContainer>
+  )
+}
+
+function BestItemDisplay({ items, weights, setBonuses }: { items: Item[], weights: WeightsState, setBonuses: SetBonus[] }) {
   return (
     <div className="best-item-display">
       {items.map((item, i) => <ItemBox item={item} key={i} weights={weights} />)}
+      {setBonuses.map((bonus, i) => <SetBonusBox bonus={bonus} key={i} weights={weights} />)}
     </div>
   )
 }
@@ -217,7 +246,8 @@ class App extends React.Component<{}, AppState> {
       })
 
       const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
-      this.setState(Object.assign({}, this.state, { bestItems, resultingCharacteristics: setResult.overallCharacteristics }))
+      const setBonuses = setResult.setBonuses.map(bonus => new SetBonus(bonus.name, bonus.characteristics, bonus.numberOfItems))
+      this.setState(Object.assign({}, this.state, { bestItems, setBonuses, resultingCharacteristics: setResult.overallCharacteristics }))
     } finally {
       this.setState(Object.assign({}, this.state, { optimising: false }))
     }
@@ -233,7 +263,7 @@ class App extends React.Component<{}, AppState> {
             {this.state.optimising && <Spinner />}
           </button>
         </div>
-        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} />
+        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )
