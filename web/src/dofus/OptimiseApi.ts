@@ -2,6 +2,7 @@ interface SetWeightOptions {
   weights: number[]
   maxLevel: number
   fixedItems: (number | undefined)[]
+  bannedItems: number[]
 }
 
 interface OptimiseSetItemResponse {
@@ -36,6 +37,7 @@ export class OptimiseApi {
         weights: options.weights,
         max_level: options.maxLevel,
         fixed_items: options.fixedItems,
+        banned_items: options.bannedItems,
       })
     })
 

@@ -298,7 +298,8 @@ class App extends React.Component<{}, AppState> {
       const setResult = await this.api.optimiseSet({
         weights: weights,
         maxLevel: this.state.maxLevel,
-        fixedItems
+        fixedItems,
+        bannedItems: this.state.bannedItems.map(item => item.dofusId),
       })
 
       const bestItems = setResult.items.map(item => item && new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))

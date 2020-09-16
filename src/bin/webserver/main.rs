@@ -21,6 +21,7 @@ struct OptimiseRequest {
     weights: Vec<f64>,
     max_level: i32,
     fixed_items: Vec<Option<i32>>,
+    banned_items: Vec<i32>,
 }
 
 #[derive(Serialize)]
@@ -115,7 +116,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
                 _ => None,
             })
             .collect(),
-        ban_list: Vec::new(),
+        ban_list: config.banned_items.clone(),
     };
 
     let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
