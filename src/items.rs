@@ -115,7 +115,7 @@ fn parse_restriction(
     }
 }
 
-pub fn parse_items(data: &[u8]) -> Vec<Item> {
+fn parse_items(data: &[u8], id_offset: i32) -> Vec<Item> {
     let data: Vec<DofusLabItem> = serde_json::from_slice(data).unwrap();
 
     data.iter()
@@ -135,7 +135,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 .unwrap_or_else(|| Box::new(stats::NullRestriction {}));
 
             Item {
-                dofus_id: item.dofusID,
+                dofus_id: item.dofusID + id_offset,
                 name: item.name.en.clone(),
                 item_type: item.itemType.clone(),
                 stats,
@@ -240,11 +240,23 @@ fn item_filter(
 lazy_static! {
     pub static ref ITEMS: Vec<Item> = {
         let mut items = Vec::new();
-        items.append(&mut parse_items(include_bytes!("../data/items.json")));
-        items.append(&mut parse_items(include_bytes!("../data/weapons.json")));
-        items.append(&mut parse_items(include_bytes!("../data/mounts.json")));
-        items.append(&mut parse_items(include_bytes!("../data/pets.json")));
-        items.append(&mut parse_items(include_bytes!("../data/rhineetles.json")));
+        items.append(&mut parse_items(include_bytes!("../data/items.json"), 0));
+        items.append(&mut parse_items(
+            include_bytes!("../data/weapons.json"),
+            1_000_000,
+        ));
+        items.append(&mut parse_items(
+            include_bytes!("../data/mounts.json"),
+            2_000_000,
+        ));
+        items.append(&mut parse_items(
+            include_bytes!("../data/pets.json"),
+            3_000_000,
+        ));
+        items.append(&mut parse_items(
+            include_bytes!("../data/rhineetles.json"),
+            4_000_000,
+        ));
 
         items.sort_by(|a, b| a.dofus_id.cmp(&b.dofus_id));
         items
