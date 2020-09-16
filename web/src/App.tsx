@@ -141,10 +141,6 @@ function SetBonusBox({ bonus, weights }: { bonus: SetBonus, weights: WeightsStat
   )
 }
 
-function isPinned(item: Item, pinnedItems: Item[]) {
-  return pinnedItems.find(i => i.dofusId === item.dofusId) !== undefined
-}
-
 function BestItemDisplay({ items, weights, setBonuses, pinnedSlots, togglePinned }: { items: (Item | null)[], weights: WeightsState, setBonuses: SetBonus[], pinnedSlots: number[], togglePinned: (slot: number) => void }) {
   return (
     <div className="best-item-display">
