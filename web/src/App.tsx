@@ -108,7 +108,13 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
             <span className="itembox-itemname">{item.name}</span>
             <span className="itembox-level">{item.level}</span>
           </div>
-          <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
+          <div className="itembox-bottom-section">
+            <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
+            <div className="itembox-actions">
+              <button className="itembox-ban" />
+              <button className="itembox-pin" />
+            </div>
+          </div>
         </div>
       </div>
     </ItemHoverContainer>

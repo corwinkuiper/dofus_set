@@ -37,6 +37,32 @@
     height: 50px;
 }
 
+.itembox .itembox-bottom-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.itembox-actions button {
+    width: 16px;
+    height: 16px;
+    mask-size: 16px;
+    padding: 0;
+}
+
+.itembox-actions button:hover {
+    background-color: red;
+}
+
+.itembox-ban {
+    mask: url('/bin.svg') no-repeat center;
+}
+
+.itembox-pin {
+    background-color: black;
+    mask: url('/pin.svg') no-repeat center;
+}
+
 .itembox .itembox-options {
     flex-grow: 3;
     flex-shrink: 1;
