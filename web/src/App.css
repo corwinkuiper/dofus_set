@@ -66,6 +66,10 @@
     mask: url('/bin.svg') no-repeat center;
 }
 
+.itembox-unban {
+    mask: url('/bin.svg') no-repeat center;
+}
+
 .itembox-pin {
     background-color: black;
     mask: url('/pin.svg') no-repeat center;

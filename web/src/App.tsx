@@ -227,8 +227,9 @@ function BannedItem({ item, unban }: { item: Item, unban: () => void }) {
           <span className="itembox-level">{item.level}</span>
         </div>
         <div className="itembox-bottom-section">
+          <div />
           <div className="itembox-actions">
-            <button className="itembox-ban" onClick={unban} />
+            <button className="itembox-unban" onClick={unban} />
           </div>
         </div>
       </div>
