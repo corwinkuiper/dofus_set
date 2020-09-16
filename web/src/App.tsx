@@ -85,7 +85,7 @@ class ItemHoverContainer extends React.Component<{ children: React.ReactNode, ch
 }
 
 function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
-  let topStatIndex = 0;
+  let topStatIndex = null;
   let topStatValue = 0;
   for (let i = 0; i < item.characteristics.length; i++) {
     const characteristicWeight = weights.weights.find(w => w.statId === i)?.weightValue ?? 0;
@@ -106,7 +106,7 @@ function ItemBox({ item, weights }: { item: Item, weights: WeightsState }) {
             <span className="itembox-itemname">{item.name}</span>
             <span className="itembox-level">{item.level}</span>
           </div>
-          <span>{`${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}`}</span>
+          <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
         </div>
       </div>
     </ItemHoverContainer>

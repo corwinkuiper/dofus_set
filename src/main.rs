@@ -19,9 +19,14 @@ fn main() {
     let config = config::Config {
         max_level: 148,
         weights,
-        changable: (0..16).collect(),
+        changable: (1..16).collect(),
+        ban_list: Vec::new(),
     };
-    let optimiser = Optimiser { config: &config };
+
+    let mut initial_set: [Option<i32>; 16] = [None; 16];
+    initial_set[0] = Some(8243);
+
+    let optimiser = Optimiser::new(&config, initial_set).unwrap();
 
     let final_state = optimiser.optimise();
     print_state(&final_state, &config);

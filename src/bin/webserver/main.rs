@@ -4,6 +4,7 @@
 
 use ::dofus_set::config;
 use ::dofus_set::dofus_set;
+use ::dofus_set::items;
 
 use serde::{Deserialize, Serialize};
 
@@ -30,6 +31,7 @@ struct OptimiseResponseSetBonus {
 
 #[derive(Serialize)]
 struct OptimiseResponseItem {
+    dofus_id: i32,
     characteristics: Vec<i32>,
     name: String,
     item_type: String,
@@ -42,6 +44,48 @@ struct OptimiseResponse {
     overall_characteristics: Vec<i32>,
     items: Vec<OptimiseResponseItem>,
     set_bonuses: Vec<OptimiseResponseSetBonus>,
+}
+
+fn item_list(items: &[usize]) -> Json<Vec<OptimiseResponseItem>> {
+    Json(
+        items
+            .iter()
+            .map(|x| &items::ITEMS[*x])
+            .map(|x| OptimiseResponseItem {
+                dofus_id: x.dofus_id,
+                characteristics: x.stats.to_vec(),
+                name: x.name.clone(),
+                item_type: x.item_type.clone(),
+                level: x.level,
+                image_url: x.image_url.clone(),
+            })
+            .collect(),
+    )
+}
+
+#[get("/type/<item>")]
+fn get_item_list(item: String) -> Option<Json<Vec<OptimiseResponseItem>>> {
+    let item = item.as_str();
+    Some(match item {
+        "hats" => item_list(&items::HATS),
+        "cloaks" => item_list(&items::CLOAKS),
+        "amulets" => item_list(&items::AMULETS),
+        "rings" => item_list(&items::RINGS),
+        "belts" => item_list(&items::BELTS),
+        "boots" => item_list(&items::BOOTS),
+        "weapons" => item_list(&items::WEAPONS),
+        "shields" => item_list(&items::SHIELDS),
+        "dofus" => item_list(&items::DOFUS),
+        "mounts" => item_list(&items::MOUNTS),
+        _ => return None,
+    })
+}
+#[get("/slot/<slot>")]
+fn get_item_list_index(slot: usize) -> Option<Json<Vec<OptimiseResponseItem>>> {
+    if slot >= 16 {
+        return None;
+    }
+    Some(item_list(dofus_set::state_index_to_item(slot)))
 }
 
 #[options("/optimise")]
@@ -60,11 +104,10 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         max_level: config.max_level,
         weights,
         changable: (0..16).collect(),
+        ban_list: Vec::new(),
     };
 
-    let optimiser = dofus_set::Optimiser {
-        config: &dofus_set_config,
-    };
+    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, [None; 16]).unwrap();
 
     let final_state = optimiser.optimise();
 
@@ -82,6 +125,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         items: final_state
             .set()
             .map(|item| OptimiseResponseItem {
+                dofus_id: item.dofus_id,
                 characteristics: item.stats.to_vec(),
                 name: item.name.clone(),
                 item_type: item.item_type.clone(),
@@ -102,6 +146,7 @@ fn main() {
                 response.adjoin_raw_header("Access-Control-Allow-Headers", "Content-Type");
             },
         ))
+        .mount("/items", routes![get_item_list, get_item_list_index])
         .mount(
             "/api",
             routes![create_optimised_set, create_optimised_set_options],

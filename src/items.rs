@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::convert::TryInto;
 
 pub struct Item {
+    pub dofus_id: i32,
     pub name: String,
     pub item_type: String,
     pub stats: stats::Characteristic,
@@ -36,6 +37,8 @@ struct DofusLabItemStats {
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct DofusLabItem {
+    #[serde(deserialize_with = "number_deserialize")]
+    dofusID: i32,
     name: DofusLabItemName,
     itemType: String,
     setID: Option<String>,
@@ -43,6 +46,17 @@ struct DofusLabItem {
     level: i32,
     conditions: Option<DofusLabConditions>,
     imageUrl: Option<String>,
+}
+
+fn number_deserialize<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<i32, D::Error> {
+    Ok(match serde_json::Value::deserialize(deserializer)? {
+        serde_json::Value::String(s) => s.parse().map_err(serde::de::Error::custom)?,
+        serde_json::Value::Number(s) => {
+            s.as_i64()
+                .ok_or_else(|| serde::de::Error::custom("Invalid number"))? as i32
+        }
+        _ => return Err(serde::de::Error::custom("Wrong type, expected number")),
+    })
 }
 
 #[derive(Deserialize)]
@@ -121,6 +135,7 @@ pub fn parse_items(data: &[u8]) -> Vec<Item> {
                 .unwrap_or_else(|| Box::new(stats::NullRestriction {}));
 
             Item {
+                dofus_id: item.dofusID,
                 name: item.name.en.clone(),
                 item_type: item.itemType.clone(),
                 stats,
@@ -182,4 +197,86 @@ pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
             )
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn find_item_by_dofus_id() {
+        let index = ITEMS.len() / 3;
+        let id = ITEMS[index].dofus_id;
+        assert_eq!(dofus_id_to_index(id), Some(index));
+    }
+
+    #[test]
+    fn dofus_id_name_check() {
+        let id = 8818;
+        let name = "Mopy King Sovereign Cape";
+        assert_eq!(dofus_id_to_item(id).unwrap().name, name);
+    }
+}
+
+pub fn dofus_id_to_index(dofus_id: i32) -> Option<usize> {
+    ITEMS.binary_search_by(|x| x.dofus_id.cmp(&dofus_id)).ok()
+}
+
+pub fn dofus_id_to_item(dofus_id: i32) -> Option<&'static Item> {
+    dofus_id_to_index(dofus_id).map(|index| &ITEMS[index])
+}
+
+fn item_filter(
+    items: &'static [Item],
+    filter: &'static [&str],
+) -> impl std::iter::Iterator<Item = usize> {
+    items
+        .iter()
+        .enumerate()
+        .filter(move |(_, x)| filter.contains(&x.item_type.as_str()))
+        .map(|(index, _)| index)
+}
+
+lazy_static! {
+    pub static ref ITEMS: Vec<Item> = {
+        let mut items = Vec::new();
+        items.append(&mut parse_items(include_bytes!("../data/items.json")));
+        items.append(&mut parse_items(include_bytes!("../data/weapons.json")));
+        items.append(&mut parse_items(include_bytes!("../data/mounts.json")));
+        items.append(&mut parse_items(include_bytes!("../data/pets.json")));
+        items.append(&mut parse_items(include_bytes!("../data/rhineetles.json")));
+
+        items.sort_by(|a, b| a.dofus_id.cmp(&b.dofus_id));
+        items
+    };
+    pub static ref MOUNTS: Vec<usize> =
+        item_filter(&ITEMS, &["Pet", "Petsmount", "Mount"]).collect();
+    pub static ref WEAPONS: Vec<usize> = item_filter(
+        &ITEMS,
+        &[
+            "Axe",
+            "Bow",
+            "Dagger",
+            "Hammer",
+            "Pickaxe",
+            "Scythe",
+            "Shovel",
+            "Soul stone",
+            "Staff",
+            "Sword",
+            "Tool",
+            "Wand",
+        ]
+    )
+    .collect();
+    pub static ref HATS: Vec<usize> = item_filter(&ITEMS, &["Hat"]).collect();
+    pub static ref CLOAKS: Vec<usize> = item_filter(&ITEMS, &["Cloak", "Backpack"]).collect();
+    pub static ref AMULETS: Vec<usize> = item_filter(&ITEMS, &["Amulet"]).collect();
+    pub static ref RINGS: Vec<usize> = item_filter(&ITEMS, &["Ring"]).collect();
+    pub static ref BELTS: Vec<usize> = item_filter(&ITEMS, &["Belt"]).collect();
+    pub static ref BOOTS: Vec<usize> = item_filter(&ITEMS, &["Boots"]).collect();
+    pub static ref SHIELDS: Vec<usize> = item_filter(&ITEMS, &["Shield"]).collect();
+    pub static ref DOFUS: Vec<usize> =
+        item_filter(&ITEMS, &["Dofus", "Trophy", "Prysmaradite"]).collect();
+    pub static ref SETS: HashMap<i32, Set> = parse_sets(include_bytes!("../data/sets.json"));
 }
