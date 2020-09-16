@@ -3,9 +3,18 @@ interface SetWeightOptions {
   maxLevel: number
 }
 
+interface OptimiseSetItemResponse {
+  name: string
+  characteristics: number[]
+  itemType: string
+  level: number
+  imageUrl?: string
+  dofusId: number
+}
+
 interface OptimiseSetResponse {
   overallCharacteristics: number[]
-  items: { name: string, characteristics: number[], itemType: string, level: number, imageUrl?: string, dofusId: number }[]
+  items: (OptimiseSetItemResponse | null)[]
   setBonuses: { name: string, characteristics: number[], numberOfItems: number }[]
 }
 
@@ -47,7 +56,7 @@ export class OptimiseApi {
 
     return {
       overallCharacteristics: content.overall_characteristics,
-      items: (content.items as OptimiseApiResponseItem[]).map(item => ({
+      items: (content.items as (OptimiseApiResponseItem | null)[]).map(item => item && ({
         name: item.name, characteristics: item.characteristics, itemType: item.item_type, level: item.level, imageUrl: item.image_url, dofusId: item.dofus_id
       })),
       setBonuses: (content.set_bonuses as OptimiseApiResponseSetBonus[]).map(setBonus => ({

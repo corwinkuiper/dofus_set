@@ -55,7 +55,11 @@
 }
 
 .itembox-pin.itembox-pin-active {
-    background-color: red;
+    background-color: rgb(255, 65, 65);
+}
+
+.itembox-pin.itembox-pin-active:hover {
+    background-color: rgb(134, 0, 0);
 }
 
 .itembox-ban {

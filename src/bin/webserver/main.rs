@@ -42,7 +42,7 @@ struct OptimiseResponseItem {
 #[derive(Serialize)]
 struct OptimiseResponse {
     overall_characteristics: Vec<i32>,
-    items: Vec<OptimiseResponseItem>,
+    items: Vec<Option<OptimiseResponseItem>>,
     set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
 
@@ -124,13 +124,15 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         overall_characteristics: final_state.stats(config.max_level).to_vec(),
         items: final_state
             .set()
-            .map(|item| OptimiseResponseItem {
-                dofus_id: item.dofus_id,
-                characteristics: item.stats.to_vec(),
-                name: item.name.clone(),
-                item_type: item.item_type.clone(),
-                level: item.level,
-                image_url: item.image_url.clone(),
+            .map(|item| {
+                item.map(|item| OptimiseResponseItem {
+                    dofus_id: item.dofus_id,
+                    characteristics: item.stats.to_vec(),
+                    name: item.name.clone(),
+                    item_type: item.item_type.clone(),
+                    level: item.level,
+                    image_url: item.image_url.clone(),
+                })
             })
             .collect(),
         set_bonuses,

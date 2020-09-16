@@ -49,8 +49,8 @@ class SetBonus {
 
 class AppState {
   weightsState = new WeightsState([])
-  bestItems: Item[] = []
-  pinnedItems: Item[] = []
+  bestItems: (Item | null)[] = []
+  pinnedSlots: number[] = []
   resultingCharacteristics: number[] = []
   setBonuses: SetBonus[] = []
   maxLevel: number = 149
@@ -91,7 +91,7 @@ class ItemHoverContainer extends React.Component<{ children: React.ReactNode, ch
   }
 }
 
-function ItemBox({ item, weights, pinned }: { item: Item, weights: WeightsState, pinned: boolean }) {
+function ItemBox({ item, weights, pinned, togglePinned }: { item: Item, weights: WeightsState, pinned: boolean, togglePinned: () => void }) {
   let topStatIndex = null;
   let topStatValue = 0;
   for (let i = 0; i < item.characteristics.length; i++) {
@@ -117,7 +117,7 @@ function ItemBox({ item, weights, pinned }: { item: Item, weights: WeightsState,
             <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
             <div className="itembox-actions">
               <button className="itembox-ban" />
-              <button className={classNames({ 'itembox-pin': true, 'itembox-pin-active': pinned })} />
+              <button className={classNames({ 'itembox-pin': true, 'itembox-pin-active': pinned })} onClick={togglePinned} />
             </div>
           </div>
         </div>
@@ -145,10 +145,10 @@ function isPinned(item: Item, pinnedItems: Item[]) {
   return pinnedItems.find(i => i.dofusId === item.dofusId) !== undefined
 }
 
-function BestItemDisplay({ items, weights, setBonuses, pinnedItems }: { items: Item[], weights: WeightsState, setBonuses: SetBonus[], pinnedItems: Item[] }) {
+function BestItemDisplay({ items, weights, setBonuses, pinnedSlots, togglePinned }: { items: (Item | null)[], weights: WeightsState, setBonuses: SetBonus[], pinnedSlots: number[], togglePinned: (slot: number) => void }) {
   return (
     <div className="best-item-display">
-      {items.map((item, i) => <ItemBox item={item} key={i} weights={weights} pinned={isPinned(item, pinnedItems)} />)}
+      {items.map((item, i) => item && <ItemBox item={item} key={i} weights={weights} pinned={pinnedSlots.includes(i)} togglePinned={togglePinned.bind(null, i)} />)}
       {setBonuses.map((bonus, i) => <SetBonusBox bonus={bonus} key={i} weights={weights} />)}
     </div>
   )
@@ -231,16 +231,17 @@ class App extends React.Component<{}, AppState> {
     this.api = new OptimiseApi('http://localhost:8000')
     this.updateWeightsState = this.updateWeightsState.bind(this)
     this.setMaxLevel = this.setMaxLevel.bind(this)
+    this.togglePinned = this.togglePinned.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
   }
 
   private updateWeightsState(newWeightsState: WeightsState) {
-    this.setState(Object.assign({}, this.state, { weightsState: newWeightsState }))
+    this.setState({ weightsState: newWeightsState })
   }
 
   private setMaxLevel(newMaxLevel: number) {
-    this.setState(Object.assign({}, this.state, { maxLevel: newMaxLevel }))
+    this.setState({ maxLevel: newMaxLevel })
   }
 
   private async runOptimiser() {
@@ -249,7 +250,7 @@ class App extends React.Component<{}, AppState> {
     }
 
     try {
-      this.setState(Object.assign({}, this.state, { optimising: true }))
+      this.setState({ optimising: true })
 
       const weights = []
       for (let i = 0; i < 51; i++) {
@@ -262,12 +263,23 @@ class App extends React.Component<{}, AppState> {
         maxLevel: this.state.maxLevel,
       })
 
-      const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))
+      const bestItems = setResult.items.map(item => item && new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))
       const setBonuses = setResult.setBonuses.map(bonus => new SetBonus(bonus.name, bonus.characteristics, bonus.numberOfItems))
-      this.setState(Object.assign({}, this.state, { bestItems, setBonuses, resultingCharacteristics: setResult.overallCharacteristics }))
+      this.setState({ bestItems, setBonuses, resultingCharacteristics: setResult.overallCharacteristics })
     } finally {
-      this.setState(Object.assign({}, this.state, { optimising: false }))
+      this.setState({ optimising: false })
     }
+  }
+
+  togglePinned(slot: number) {
+    let newPinnedSlots = this.state.pinnedSlots.slice()
+    if (newPinnedSlots.includes(slot)) {
+      newPinnedSlots = newPinnedSlots.filter(s => s !== slot)
+    } else {
+      newPinnedSlots.push(slot)
+    }
+
+    this.setState({ pinnedSlots: newPinnedSlots })
   }
 
   render() {
@@ -280,7 +292,7 @@ class App extends React.Component<{}, AppState> {
             {this.state.optimising && <Spinner />}
           </button>
         </div>
-        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} pinnedItems={this.state.pinnedItems} />
+        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} pinnedSlots={this.state.pinnedSlots} togglePinned={this.togglePinned} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )
