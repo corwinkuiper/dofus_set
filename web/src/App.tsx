@@ -17,11 +17,13 @@ class Item {
   readonly characteristics: number[]
   readonly level: number
   readonly imageUrl?: string
+  readonly dofusId: number
 
-  constructor(name: string, characteristics: number[], level: number, imageUrl?: string) {
+  constructor(name: string, characteristics: number[], level: number, imageUrl: string | undefined, dofusId: number) {
     this.name = name
     this.characteristics = characteristics
     this.level = level
+    this.dofusId = dofusId
 
     if (imageUrl) {
       this.imageUrl = getImageUrl(imageUrl)
@@ -245,7 +247,7 @@ class App extends React.Component<{}, AppState> {
         maxLevel: this.state.maxLevel,
       })
 
-      const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl))
+      const bestItems = setResult.items.map(item => new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))
       const setBonuses = setResult.setBonuses.map(bonus => new SetBonus(bonus.name, bonus.characteristics, bonus.numberOfItems))
       this.setState(Object.assign({}, this.state, { bestItems, setBonuses, resultingCharacteristics: setResult.overallCharacteristics }))
     } finally {
