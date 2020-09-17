@@ -244,6 +244,7 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     }
 
     fn neighbour(&self, state: &State) -> State {
+        let mut attempts = 0;
         loop {
             let mut new_state = state.clone();
             let (item_slot, item) = loop {
@@ -265,6 +266,10 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
             new_state.set[item_slot] = Some(item);
             if new_state.valid(self.config) {
                 return new_state;
+            }
+            attempts += 1;
+            if attempts > 30 {
+                panic!("Exceeded max number of attempts at finding a valid item");
             }
         }
     }
