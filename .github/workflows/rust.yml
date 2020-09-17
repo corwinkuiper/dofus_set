@@ -20,7 +20,8 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly
-        toolchain: clippy
+        components: clippy
+        override: true
     - name: Cache
       uses: actions/cache@v2.1.1
       with:
