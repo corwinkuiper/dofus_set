@@ -227,6 +227,17 @@ impl<'a> Optimiser<'a> {
         if !initial_state.valid(config) {
             return Err("Initial state is not valid");
         }
+
+        if !config
+            .changable
+            .iter()
+            .map(|x| state_index_to_item(*x).iter())
+            .flatten()
+            .any(|x| items::ITEMS[*x].level <= config.max_level)
+        {
+            return Err("No items to choose from");
+        }
+
         Ok(Optimiser {
             config,
             initial_state,
