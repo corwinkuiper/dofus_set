@@ -23,8 +23,9 @@ pub fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
     }
 }
 
-const MAX_ADDITIONAL_MP: i32 = 3;
-const MAX_ADDITIONAL_RANGE: i32 = 6;
+const MAX_AP: i32 = 12;
+const MAX_MP: i32 = 3;
+const MAX_RANGE: i32 = 6;
 
 #[derive(Clone, Debug, Default)]
 pub struct State {
@@ -182,13 +183,12 @@ impl State {
         }
 
         stat[stats::Stat::AP as usize] = std::cmp::min(
-            stat[stats::Stat::AP as usize],
-            max_additional_ap(current_level),
+            stat[stats::Stat::AP as usize] + level_initial_ap(current_level),
+            MAX_AP,
         );
-        stat[stats::Stat::MP as usize] =
-            std::cmp::min(stat[stats::Stat::MP as usize], MAX_ADDITIONAL_MP);
+        stat[stats::Stat::MP as usize] = std::cmp::min(stat[stats::Stat::MP as usize] + 3, MAX_MP);
         stat[stats::Stat::Range as usize] =
-            std::cmp::min(stat[stats::Stat::Range as usize], MAX_ADDITIONAL_RANGE);
+            std::cmp::min(stat[stats::Stat::Range as usize], MAX_RANGE);
 
         stat[stats::Stat::ResistanceNeutralPercent as usize] =
             std::cmp::min(stat[stats::Stat::ResistanceNeutralPercent as usize], 50);
@@ -205,9 +205,9 @@ impl State {
     }
 }
 
-fn max_additional_ap(level: i32) -> i32 {
+fn level_initial_ap(level: i32) -> i32 {
     if level >= 100 {
-        5
+        7
     } else {
         6
     }
