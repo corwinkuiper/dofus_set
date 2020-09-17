@@ -233,7 +233,9 @@ impl<'a> Optimiser<'a> {
             .iter()
             .map(|x| state_index_to_item(*x).iter())
             .flatten()
-            .any(|x| items::ITEMS[*x].level <= config.max_level)
+            .map(|x| &items::ITEMS[*x])
+            .filter(|x| !config.ban_list.contains(&x.dofus_id))
+            .any(|x| x.level <= config.max_level)
         {
             return Err("No items to choose from");
         }
