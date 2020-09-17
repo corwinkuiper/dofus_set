@@ -221,7 +221,7 @@ mod tests {
     use std::convert::TryFrom;
     #[test]
     fn stat_try_from() {
-        assert_eq!(1_usize.try_into(), Ok(Stat::Wisdom));
+        assert_eq!(1_usize.try_into(), Ok(Stat::MP));
     }
 
     #[test]
