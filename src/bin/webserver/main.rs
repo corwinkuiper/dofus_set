@@ -87,7 +87,9 @@ fn get_item_list_index(slot: usize) -> Option<Json<Vec<OptimiseResponseItem>>> {
     if slot >= 16 {
         return None;
     }
-    Some(item_list(dofus_set::state_index_to_item(slot)))
+    Some(item_list(dofus_set::item_type_to_item_list(
+        dofus_set::slot_index_to_item_type(slot),
+    )))
 }
 
 #[options("/optimise")]
