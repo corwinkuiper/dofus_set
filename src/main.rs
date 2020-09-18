@@ -21,6 +21,9 @@ fn main() {
         weights,
         changable: (1..16).collect(),
         ban_list: Vec::new(),
+        exo_ap: false,
+        exo_mp: false,
+        exo_range: false,
     };
 
     let mut initial_set: [Option<i32>; 16] = [None; 16];

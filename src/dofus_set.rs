@@ -24,7 +24,7 @@ pub fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
 }
 
 const MAX_AP: i32 = 12;
-const MAX_MP: i32 = 3;
+const MAX_MP: i32 = 6;
 const MAX_RANGE: i32 = 6;
 
 #[derive(Clone, Debug, Default)]
@@ -155,7 +155,12 @@ impl State {
     }
 
     pub fn energy(&self, config: &config::Config) -> f64 {
-        let stats = self.stats(config.max_level);
+        let stats = self.exo_modified_stats(
+            config.max_level,
+            config.exo_ap,
+            config.exo_mp,
+            config.exo_range,
+        );
         // need to take the negative due to being a minimiser
         -stats
             .iter()
@@ -169,6 +174,30 @@ impl State {
         self.set
             .iter()
             .filter_map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
+    }
+
+    fn exo_modified_stats(
+        &self,
+        current_level: i32,
+        exo_ap: bool,
+        exo_mp: bool,
+        exo_range: bool,
+    ) -> stats::Characteristic {
+        let mut stat = self.stats(current_level);
+        if exo_ap {
+            stat[stats::Stat::AP as usize] =
+                std::cmp::min(stat[stats::Stat::AP as usize], MAX_AP - 1);
+        }
+        if exo_mp {
+            stat[stats::Stat::MP as usize] =
+                std::cmp::min(stat[stats::Stat::MP as usize], MAX_MP - 1);
+        }
+        if exo_range {
+            stat[stats::Stat::Range as usize] =
+                std::cmp::min(stat[stats::Stat::Range as usize], MAX_RANGE - 1);
+        }
+
+        stat
     }
 
     pub fn stats(&self, current_level: i32) -> stats::Characteristic {
