@@ -9,15 +9,12 @@ fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send>> {
         .filter_map(Result::ok)
         .filter(|e| !e.file_type().is_dir())
     {
-        println!(
-            "cargo:rerun-if-changed={}",
-            entry.file_name().to_string_lossy()
-        );
+        println!("cargo:rerun-if-changed={}", entry.path().to_string_lossy());
     }
 
     Command::new("npm")
         .current_dir(WEB_DIRECTORY)
-        .args(&["install"])
+        .args(&["ci"])
         .output()?;
     Command::new("npm")
         .current_dir(WEB_DIRECTORY)
