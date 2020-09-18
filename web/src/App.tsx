@@ -4,24 +4,13 @@ import { StatNames } from './dofus/stats'
 
 import { OptimiseApi } from './dofus/OptimiseApi'
 import { Item } from './Item'
+import { SetBonus } from './SetBonus'
 
 import { WeightsSelector, WeightsState } from './WeightsSelector'
 import { Spinner } from './Spinner'
 
 function classNames(classes: { [className: string]: boolean }) {
   return Object.entries(classes).filter(entry => entry[1]).map(entry => entry[0]).join(' ')
-}
-
-class SetBonus {
-  readonly name: string
-  readonly characteristics: number[]
-  readonly numberOfItems: number
-
-  constructor(name: string, characteristics: number[], numberOfItems: number) {
-    this.name = name
-    this.characteristics = characteristics
-    this.numberOfItems = numberOfItems
-  }
 }
 
 class AppState {
