@@ -47,6 +47,7 @@ class App extends React.Component<{}, AppState> {
     this.togglePinned = this.togglePinned.bind(this)
     this.banItem = this.banItem.bind(this)
     this.unbanItem = this.unbanItem.bind(this)
+    this.setItem = this.setItem.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
   }
@@ -107,6 +108,12 @@ class App extends React.Component<{}, AppState> {
     }
 
     this.setState({ pinnedSlots: newPinnedSlots })
+  }
+
+  setItem(slot: number, item: Item) {
+    const newBestItems = this.state.bestItems.slice()
+    newBestItems[slot] = item
+    this.setState({ bestItems: newBestItems })
   }
 
   banItem(item: Item) {
