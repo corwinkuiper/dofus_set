@@ -114,6 +114,10 @@ class App extends React.Component<{}, AppState> {
     const newBestItems = this.state.bestItems.slice()
     newBestItems[slot] = item
     this.setState({ bestItems: newBestItems })
+
+    if (!this.state.pinnedSlots.includes(slot)) {
+      this.togglePinned(slot)
+    }
   }
 
   banItem(item: Item) {

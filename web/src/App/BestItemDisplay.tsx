@@ -33,6 +33,7 @@ function ItemBox({ item, weights, pinned, togglePinned, ban }: { item: Item, wei
                     <div className="itembox-bottom-section">
                         <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
                         <div className="itembox-actions">
+                            <button className="itembox-search" />
                             <button className="itembox-ban" onClick={ban} />
                             <button className={classNames({ 'itembox-pin': true, 'itembox-pin-active': pinned })} onClick={togglePinned} />
                         </div>
