@@ -22,6 +22,7 @@ class AppState {
   setBonuses: SetBonus[] = []
   maxLevel: number = 149
   optimising: boolean = false
+  searchingSlot: number | undefined = undefined
 }
 
 function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
@@ -146,7 +147,14 @@ class App extends React.Component<{}, AppState> {
           </button>
           <BannedItems items={this.state.bannedItems} unban={this.unbanItem} />
         </div>
-        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} pinnedSlots={this.state.pinnedSlots} togglePinned={this.togglePinned} banItem={this.banItem} />
+        <BestItemDisplay
+          items={this.state.bestItems}
+          weights={this.state.weightsState}
+          setBonuses={this.state.setBonuses}
+          pinnedSlots={this.state.pinnedSlots}
+          togglePinned={this.togglePinned}
+          banItem={this.banItem}
+          searchingSlot={this.state.searchingSlot} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )

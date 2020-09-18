@@ -8,7 +8,7 @@ import { SetBonus } from '../SetBonus'
 import { classNames } from '../classNames'
 import { ItemHoverContainer } from './ItemHoverContainer'
 
-function ItemBox({ item, weights, pinned, togglePinned, ban }: { item: Item, weights: WeightsState, pinned: boolean, togglePinned: () => void, ban: () => void }) {
+function ItemBox({ item, weights, pinned, togglePinned, ban, searching }: { item: Item, weights: WeightsState, pinned: boolean, togglePinned: () => void, ban: () => void, searching: boolean }) {
     let topStatIndex = null;
     let topStatValue = 0;
     for (let i = 0; i < item.characteristics.length; i++) {
@@ -33,7 +33,7 @@ function ItemBox({ item, weights, pinned, togglePinned, ban }: { item: Item, wei
                     <div className="itembox-bottom-section">
                         <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
                         <div className="itembox-actions">
-                            <button className="itembox-search" />
+                            <button className={classNames({ 'itembox-search': true, 'itembox-search-active': searching })} />
                             <button className="itembox-ban" onClick={ban} />
                             <button className={classNames({ 'itembox-pin': true, 'itembox-pin-active': pinned })} onClick={togglePinned} />
                         </div>
@@ -59,10 +59,10 @@ function SetBonusBox({ bonus, weights }: { bonus: SetBonus, weights: WeightsStat
     )
 }
 
-export function BestItemDisplay({ items, weights, setBonuses, pinnedSlots, togglePinned, banItem }: { items: (Item | null)[], weights: WeightsState, setBonuses: SetBonus[], pinnedSlots: number[], togglePinned: (slot: number) => void, banItem: (item: Item) => void }) {
+export function BestItemDisplay({ items, weights, setBonuses, pinnedSlots, togglePinned, banItem, searchingSlot }: { items: (Item | null)[], weights: WeightsState, setBonuses: SetBonus[], pinnedSlots: number[], togglePinned: (slot: number) => void, banItem: (item: Item) => void, searchingSlot: number | undefined }) {
     return (
         <div className="best-item-display">
-            {items.map((item, i) => item && <ItemBox item={item} key={i} weights={weights} pinned={pinnedSlots.includes(i)} togglePinned={togglePinned.bind(null, i)} ban={banItem.bind(null, item)} />)}
+            {items.map((item, i) => item && <ItemBox item={item} key={i} weights={weights} pinned={pinnedSlots.includes(i)} togglePinned={togglePinned.bind(null, i)} ban={banItem.bind(null, item)} searching={searchingSlot === i} />)}
             {setBonuses.map((bonus, i) => <SetBonusBox bonus={bonus} key={i} weights={weights} />)}
         </div>
     )
