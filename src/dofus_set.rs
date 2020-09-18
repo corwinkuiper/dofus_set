@@ -155,7 +155,12 @@ impl State {
     }
 
     pub fn energy(&self, config: &config::Config) -> f64 {
-        let stats = self.stats(config.max_level);
+        let stats = self.exo_modified_stats(
+            config.max_level,
+            config.exo_ap,
+            config.exo_mp,
+            config.exo_range,
+        );
         // need to take the negative due to being a minimiser
         -stats
             .iter()
