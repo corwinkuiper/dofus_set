@@ -54,7 +54,7 @@
     background-color: orange;
 }
 
-.itembox-pin.itembox-pin-active {
+.itembox-pin.itembox-pin-active, .itembox-search.itembox-search-active {
     background-color: rgb(255, 65, 65);
 }
 

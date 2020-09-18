@@ -49,6 +49,7 @@ class App extends React.Component<{}, AppState> {
     this.banItem = this.banItem.bind(this)
     this.unbanItem = this.unbanItem.bind(this)
     this.setItem = this.setItem.bind(this)
+    this.toggleSearch = this.toggleSearch.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
   }
@@ -111,6 +112,14 @@ class App extends React.Component<{}, AppState> {
     this.setState({ pinnedSlots: newPinnedSlots })
   }
 
+  toggleSearch(slot: number) {
+    if (this.state.searchingSlot === slot) {
+      this.setState({ searchingSlot: undefined })
+    } else {
+      this.setState({ searchingSlot: slot })
+    }
+  }
+
   setItem(slot: number, item: Item) {
     const newBestItems = this.state.bestItems.slice()
     newBestItems[slot] = item
@@ -154,7 +163,8 @@ class App extends React.Component<{}, AppState> {
           pinnedSlots={this.state.pinnedSlots}
           togglePinned={this.togglePinned}
           banItem={this.banItem}
-          searchingSlot={this.state.searchingSlot} />
+          searchingSlot={this.state.searchingSlot}
+          toggleSearchSlot={this.toggleSearch} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )
