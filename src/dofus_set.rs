@@ -171,6 +171,32 @@ impl State {
             .filter_map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
     }
 
+    fn exo_modified_stats(
+        &self,
+        current_level: i32,
+        ap_exo: bool,
+        mp_exo: bool,
+        range_exo: bool,
+    ) -> stats::Characteristic {
+        let mut stat = self.stats(current_level);
+        if ap_exo {
+            stat[stats::Stat::AP as usize] = std::cmp::min(
+                stat[stats::Stat::AP as usize] + level_initial_ap(current_level),
+                MAX_AP - 1,
+            );
+        }
+        if mp_exo {
+            stat[stats::Stat::MP as usize] =
+                std::cmp::min(stat[stats::Stat::MP as usize] + 3, MAX_MP - 1);
+        }
+        if range_exo {
+            stat[stats::Stat::Range as usize] =
+                std::cmp::min(stat[stats::Stat::Range as usize], MAX_RANGE - 1);
+        }
+
+        stat
+    }
+
     pub fn stats(&self, current_level: i32) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
 
