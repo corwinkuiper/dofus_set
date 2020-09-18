@@ -185,14 +185,12 @@ impl State {
     ) -> stats::Characteristic {
         let mut stat = self.stats(current_level);
         if exo_ap {
-            stat[stats::Stat::AP as usize] = std::cmp::min(
-                stat[stats::Stat::AP as usize] + level_initial_ap(current_level),
-                MAX_AP - 1,
-            );
+            stat[stats::Stat::AP as usize] =
+                std::cmp::min(stat[stats::Stat::AP as usize], MAX_AP - 1);
         }
         if exo_mp {
             stat[stats::Stat::MP as usize] =
-                std::cmp::min(stat[stats::Stat::MP as usize] + 3, MAX_MP - 1);
+                std::cmp::min(stat[stats::Stat::MP as usize], MAX_MP - 1);
         }
         if exo_range {
             stat[stats::Stat::Range as usize] =
