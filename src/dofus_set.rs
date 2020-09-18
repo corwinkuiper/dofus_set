@@ -24,7 +24,7 @@ pub fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
 }
 
 const MAX_AP: i32 = 12;
-const MAX_MP: i32 = 3;
+const MAX_MP: i32 = 6;
 const MAX_RANGE: i32 = 6;
 
 #[derive(Clone, Debug, Default)]
