@@ -94,7 +94,7 @@ function SearchItemDisplay({ item, setItem, weights }: { item: Item, setItem: ()
 
     return (
         <ItemHoverContainer weights={weights} characteristics={item.characteristics}>
-            <div className="itembox itembox-search" onClick={setItem}>
+            <div className="itembox itembox-search-result" onClick={setItem}>
                 {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
                 <div className="itembox-data">
                     <div className="itembox-options">

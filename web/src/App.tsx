@@ -2,6 +2,7 @@ import React from 'react'
 import './App.css'
 
 import { OptimiseApi } from './dofus/OptimiseApi'
+import { SearchApi } from './dofus/SearchApi'
 import { Item } from './Item'
 import { SetBonus } from './SetBonus'
 
@@ -12,6 +13,7 @@ import { LevelSelector } from './App/LevelSelector'
 import { BannedItems } from './App/BannedItems'
 import { BestItemDisplay } from './App/BestItemDisplay'
 import { OverallCharacteristics } from './App/OverallCharacteristics'
+import { SearchBox } from './App/SearchItem'
 
 class AppState {
   weightsState = new WeightsState([])
@@ -38,10 +40,12 @@ class App extends React.Component<{}, AppState> {
   state = new AppState()
 
   private readonly api: OptimiseApi
+  private readonly searchApi: SearchApi
 
   constructor(props: {}) {
     super(props)
 
+    this.searchApi = new SearchApi('http://localhost:8000')
     this.api = new OptimiseApi('http://localhost:8000')
     this.updateWeightsState = this.updateWeightsState.bind(this)
     this.setMaxLevel = this.setMaxLevel.bind(this)
@@ -154,6 +158,14 @@ class App extends React.Component<{}, AppState> {
             Optimise!
             {this.state.optimising && <Spinner />}
           </button>
+          {
+            this.state.searchingSlot !== undefined &&
+            <SearchBox
+              searchApi={this.searchApi}
+              setItem={this.setItem}
+              slot={this.state.searchingSlot}
+              weights={this.state.weightsState} />
+          }
           <BannedItems items={this.state.bannedItems} unban={this.unbanItem} />
         </div>
         <BestItemDisplay
