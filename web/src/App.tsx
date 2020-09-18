@@ -1,6 +1,5 @@
 import React from 'react'
 import './App.css'
-import { StatNames } from './dofus/stats'
 
 import { OptimiseApi } from './dofus/OptimiseApi'
 import { Item } from './Item'
@@ -12,6 +11,7 @@ import { Spinner } from './Spinner'
 import { LevelSelector } from './App/LevelSelector'
 import { BannedItems } from './App/BannedItems'
 import { BestItemDisplay } from './App/BestItemDisplay'
+import { OverallCharacteristics } from './App/OverallCharacteristics'
 
 class AppState {
   weightsState = new WeightsState([])
@@ -22,19 +22,6 @@ class AppState {
   setBonuses: SetBonus[] = []
   maxLevel: number = 149
   optimising: boolean = false
-}
-
-function OverallCharacteristics({ characteristics }: { characteristics: number[] }) {
-  return (
-    <table className="resulting-characteristics">
-      {characteristics.map((value, index) => (
-        <tr key={index}>
-          <td>{value}</td>
-          <td>{StatNames[index]}</td>
-        </tr>
-      ))}
-    </table>
-  )
 }
 
 function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
