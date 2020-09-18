@@ -179,22 +179,22 @@ impl State {
     fn exo_modified_stats(
         &self,
         current_level: i32,
-        ap_exo: bool,
-        mp_exo: bool,
-        range_exo: bool,
+        exo_ap: bool,
+        exo_mp: bool,
+        exo_range: bool,
     ) -> stats::Characteristic {
         let mut stat = self.stats(current_level);
-        if ap_exo {
+        if exo_ap {
             stat[stats::Stat::AP as usize] = std::cmp::min(
                 stat[stats::Stat::AP as usize] + level_initial_ap(current_level),
                 MAX_AP - 1,
             );
         }
-        if mp_exo {
+        if exo_mp {
             stat[stats::Stat::MP as usize] =
                 std::cmp::min(stat[stats::Stat::MP as usize] + 3, MAX_MP - 1);
         }
-        if range_exo {
+        if exo_range {
             stat[stats::Stat::Range as usize] =
                 std::cmp::min(stat[stats::Stat::Range as usize], MAX_RANGE - 1);
         }
