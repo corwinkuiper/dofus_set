@@ -75,6 +75,11 @@
     mask: url('/pin.svg') no-repeat center;
 }
 
+.itembox-search {
+    background-color: black;
+    mask: url('/search.svg') no-repeat center;
+}
+
 .itembox .itembox-options {
     flex-grow: 3;
     flex-shrink: 1;
