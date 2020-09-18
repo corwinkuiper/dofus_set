@@ -19,6 +19,12 @@ interface SearchBoxProps {
 }
 
 export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
+    state = {
+        currentSearchTerm: '',
+        items: [],
+        isSearching: false,
+    }
+
     constructor(props: SearchBoxProps) {
         super(props)
 
@@ -27,6 +33,31 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 
     private searchTermChanged(event: React.FormEvent<HTMLInputElement>) {
         this.setState({ currentSearchTerm: event.currentTarget.value })
+        this.search()
+    }
+
+    private async search() {
+        if (this.state.isSearching) {
+            return
+        }
+
+        this.setState({ isSearching: true })
+        try {
+            if (!this.state.currentSearchTerm) {
+                return
+            }
+
+            let items: Item[]
+            let searchTerm: string
+            do {
+                searchTerm = this.state.currentSearchTerm
+                items = await this.props.searchApi.search(this.props.slot, searchTerm)
+            } while (this.state.currentSearchTerm !== searchTerm)
+
+            this.setState({ items })
+        } finally {
+            this.setState({ isSearching: false })
+        }
     }
 
     render() {
@@ -61,7 +92,7 @@ function SearchItemDisplay({ item, setItem, weights }: { item: Item, setItem: ()
 
     return (
         <ItemHoverContainer weights={weights} characteristics={item.characteristics}>
-            <div className="itembox" onClick={setItem}>
+            <div className="itembox itembox-search" onClick={setItem}>
                 {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
                 <div className="itembox-data">
                     <div className="itembox-options">
