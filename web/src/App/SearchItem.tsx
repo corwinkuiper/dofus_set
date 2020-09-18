@@ -54,6 +54,8 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
                 items = await this.props.searchApi.search(this.props.slot, searchTerm)
             } while (this.state.currentSearchTerm !== searchTerm)
 
+            items.length = 10 // limit the maximum number of items searched
+
             this.setState({ items })
         } finally {
             this.setState({ isSearching: false })
