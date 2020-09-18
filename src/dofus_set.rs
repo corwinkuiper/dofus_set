@@ -7,18 +7,34 @@ use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
-pub fn state_index_to_item<'a>(index: usize) -> &'a [usize] {
+pub fn item_type_to_item_list<'a>(index: usize) -> &'a [usize] {
     match index {
         0 => &items::HATS,
         1 => &items::CLOAKS,
         2 => &items::AMULETS,
-        3..=4 => &items::RINGS,
-        5 => &items::BELTS,
-        6 => &items::BOOTS,
-        7 => &items::WEAPONS,
-        8 => &items::SHIELDS,
-        9..=14 => &items::DOFUS,
-        15 => &items::MOUNTS,
+        3 => &items::RINGS,
+        4 => &items::BELTS,
+        5 => &items::BOOTS,
+        6 => &items::WEAPONS,
+        7 => &items::SHIELDS,
+        8 => &items::DOFUS,
+        9 => &items::MOUNTS,
+        _ => panic!("Index out of range"),
+    }
+}
+
+pub fn slot_index_to_item_type(index: usize) -> usize {
+    match index {
+        0 => 0,
+        1 => 1,
+        2 => 2,
+        3..=4 => 3,
+        5 => 4,
+        6 => 5,
+        7 => 6,
+        8 => 7,
+        9..=14 => 8,
+        15 => 9,
         _ => panic!("Index out of range"),
     }
 }
@@ -64,7 +80,8 @@ impl State {
         for (index, equipment) in equipment.iter().enumerate() {
             if let Some(equipment) = equipment {
                 if let Some(item_index) = items::dofus_id_to_index(*equipment) {
-                    if state_index_to_item(index).contains(&item_index) {
+                    if item_type_to_item_list(slot_index_to_item_type(index)).contains(&item_index)
+                    {
                         set[index] = Some(item_index);
                     } else {
                         return Err("Equipment in wrong slot");
@@ -245,6 +262,7 @@ fn level_initial_ap(level: i32) -> i32 {
 pub struct Optimiser<'a> {
     config: &'a config::Config,
     initial_state: State,
+    item_list: Vec<Vec<usize>>,
 }
 
 impl<'a> Optimiser<'a> {
@@ -256,13 +274,34 @@ impl<'a> Optimiser<'a> {
         if !initial_state.valid(config) {
             return Err("Initial state is not valid");
         }
+
+        let item_list: Vec<Vec<usize>> = (0..10)
+            .map(|index| {
+                item_type_to_item_list(index)
+                    .iter()
+                    .filter(|&x| items::ITEMS[*x].level <= config.max_level)
+                    .filter(|&x| !config.ban_list.contains(&items::ITEMS[*x].dofus_id))
+                    .copied()
+                    .collect::<Vec<usize>>()
+            })
+            .collect();
+
         Ok(Optimiser {
             config,
             initial_state,
+            item_list,
         })
     }
 
     pub fn optimise(self) -> State {
+        if !self
+            .config
+            .changable
+            .iter()
+            .any(|&x| !self.item_list[slot_index_to_item_type(x)].is_empty())
+        {
+            return self.initial_state;
+        }
         anneal::Anneal::optimise(&self, self.initial_state.clone(), 1_000_000)
     }
 }
@@ -273,27 +312,27 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     }
 
     fn neighbour(&self, state: &State) -> State {
+        let mut attempts = 0;
+        let mut rng = rand::thread_rng();
         loop {
             let mut new_state = state.clone();
             let (item_slot, item) = loop {
-                let item_slot = *self
-                    .config
-                    .changable
-                    .choose(&mut rand::thread_rng())
-                    .unwrap();
-                let item_type = state_index_to_item(item_slot);
-                let item_index = item_type[rand::thread_rng().gen_range(0, item_type.len())];
-                let item = &items::ITEMS[item_index];
-                if item.level <= self.config.max_level
-                    && !self.config.ban_list.contains(&item.dofus_id)
-                {
-                    break (item_slot, item_index);
+                let item_slot = *self.config.changable.choose(&mut rng).unwrap();
+                let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
+                if item_type.is_empty() {
+                    continue;
                 }
+                let item_index = item_type[rng.gen_range(0, item_type.len())];
+                break (item_slot, item_index);
             };
 
             new_state.set[item_slot] = Some(item);
             if new_state.valid(self.config) {
                 return new_state;
+            }
+            attempts += 1;
+            if attempts > 30 {
+                panic!("Exceeded max number of attempts at finding a valid item");
             }
         }
     }
