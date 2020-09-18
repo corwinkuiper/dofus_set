@@ -1,7 +1,7 @@
 import { ItemResponse } from './Items'
 import Fuse from 'fuse.js'
 
-export class ItemsApi {
+export class SearchApi {
     private readonly apiEndpoint: string
     private readonly items: { [slot: number]: Fuse<ItemResponse> } = {}
 
@@ -33,7 +33,7 @@ export class ItemsApi {
 
         this.items[slot] = new Fuse(
             json,
-            ItemsApi.fuseOptions
+            SearchApi.fuseOptions
         )
 
         return json
