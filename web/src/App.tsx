@@ -9,6 +9,8 @@ import { SetBonus } from './SetBonus'
 import { WeightsSelector, WeightsState } from './WeightsSelector'
 import { Spinner } from './Spinner'
 
+import { LevelSelector } from './App/LevelSelector'
+
 function classNames(classes: { [className: string]: boolean }) {
   return Object.entries(classes).filter(entry => entry[1]).map(entry => entry[0]).join(' ')
 }
@@ -128,32 +130,6 @@ function OverallCharacteristics({ characteristics }: { characteristics: number[]
       ))}
     </table>
   )
-}
-
-class LevelSelector extends React.Component<{ maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }> {
-  constructor(props: { maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
-    super(props)
-
-    this.maxLevelChanged = this.maxLevelChanged.bind(this)
-  }
-
-  private maxLevelChanged(event: React.FormEvent<HTMLInputElement>) {
-    const parsed = parseInt(event.currentTarget.value, 10)
-    if (isNaN(parsed)) {
-      return
-    }
-
-    this.props.setMaxLevel(Math.floor(parsed))
-  }
-
-  render() {
-    return (
-      <div className="max-level">
-        <span>Maximum Level</span>
-        <input type="text" value={this.props.maxLevel.toString()} onChange={this.maxLevelChanged} />
-      </div>
-    )
-  }
 }
 
 function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
