@@ -117,6 +117,9 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
             })
             .collect(),
         ban_list: config.banned_items.clone(),
+        exo_ap: false,
+        exo_mp: false,
+        exo_range: false,
     };
 
     let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
