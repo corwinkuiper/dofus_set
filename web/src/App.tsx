@@ -10,6 +10,7 @@ import { WeightsSelector, WeightsState } from './WeightsSelector'
 import { Spinner } from './Spinner'
 
 import { LevelSelector } from './App/LevelSelector'
+import { BannedItems } from './App/BannedItems'
 
 function classNames(classes: { [className: string]: boolean }) {
   return Object.entries(classes).filter(entry => entry[1]).map(entry => entry[0]).join(' ')
@@ -155,35 +156,6 @@ function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: nu
           </tr>
         )}
       </table>
-    </div>
-  )
-}
-
-function BannedItem({ item, unban }: { item: Item, unban: () => void }) {
-  return (
-    <div className="itembox">
-      {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
-      <div className="itembox-data">
-        <div className="itembox-options">
-          <span className="itembox-itemname">{item.name}</span>
-          <span className="itembox-level">{item.level}</span>
-        </div>
-        <div className="itembox-bottom-section">
-          <div />
-          <div className="itembox-actions">
-            <button className="itembox-unban" onClick={unban} />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function BannedItems({ items, unban }: { items: Item[], unban: (item: Item) => void }) {
-  return (
-    <div className="banlist">
-      {items.length > 0 && <h3>Banned Items</h3>}
-      {items.map((item, i) => <BannedItem item={item} unban={unban.bind(null, item)} key={i} />)}
     </div>
   )
 }
