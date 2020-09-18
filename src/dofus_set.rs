@@ -257,14 +257,6 @@ impl<'a> Optimiser<'a> {
             })
             .collect();
 
-        if !config
-            .changable
-            .iter()
-            .any(|&x| !item_list[slot_index_to_item_type(x)].is_empty())
-        {
-            return Err("No items to choose from");
-        }
-
         Ok(Optimiser {
             config,
             initial_state,
@@ -273,6 +265,14 @@ impl<'a> Optimiser<'a> {
     }
 
     pub fn optimise(self) -> State {
+        if !self
+            .config
+            .changable
+            .iter()
+            .any(|&x| !self.item_list[slot_index_to_item_type(x)].is_empty())
+        {
+            return self.initial_state;
+        }
         anneal::Anneal::optimise(&self, self.initial_state.clone(), 1_000_000)
     }
 }
