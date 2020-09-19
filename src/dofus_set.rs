@@ -134,7 +134,7 @@ impl State {
             total_set_bonuses += set_bonus.number_of_items - 1;
         }
 
-        let stats = self.stats(config.max_level);
+        let stats = self.stats(config);
 
         for item in self.items() {
             if item.level > config.max_level {
@@ -172,12 +172,7 @@ impl State {
     }
 
     pub fn energy(&self, config: &config::Config) -> f64 {
-        let stats = self.exo_modified_stats(
-            config.max_level,
-            config.exo_ap,
-            config.exo_mp,
-            config.exo_range,
-        );
+        let stats = self.stats(config);
         // need to take the negative due to being a minimiser
         -stats
             .iter()
@@ -193,31 +188,7 @@ impl State {
             .filter_map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
     }
 
-    fn exo_modified_stats(
-        &self,
-        current_level: i32,
-        exo_ap: bool,
-        exo_mp: bool,
-        exo_range: bool,
-    ) -> stats::Characteristic {
-        let mut stat = self.stats(current_level);
-        if exo_ap {
-            stat[stats::Stat::AP as usize] =
-                std::cmp::min(stat[stats::Stat::AP as usize], MAX_AP - 1);
-        }
-        if exo_mp {
-            stat[stats::Stat::MP as usize] =
-                std::cmp::min(stat[stats::Stat::MP as usize], MAX_MP - 1);
-        }
-        if exo_range {
-            stat[stats::Stat::Range as usize] =
-                std::cmp::min(stat[stats::Stat::Range as usize], MAX_RANGE - 1);
-        }
-
-        stat
-    }
-
-    pub fn stats(&self, current_level: i32) -> stats::Characteristic {
+    pub fn stats(&self, config: &config::Config) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
 
         for item in self.items() {
@@ -229,12 +200,19 @@ impl State {
         }
 
         stat[stats::Stat::AP as usize] = std::cmp::min(
-            stat[stats::Stat::AP as usize] + level_initial_ap(current_level),
+            stat[stats::Stat::AP as usize]
+                + level_initial_ap(config.max_level)
+                + config.exo_ap as i32,
             MAX_AP,
         );
-        stat[stats::Stat::MP as usize] = std::cmp::min(stat[stats::Stat::MP as usize] + 3, MAX_MP);
-        stat[stats::Stat::Range as usize] =
-            std::cmp::min(stat[stats::Stat::Range as usize], MAX_RANGE);
+        stat[stats::Stat::MP as usize] = std::cmp::min(
+            stat[stats::Stat::MP as usize] + 3 + config.exo_mp as i32,
+            MAX_MP,
+        );
+        stat[stats::Stat::Range as usize] = std::cmp::min(
+            stat[stats::Stat::Range as usize] + config.exo_range as i32,
+            MAX_RANGE,
+        );
 
         stat[stats::Stat::ResistanceNeutralPercent as usize] =
             std::cmp::min(stat[stats::Stat::ResistanceNeutralPercent as usize], 50);

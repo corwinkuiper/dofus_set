@@ -119,9 +119,9 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
             })
             .collect(),
         ban_list: config.banned_items.clone(),
-        exo_ap: false,
-        exo_mp: false,
-        exo_range: false,
+        exo_ap: true,
+        exo_mp: true,
+        exo_range: true,
     };
 
     let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
@@ -138,7 +138,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         .collect();
 
     Some(Json(OptimiseResponse {
-        overall_characteristics: final_state.stats(config.max_level).to_vec(),
+        overall_characteristics: final_state.stats(&dofus_set_config).to_vec(),
         items: final_state
             .set()
             .map(|item| {
