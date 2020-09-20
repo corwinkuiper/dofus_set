@@ -65,7 +65,7 @@ fn item_list(items: &[usize]) -> Json<Vec<OptimiseResponseItem>> {
     )
 }
 
-#[get("/type/<item>")]
+#[get("/item/type/<item>")]
 fn get_item_list(item: String) -> Option<Json<Vec<OptimiseResponseItem>>> {
     let item = item.as_str();
     Some(match item {
@@ -82,7 +82,8 @@ fn get_item_list(item: String) -> Option<Json<Vec<OptimiseResponseItem>>> {
         _ => return None,
     })
 }
-#[get("/slot/<slot>")]
+
+#[get("/item/slot/<slot>")]
 fn get_item_list_index(slot: usize) -> Option<Json<Vec<OptimiseResponseItem>>> {
     if slot >= 16 {
         return None;
@@ -165,10 +166,14 @@ fn main() {
                 response.adjoin_raw_header("Access-Control-Allow-Headers", "Content-Type");
             },
         ))
-        .mount("/items", routes![get_item_list, get_item_list_index])
         .mount(
             "/api",
-            routes![create_optimised_set, create_optimised_set_options],
+            routes![
+                create_optimised_set,
+                create_optimised_set_options,
+                get_item_list,
+                get_item_list_index
+            ],
         )
         .mount(
             "/",

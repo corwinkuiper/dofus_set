@@ -1,3 +1,5 @@
+import { ItemResponse } from './Items'
+
 interface SetWeightOptions {
   weights: number[]
   maxLevel: number
@@ -5,18 +7,9 @@ interface SetWeightOptions {
   bannedItems: number[]
 }
 
-interface OptimiseSetItemResponse {
-  name: string
-  characteristics: number[]
-  itemType: string
-  level: number
-  imageUrl?: string
-  dofusId: number
-}
-
 interface OptimiseSetResponse {
   overallCharacteristics: number[]
-  items: (OptimiseSetItemResponse | null)[]
+  items: (ItemResponse | null)[]
   setBonuses: { name: string, characteristics: number[], numberOfItems: number }[]
 }
 

@@ -1,51 +1,19 @@
 import React from 'react'
 import './App.css'
-import { StatNames } from './dofus/stats'
 
 import { OptimiseApi } from './dofus/OptimiseApi'
+import { SearchApi } from './dofus/SearchApi'
+import { Item } from './Item'
+import { SetBonus } from './SetBonus'
 
 import { WeightsSelector, WeightsState } from './WeightsSelector'
 import { Spinner } from './Spinner'
 
-function classNames(classes: { [className: string]: boolean }) {
-  return Object.entries(classes).filter(entry => entry[1]).map(entry => entry[0]).join(' ')
-}
-
-function getImageUrl(imageUrl: string): string {
-  const suffix = imageUrl.slice(imageUrl.lastIndexOf('/') + 1)
-  return `https://d2iuiayak06k8j.cloudfront.net/item/${suffix}`
-}
-
-class Item {
-  readonly name: string
-  readonly characteristics: number[]
-  readonly level: number
-  readonly imageUrl?: string
-  readonly dofusId: number
-
-  constructor(name: string, characteristics: number[], level: number, imageUrl: string | undefined, dofusId: number) {
-    this.name = name
-    this.characteristics = characteristics
-    this.level = level
-    this.dofusId = dofusId
-
-    if (imageUrl) {
-      this.imageUrl = getImageUrl(imageUrl)
-    }
-  }
-}
-
-class SetBonus {
-  readonly name: string
-  readonly characteristics: number[]
-  readonly numberOfItems: number
-
-  constructor(name: string, characteristics: number[], numberOfItems: number) {
-    this.name = name
-    this.characteristics = characteristics
-    this.numberOfItems = numberOfItems
-  }
-}
+import { LevelSelector } from './App/LevelSelector'
+import { BannedItems } from './App/BannedItems'
+import { BestItemDisplay } from './App/BestItemDisplay'
+import { OverallCharacteristics } from './App/OverallCharacteristics'
+import { SearchBox } from './App/SearchItem'
 
 class AppState {
   weightsState = new WeightsState([])
@@ -56,138 +24,7 @@ class AppState {
   setBonuses: SetBonus[] = []
   maxLevel: number = 149
   optimising: boolean = false
-}
-
-class ItemHoverContainer extends React.Component<{ children: React.ReactNode, characteristics: number[], weights: WeightsState }, { showBox: boolean, x: number, y: number }> {
-  state = { x: 0, y: 0, showBox: false }
-
-  constructor(props: { children: React.ReactNode, characteristics: number[], weights: WeightsState }) {
-    super(props)
-
-    this.onMouseMove = this.onMouseMove.bind(this)
-    this.onMouseOut = this.onMouseOut.bind(this)
-  }
-
-  onMouseMove(event: React.MouseEvent) {
-    this.setState({
-      x: event.clientX,
-      y: event.clientY,
-      showBox: true
-    })
-  }
-
-  onMouseOut(event: React.MouseEvent) {
-    this.setState({ showBox: false })
-  }
-
-  render() {
-    return (
-      <>
-        <div onMouseMove={this.onMouseMove} onMouseOut={this.onMouseOut} className="itembox-container">
-          {this.props.children}
-        </div>
-        {this.state.showBox && <HoverStatDisplay x={this.state.x} y={this.state.y} characteristics={this.props.characteristics} weights={this.props.weights} />}
-      </>
-    )
-  }
-}
-
-function ItemBox({ item, weights, pinned, togglePinned, ban }: { item: Item, weights: WeightsState, pinned: boolean, togglePinned: () => void, ban: () => void }) {
-  let topStatIndex = null;
-  let topStatValue = 0;
-  for (let i = 0; i < item.characteristics.length; i++) {
-    const characteristicWeight = weights.weights.find(w => w.statId === i)?.weightValue ?? 0;
-    const value = characteristicWeight * item.characteristics[i];
-
-    if (value > topStatValue) {
-      topStatValue = value;
-      topStatIndex = i;
-    }
-  }
-
-  return (
-    <ItemHoverContainer characteristics={item.characteristics} weights={weights}>
-      <div className="itembox">
-        {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
-        <div className="itembox-data">
-          <div className="itembox-options">
-            <span className="itembox-itemname">{item.name}</span>
-            <span className="itembox-level">{item.level}</span>
-          </div>
-          <div className="itembox-bottom-section">
-            <span>{topStatIndex !== null ? `${item.characteristics[topStatIndex]} ${StatNames[topStatIndex]}` : `~`}</span>
-            <div className="itembox-actions">
-              <button className="itembox-ban" onClick={ban} />
-              <button className={classNames({ 'itembox-pin': true, 'itembox-pin-active': pinned })} onClick={togglePinned} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </ItemHoverContainer>
-  )
-}
-
-function SetBonusBox({ bonus, weights }: { bonus: SetBonus, weights: WeightsState }) {
-  return (
-    <ItemHoverContainer characteristics={bonus.characteristics} weights={weights}>
-      <div className="itembox">
-        <div className="itembox-data">
-          <div className="itembox-options">
-            <span className="itembox-itemname">{bonus.name}</span>
-            <span className="itembox-level">{bonus.numberOfItems} items</span>
-          </div>
-        </div>
-      </div>
-    </ItemHoverContainer>
-  )
-}
-
-function BestItemDisplay({ items, weights, setBonuses, pinnedSlots, togglePinned, banItem }: { items: (Item | null)[], weights: WeightsState, setBonuses: SetBonus[], pinnedSlots: number[], togglePinned: (slot: number) => void, banItem: (item: Item) => void }) {
-  return (
-    <div className="best-item-display">
-      {items.map((item, i) => item && <ItemBox item={item} key={i} weights={weights} pinned={pinnedSlots.includes(i)} togglePinned={togglePinned.bind(null, i)} ban={banItem.bind(null, item)} />)}
-      {setBonuses.map((bonus, i) => <SetBonusBox bonus={bonus} key={i} weights={weights} />)}
-    </div>
-  )
-}
-
-function OverallCharacteristics({ characteristics }: { characteristics: number[] }) {
-  return (
-    <table className="resulting-characteristics">
-      {characteristics.map((value, index) => (
-        <tr key={index}>
-          <td>{value}</td>
-          <td>{StatNames[index]}</td>
-        </tr>
-      ))}
-    </table>
-  )
-}
-
-class LevelSelector extends React.Component<{ maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }> {
-  constructor(props: { maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
-    super(props)
-
-    this.maxLevelChanged = this.maxLevelChanged.bind(this)
-  }
-
-  private maxLevelChanged(event: React.FormEvent<HTMLInputElement>) {
-    const parsed = parseInt(event.currentTarget.value, 10)
-    if (isNaN(parsed)) {
-      return
-    }
-
-    this.props.setMaxLevel(Math.floor(parsed))
-  }
-
-  render() {
-    return (
-      <div className="max-level">
-        <span>Maximum Level</span>
-        <input type="text" value={this.props.maxLevel.toString()} onChange={this.maxLevelChanged} />
-      </div>
-    )
-  }
+  searchingSlot: number | undefined = undefined
 }
 
 function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
@@ -199,67 +36,24 @@ function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLev
   )
 }
 
-function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: number, characteristics: number[], weights: WeightsState }) {
-  const totalEnergy = characteristics.reduce((acc, characteristic, index) => weights.weightWithStatId(index) * characteristic + acc, 0)
-
-  return (
-    <div style={{ top: y, left: x }} className="characteristics-hover">
-      <table>
-        {characteristics.map((characteristic, index) => characteristic !== 0 &&
-          <tr key={index}>
-            <td>{characteristic}</td>
-            <td>{StatNames[index]}</td>
-            <td>{totalEnergy ? (weights.weightWithStatId(index) * characteristic * 100 / totalEnergy).toFixed(0) : '~'}%</td>
-          </tr>
-        )}
-      </table>
-    </div>
-  )
-}
-
-function BannedItem({ item, unban }: { item: Item, unban: () => void }) {
-  return (
-    <div className="itembox">
-      {item.imageUrl ? <img className="itembox-image" src={item.imageUrl} alt={item.name} /> : <div className="itembox-image">No Image :(</div>}
-      <div className="itembox-data">
-        <div className="itembox-options">
-          <span className="itembox-itemname">{item.name}</span>
-          <span className="itembox-level">{item.level}</span>
-        </div>
-        <div className="itembox-bottom-section">
-          <div />
-          <div className="itembox-actions">
-            <button className="itembox-unban" onClick={unban} />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function BannedItems({ items, unban }: { items: Item[], unban: (item: Item) => void }) {
-  return (
-    <div className="banlist">
-      {items.length > 0 && <h3>Banned Items</h3>}
-      {items.map((item, i) => <BannedItem item={item} unban={unban.bind(null, item)} key={i} />)}
-    </div>
-  )
-}
-
 class App extends React.Component<{}, AppState> {
   state = new AppState()
 
   private readonly api: OptimiseApi
+  private readonly searchApi: SearchApi
 
   constructor(props: {}) {
     super(props)
 
+    this.searchApi = new SearchApi('http://localhost:8000')
     this.api = new OptimiseApi('http://localhost:8000')
     this.updateWeightsState = this.updateWeightsState.bind(this)
     this.setMaxLevel = this.setMaxLevel.bind(this)
     this.togglePinned = this.togglePinned.bind(this)
     this.banItem = this.banItem.bind(this)
     this.unbanItem = this.unbanItem.bind(this)
+    this.setItem = this.setItem.bind(this)
+    this.toggleSearch = this.toggleSearch.bind(this)
 
     this.runOptimiser = this.runOptimiser.bind(this)
   }
@@ -322,6 +116,24 @@ class App extends React.Component<{}, AppState> {
     this.setState({ pinnedSlots: newPinnedSlots })
   }
 
+  toggleSearch(slot: number) {
+    if (this.state.searchingSlot === slot) {
+      this.setState({ searchingSlot: undefined })
+    } else {
+      this.setState({ searchingSlot: slot })
+    }
+  }
+
+  setItem(slot: number, item: Item) {
+    const newBestItems = this.state.bestItems.slice()
+    newBestItems[slot] = item
+    this.setState({ bestItems: newBestItems })
+
+    if (!this.state.pinnedSlots.includes(slot)) {
+      this.togglePinned(slot)
+    }
+  }
+
   banItem(item: Item) {
     const newBannedItems = this.state.bannedItems
     if (!newBannedItems.find(i => i.dofusId === item.dofusId)) {
@@ -346,9 +158,25 @@ class App extends React.Component<{}, AppState> {
             Optimise!
             {this.state.optimising && <Spinner />}
           </button>
+          {
+            this.state.searchingSlot !== undefined &&
+            <SearchBox
+              searchApi={this.searchApi}
+              setItem={this.setItem}
+              slot={this.state.searchingSlot}
+              weights={this.state.weightsState} />
+          }
           <BannedItems items={this.state.bannedItems} unban={this.unbanItem} />
         </div>
-        <BestItemDisplay items={this.state.bestItems} weights={this.state.weightsState} setBonuses={this.state.setBonuses} pinnedSlots={this.state.pinnedSlots} togglePinned={this.togglePinned} banItem={this.banItem} />
+        <BestItemDisplay
+          items={this.state.bestItems}
+          weights={this.state.weightsState}
+          setBonuses={this.state.setBonuses}
+          pinnedSlots={this.state.pinnedSlots}
+          togglePinned={this.togglePinned}
+          banItem={this.banItem}
+          searchingSlot={this.state.searchingSlot}
+          toggleSearchSlot={this.toggleSearch} />
         <OverallCharacteristics characteristics={this.state.resultingCharacteristics} />
       </div>
     )
