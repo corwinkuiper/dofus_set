@@ -61,7 +61,7 @@ impl Restriction for RestrictionLeaf {
         leniency: StatValue,
     ) -> bool {
         let value = characteristics[self.stat as usize];
-        let lenient = self.stat != Stat::AP;
+        let lenient = !(self.stat == Stat::AP || self.stat == Stat::MP);
         if lenient {
             match self.operator {
                 Operator::GreaterThan => value + leniency > self.value,
