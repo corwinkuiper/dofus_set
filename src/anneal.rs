@@ -11,7 +11,7 @@ pub trait Anneal<T> {
 
     fn temperature(&self, iteration: f64, energy: f64) -> f64;
     fn energy(&self, state: &T) -> f64;
-    fn neighbour(&self, state: &T) -> T;
+    fn neighbour(&self, state: &T, temperature: f64) -> T;
 
     fn optimise(&self, initial_state: T, num_iterations: i64) -> T {
         let number_of_iterations = num_iterations as f64;
@@ -23,7 +23,7 @@ pub trait Anneal<T> {
                 (iteration + 1.0) / number_of_iterations,
                 current_state_energy,
             );
-            let neighbour = self.neighbour(&current_state);
+            let neighbour = self.neighbour(&current_state, temperature);
             let neighbour_energy = self.energy(&neighbour);
             let acceptance_rate =
                 Self::accept_probability(current_state_energy, neighbour_energy, temperature);
