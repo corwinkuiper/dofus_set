@@ -16,7 +16,6 @@ fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send>> {
     for entry in WalkDir::new(WEB_DIRECTORY)
         .into_iter()
         .filter_map(Result::ok)
-        .filter(|e| !e.file_type().is_dir())
     {
         println!("cargo:rerun-if-changed={}", entry.path().to_string_lossy());
     }
