@@ -141,7 +141,7 @@ impl State {
                 return false;
             }
 
-            if !item.restriction.accepts(&stats, total_set_bonuses) {
+            if !item.restriction.accepts(&stats, total_set_bonuses, 0) {
                 return false;
             }
         }
