@@ -5,6 +5,9 @@ interface OptimiseRequest {
   maxLevel: number
   fixedItems: (number | undefined)[]
   bannedItems: number[]
+  apExo: boolean
+  mpExo: boolean
+  rangeExo: boolean
 }
 
 interface OptimiseSetResponse {
@@ -31,6 +34,9 @@ export class OptimiseApi {
         max_level: options.maxLevel,
         fixed_items: options.fixedItems,
         banned_items: options.bannedItems,
+        ap_exo: options.apExo,
+        mp_exo: options.mpExo,
+        range_exo: options.rangeExo,
       })
     })
 

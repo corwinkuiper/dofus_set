@@ -70,10 +70,17 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
   }
 }
 
+interface ExoOptions {
+  readonly apExo: boolean
+  readonly mpExo: boolean
+  readonly rangeExo: boolean
+}
+
 export class WeightsState {
   public readonly weights: WeightOption[]
+  public readonly exoOptions: ExoOptions
 
-  constructor(weights: WeightOption[]) {
+  constructor(weights: WeightOption[], exoOptions: ExoOptions) {
     if (weights.length === 0) {
       this.weights = [{
         weightValue: 1,
@@ -82,6 +89,8 @@ export class WeightsState {
     } else {
       this.weights = weights
     }
+
+    this.exoOptions = exoOptions
 
     this.weightOptionChange = this.weightOptionChange.bind(this)
     this.addWeightOption = this.addWeightOption.bind(this)
@@ -120,7 +129,8 @@ export class WeightsState {
 
     const statWeights = this.weights.slice()
     statWeights[index] = newOption
-    return new WeightsState(statWeights)
+
+    return new WeightsState(statWeights, this.exoOptions)
   }
 
   public addWeightOption(): WeightsState {
@@ -135,7 +145,11 @@ export class WeightsState {
       statId: unusedStatId,
     })
 
-    return new WeightsState(statWeights)
+    return new WeightsState(statWeights, this.exoOptions)
+  }
+
+  public alterExoOptions(newExoOptions: ExoOptions) {
+    return new WeightsState(this.weights, newExoOptions)
   }
 }
 

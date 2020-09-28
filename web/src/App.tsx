@@ -16,7 +16,7 @@ import { OverallCharacteristics } from './App/OverallCharacteristics'
 import { SearchBox } from './App/SearchItem'
 
 class AppState {
-  weightsState = new WeightsState([])
+  weightsState = new WeightsState([], { apExo: false, mpExo: false, rangeExo: false })
   bestItems: (Item | null)[] = []
   bannedItems: Item[] = []
   pinnedSlots: number[] = []
@@ -92,11 +92,15 @@ class App extends React.Component<{}, AppState> {
         }
       }
 
+      const exoOptions = this.state.weightsState.exoOptions
       const setResult = await this.api.optimiseSet({
         weights: weights,
         maxLevel: this.state.maxLevel,
         fixedItems,
         bannedItems: this.state.bannedItems.map(item => item.dofusId),
+        apExo: exoOptions.apExo,
+        mpExo: exoOptions.mpExo,
+        rangeExo: exoOptions.rangeExo,
       })
 
       const bestItems = setResult.items.map(item => item && new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))
