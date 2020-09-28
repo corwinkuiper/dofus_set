@@ -34,9 +34,9 @@ export class OptimiseApi {
         max_level: options.maxLevel,
         fixed_items: options.fixedItems,
         banned_items: options.bannedItems,
-        ap_exo: options.apExo,
-        mp_exo: options.mpExo,
-        range_exo: options.rangeExo,
+        exo_ap: options.apExo,
+        exo_mp: options.mpExo,
+        exo_range: options.rangeExo,
       })
     })
 

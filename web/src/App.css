@@ -157,3 +157,14 @@ button:hover {
     background-color: rgba(200, 200, 200, 0.9);
     z-index: 100;
 }
+
+.exo-selector {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.exo-checkbox {
+    display: flex;
+    align-items: center;
+}
