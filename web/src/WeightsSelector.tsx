@@ -1,5 +1,6 @@
 import React from 'react'
 import * as DofusStats from './dofus/stats'
+import { StatIcon } from './App/StatIcon';
 
 class StatSelector extends React.Component<{ onStatChange: (statId: number) => void, value: number }> {
   constructor(props: { onStatChange: (statId: number) => void, value: number }) {
@@ -80,16 +81,25 @@ export function ExoSelector({ exoOptions, updateExoOptions }: { exoOptions: ExoO
   return (
     <div className="exo-selector">
       <div className="exo-checkbox">
-        <label htmlFor="ap-exo">AP exo:</label>
-        <input type="checkbox" checked={exoOptions.apExo} onClick={() => toggleExoValue('apExo')} />
+        <label htmlFor="ap-exo">
+          <StatIcon statIndex={0} />
+          AP exo
+        </label>
+        <input type="checkbox" id="ap-exo" checked={exoOptions.apExo} onChange={() => toggleExoValue('apExo')} />
       </div>
       <div className="exo-checkbox">
-        <label htmlFor="ap-exo">MP exo:</label>
-        <input type="checkbox" checked={exoOptions.mpExo} onClick={() => toggleExoValue('mpExo')} />
+        <label htmlFor="mp-exo">
+          <StatIcon statIndex={1} />
+          MP exo
+        </label>
+        <input type="checkbox" id="mp-exo" checked={exoOptions.mpExo} onChange={() => toggleExoValue('mpExo')} />
       </div>
       <div className="exo-checkbox">
-        <label htmlFor="ap-exo">Range exo:</label>
-        <input type="checkbox" checked={exoOptions.rangeExo} onClick={() => toggleExoValue('rangeExo')} />
+        <label htmlFor="range-exo">
+          <StatIcon statIndex={2} />
+          Range exo
+        </label>
+        <input type="checkbox" id="range-exo" checked={exoOptions.rangeExo} onChange={() => toggleExoValue('rangeExo')} />
       </div>
     </div>
   )
