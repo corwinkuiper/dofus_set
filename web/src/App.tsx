@@ -45,8 +45,10 @@ class App extends React.Component<{}, AppState> {
   constructor(props: {}) {
     super(props)
 
-    this.searchApi = new SearchApi('http://localhost:8000')
-    this.api = new OptimiseApi('http://localhost:8000')
+    const apiHost = location.host === 'localhost' ? 'http://localhost:8000' : ''
+
+    this.searchApi = new SearchApi(apiHost)
+    this.api = new OptimiseApi(apiHost)
     this.updateWeightsState = this.updateWeightsState.bind(this)
     this.setMaxLevel = this.setMaxLevel.bind(this)
     this.togglePinned = this.togglePinned.bind(this)
