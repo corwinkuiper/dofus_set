@@ -182,4 +182,9 @@ button:hover {
 
 .exo-checkbox label {
     padding-right: 15px;
+    display: flex;
+}
+
+.exo-checkbox label .stat-icon {
+    margin-right: 5px;
 }
