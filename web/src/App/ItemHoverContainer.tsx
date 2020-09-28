@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { WeightsState } from '../WeightsSelector'
 import { StatNames } from '../dofus/stats'
+import { StatIcon } from './StatIcon'
 
 function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: number, characteristics: number[], weights: WeightsState }) {
     const totalEnergy = characteristics.reduce((acc, characteristic, index) => weights.weightWithStatId(index) * characteristic + acc, 0)
@@ -10,6 +11,7 @@ function HoverStatDisplay({ x, y, characteristics, weights }: { x: number, y: nu
             <table>
                 {characteristics.map((characteristic, index) => characteristic !== 0 &&
                     <tr key={index}>
+                        <td><StatIcon statIndex={index} /></td>
                         <td>{characteristic}</td>
                         <td>{StatNames[index]}</td>
                         <td>{totalEnergy ? (weights.weightWithStatId(index) * characteristic * 100 / totalEnergy).toFixed(0) : '~'}%</td>
