@@ -22,6 +22,9 @@ struct OptimiseRequest {
     max_level: i32,
     fixed_items: Vec<Option<i32>>,
     banned_items: Vec<i32>,
+    exo_ap: bool,
+    exo_mp: bool,
+    exo_range: bool,
 }
 
 #[derive(Serialize)]
@@ -120,9 +123,9 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
             })
             .collect(),
         ban_list: config.banned_items.clone(),
-        exo_ap: true,
-        exo_mp: true,
-        exo_range: true,
+        exo_ap: config.exo_ap,
+        exo_mp: config.exo_mp,
+        exo_range: config.exo_range,
     };
 
     let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();

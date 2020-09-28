@@ -1,10 +1,13 @@
 import { ItemResponse } from './Items'
 
-interface SetWeightOptions {
+interface OptimiseRequest {
   weights: number[]
   maxLevel: number
   fixedItems: (number | undefined)[]
   bannedItems: number[]
+  apExo: boolean
+  mpExo: boolean
+  rangeExo: boolean
 }
 
 interface OptimiseSetResponse {
@@ -20,7 +23,7 @@ export class OptimiseApi {
     this.apiEndpoint = apiEndpoint
   }
 
-  async optimiseSet(options: SetWeightOptions): Promise<OptimiseSetResponse> {
+  async optimiseSet(options: OptimiseRequest): Promise<OptimiseSetResponse> {
     const response = await fetch(`${this.apiEndpoint}/api/optimise`, {
       method: 'POST',
       headers: {
@@ -31,6 +34,9 @@ export class OptimiseApi {
         max_level: options.maxLevel,
         fixed_items: options.fixedItems,
         banned_items: options.bannedItems,
+        exo_ap: options.apExo,
+        exo_mp: options.mpExo,
+        exo_range: options.rangeExo,
       })
     })
 

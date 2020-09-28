@@ -70,10 +70,42 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
   }
 }
 
+export function ExoSelector({ exoOptions, updateExoOptions }: { exoOptions: ExoOptions, updateExoOptions: (newOptions: ExoOptions) => void }) {
+  function toggleExoValue(name: 'apExo' | 'mpExo' | 'rangeExo') {
+    updateExoOptions(Object.assign({}, exoOptions, {
+      [name]: !exoOptions[name]
+    }))
+  }
+
+  return (
+    <div className="exo-selector">
+      <div className="exo-checkbox">
+        <label htmlFor="ap-exo">AP exo:</label>
+        <input type="checkbox" checked={exoOptions.apExo} onClick={() => toggleExoValue('apExo')} />
+      </div>
+      <div className="exo-checkbox">
+        <label htmlFor="ap-exo">MP exo:</label>
+        <input type="checkbox" checked={exoOptions.mpExo} onClick={() => toggleExoValue('mpExo')} />
+      </div>
+      <div className="exo-checkbox">
+        <label htmlFor="ap-exo">Range exo:</label>
+        <input type="checkbox" checked={exoOptions.rangeExo} onClick={() => toggleExoValue('rangeExo')} />
+      </div>
+    </div>
+  )
+}
+
+export interface ExoOptions {
+  readonly apExo: boolean
+  readonly mpExo: boolean
+  readonly rangeExo: boolean
+}
+
 export class WeightsState {
   public readonly weights: WeightOption[]
+  public readonly exoOptions: ExoOptions
 
-  constructor(weights: WeightOption[]) {
+  constructor(weights: WeightOption[], exoOptions: ExoOptions) {
     if (weights.length === 0) {
       this.weights = [{
         weightValue: 1,
@@ -82,6 +114,8 @@ export class WeightsState {
     } else {
       this.weights = weights
     }
+
+    this.exoOptions = exoOptions
 
     this.weightOptionChange = this.weightOptionChange.bind(this)
     this.addWeightOption = this.addWeightOption.bind(this)
@@ -120,7 +154,8 @@ export class WeightsState {
 
     const statWeights = this.weights.slice()
     statWeights[index] = newOption
-    return new WeightsState(statWeights)
+
+    return new WeightsState(statWeights, this.exoOptions)
   }
 
   public addWeightOption(): WeightsState {
@@ -135,7 +170,11 @@ export class WeightsState {
       statId: unusedStatId,
     })
 
-    return new WeightsState(statWeights)
+    return new WeightsState(statWeights, this.exoOptions)
+  }
+
+  public alterExoOptions(newExoOptions: ExoOptions) {
+    return new WeightsState(this.weights, newExoOptions)
   }
 }
 

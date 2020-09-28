@@ -6,7 +6,7 @@ import { SearchApi } from './dofus/SearchApi'
 import { Item } from './Item'
 import { SetBonus } from './SetBonus'
 
-import { WeightsSelector, WeightsState } from './WeightsSelector'
+import { WeightsSelector, ExoSelector, ExoOptions, WeightsState } from './WeightsSelector'
 import { Spinner } from './Spinner'
 
 import { LevelSelector } from './App/LevelSelector'
@@ -16,7 +16,7 @@ import { OverallCharacteristics } from './App/OverallCharacteristics'
 import { SearchBox } from './App/SearchItem'
 
 class AppState {
-  weightsState = new WeightsState([])
+  weightsState = new WeightsState([], { apExo: false, mpExo: false, rangeExo: false })
   bestItems: (Item | null)[] = []
   bannedItems: Item[] = []
   pinnedSlots: number[] = []
@@ -32,6 +32,7 @@ function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLev
     <div>
       <LevelSelector maxLevel={maxLevel} setMaxLevel={setMaxLevel} />
       <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
+      <ExoSelector exoOptions={weights.exoOptions} updateExoOptions={(newOptions: ExoOptions) => updateWeightsState(weights.alterExoOptions(newOptions))} />
     </div>
   )
 }
@@ -92,11 +93,15 @@ class App extends React.Component<{}, AppState> {
         }
       }
 
+      const exoOptions = this.state.weightsState.exoOptions
       const setResult = await this.api.optimiseSet({
         weights: weights,
         maxLevel: this.state.maxLevel,
         fixedItems,
         bannedItems: this.state.bannedItems.map(item => item.dofusId),
+        apExo: exoOptions.apExo,
+        mpExo: exoOptions.mpExo,
+        rangeExo: exoOptions.rangeExo,
       })
 
       const bestItems = setResult.items.map(item => item && new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))
