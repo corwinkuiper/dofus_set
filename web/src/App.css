@@ -1,3 +1,7 @@
+input {
+    box-sizing: border-box;
+}
+
 .app-container {
     display: flex;
 }

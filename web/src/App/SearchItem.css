@@ -1,0 +1,12 @@
+.search-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-box .input-box {
+    width: 100%;
+}
+
+.search-box .input-box input {
+    width: 100%;
+}
