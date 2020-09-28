@@ -5,6 +5,8 @@ import { WeightsState } from '../WeightsSelector'
 import { ItemHoverContainer } from './ItemHoverContainer'
 import { StatNames } from '../dofus/stats'
 
+import './SearchItem.css'
+
 interface SearchBoxState {
     readonly currentSearchTerm: string
     readonly items: Item[]
@@ -65,6 +67,7 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
     render() {
         return (
             <div className="search-box">
+                <h3>Search item</h3>
                 <div className="input-box">
                     <input type="text" value={this.state.currentSearchTerm} onChange={this.searchTermChanged} />
                 </div>
