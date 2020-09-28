@@ -45,7 +45,7 @@ class App extends React.Component<{}, AppState> {
   constructor(props: {}) {
     super(props)
 
-    const apiHost = location.host === 'localhost' ? 'http://localhost:8000' : ''
+    const apiHost = window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''
 
     this.searchApi = new SearchApi(apiHost)
     this.api = new OptimiseApi(apiHost)
