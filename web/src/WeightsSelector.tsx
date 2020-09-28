@@ -80,16 +80,16 @@ export function ExoSelector({ exoOptions, updateExoOptions }: { exoOptions: ExoO
   return (
     <div className="exo-selector">
       <div className="exo-checkbox">
-        <label htmlFor="ap-exo">AP exo:</label>
-        <input type="checkbox" checked={exoOptions.apExo} onClick={() => toggleExoValue('apExo')} />
+        <label htmlFor="ap-exo">AP exo</label>
+        <input type="checkbox" id="ap-exo" checked={exoOptions.apExo} onChange={() => toggleExoValue('apExo')} />
       </div>
       <div className="exo-checkbox">
-        <label htmlFor="ap-exo">MP exo:</label>
-        <input type="checkbox" checked={exoOptions.mpExo} onClick={() => toggleExoValue('mpExo')} />
+        <label htmlFor="mp-exo">MP exo</label>
+        <input type="checkbox" id="mp-exo" checked={exoOptions.mpExo} onChange={() => toggleExoValue('mpExo')} />
       </div>
       <div className="exo-checkbox">
-        <label htmlFor="ap-exo">Range exo:</label>
-        <input type="checkbox" checked={exoOptions.rangeExo} onClick={() => toggleExoValue('rangeExo')} />
+        <label htmlFor="range-exo">Range exo</label>
+        <input type="checkbox" id="range-exo" checked={exoOptions.rangeExo} onChange={() => toggleExoValue('rangeExo')} />
       </div>
     </div>
   )
