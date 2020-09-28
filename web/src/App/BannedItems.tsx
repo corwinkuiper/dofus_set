@@ -24,7 +24,7 @@ function BannedItem({ item, unban }: { item: Item, unban: () => void }) {
 export function BannedItems({ items, unban }: { items: Item[], unban: (item: Item) => void }) {
     return (
         <div className="banlist">
-            {items.length > 0 && <h3>Banned Items</h3>}
+            {items.length > 0 && <h3>Banned items</h3>}
             {items.map((item, i) => <BannedItem item={item} unban={unban.bind(null, item)} key={i} />)}
         </div>
     )
