@@ -6,7 +6,7 @@ import { SearchApi } from './dofus/SearchApi'
 import { Item } from './Item'
 import { SetBonus } from './SetBonus'
 
-import { WeightsSelector, WeightsState } from './WeightsSelector'
+import { WeightsSelector, ExoSelector, ExoOptions, WeightsState } from './WeightsSelector'
 import { Spinner } from './Spinner'
 
 import { LevelSelector } from './App/LevelSelector'
@@ -32,6 +32,7 @@ function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLev
     <div>
       <LevelSelector maxLevel={maxLevel} setMaxLevel={setMaxLevel} />
       <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
+      <ExoSelector exoOptions={weights.exoOptions} updateExoOptions={(newOptions: ExoOptions) => updateWeightsState(weights.alterExoOptions(newOptions))} />
     </div>
   )
 }
