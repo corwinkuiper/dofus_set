@@ -8,6 +8,7 @@ import { StatNames } from '../dofus/stats'
 interface SearchBoxState {
     readonly currentSearchTerm: string
     readonly items: Item[]
+    readonly itemsSlot: number | undefined
     readonly isSearching: boolean
 }
 
@@ -23,6 +24,7 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
         currentSearchTerm: '',
         items: [],
         isSearching: false,
+        itemsSlot: undefined,
     }
 
     constructor(props: SearchBoxProps) {
@@ -49,14 +51,15 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 
             let items: Item[]
             let searchTerm: string
+            const slot = this.props.slot
             do {
                 searchTerm = this.state.currentSearchTerm
-                items = await this.props.searchApi.search(this.props.slot, searchTerm)
+                items = await this.props.searchApi.search(slot, searchTerm)
             } while (this.state.currentSearchTerm !== searchTerm)
 
             items.length = 10 // limit the maximum number of items searched
 
-            this.setState({ items })
+            this.setState({ items, itemsSlot: slot })
         } finally {
             this.setState({ isSearching: false })
         }
@@ -71,6 +74,7 @@ export class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
 
                 <div className="search-results">
                     {
+                        this.state.itemsSlot === this.props.slot &&
                         this.state.items.map((item, key) => <SearchItemDisplay key={key} item={item} setItem={this.props.setItem.bind(null, this.props.slot, item)} weights={this.props.weights} />)
                     }
                 </div>
