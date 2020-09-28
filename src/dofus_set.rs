@@ -128,7 +128,7 @@ impl State {
         })
     }
 
-    fn valid(&self, config: &config::Config) -> bool {
+    fn valid(&self, config: &config::Config, leniency: i32) -> bool {
         let mut total_set_bonuses = 0;
         for set_bonus in self.sets() {
             total_set_bonuses += set_bonus.number_of_items - 1;
@@ -141,7 +141,10 @@ impl State {
                 return false;
             }
 
-            if !item.restriction.accepts(&stats, total_set_bonuses) {
+            if !item
+                .restriction
+                .accepts(&stats, total_set_bonuses, leniency)
+            {
                 return false;
             }
         }
@@ -249,7 +252,7 @@ impl<'a> Optimiser<'a> {
         initial_set: [Option<i32>; 16],
     ) -> Result<Optimiser<'a>, &'static str> {
         let initial_state: State = State::new_from_initial_equipment(initial_set)?;
-        if !initial_state.valid(config) {
+        if !initial_state.valid(config, 1000) {
             return Err("Initial state is not valid");
         }
 
@@ -289,7 +292,7 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
         rand::thread_rng().gen_range(0.0, 1.0)
     }
 
-    fn neighbour(&self, state: &State) -> State {
+    fn neighbour(&self, state: &State, temperature: f64) -> State {
         let mut attempts = 0;
         let mut rng = rand::thread_rng();
         loop {
@@ -305,11 +308,11 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
             };
 
             new_state.set[item_slot] = Some(item);
-            if new_state.valid(self.config) {
+            if new_state.valid(self.config, temperature as i32) {
                 return new_state;
             }
             attempts += 1;
-            if attempts > 30 {
+            if attempts > 1000 {
                 panic!("Exceeded max number of attempts at finding a valid item");
             }
         }

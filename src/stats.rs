@@ -4,7 +4,12 @@ pub type StatValue = i32;
 pub type Characteristic = [StatValue; 51];
 
 pub trait Restriction {
-    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> bool;
+    fn accepts(
+        &self,
+        characteristics: &Characteristic,
+        set_bonus: i32,
+        leniency: StatValue,
+    ) -> bool;
 }
 
 pub enum BooleanOperator {
@@ -18,16 +23,21 @@ pub struct RestrictionSet {
 }
 
 impl Restriction for RestrictionSet {
-    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> bool {
+    fn accepts(
+        &self,
+        characteristics: &Characteristic,
+        set_bonus: i32,
+        leniency: StatValue,
+    ) -> bool {
         match self.operator {
             BooleanOperator::And => self
                 .restrictions
                 .iter()
-                .all(|restriction| restriction.accepts(characteristics, set_bonus)),
+                .all(|restriction| restriction.accepts(characteristics, set_bonus, leniency)),
             BooleanOperator::Or => self
                 .restrictions
                 .iter()
-                .any(|restriction| restriction.accepts(characteristics, set_bonus)),
+                .any(|restriction| restriction.accepts(characteristics, set_bonus, leniency)),
         }
     }
 }
@@ -44,12 +54,18 @@ pub struct RestrictionLeaf {
 }
 
 impl Restriction for RestrictionLeaf {
-    fn accepts(&self, characteristics: &Characteristic, _set_bonus: i32) -> bool {
+    fn accepts(
+        &self,
+        characteristics: &Characteristic,
+        _set_bonus: i32,
+        leniency: StatValue,
+    ) -> bool {
         let value = characteristics[self.stat as usize];
-
+        let lenient = !(self.stat == Stat::AP || self.stat == Stat::MP);
+        let leniency = if lenient { leniency } else { 0 };
         match self.operator {
-            Operator::GreaterThan => value > self.value,
-            Operator::LessThan => value < self.value,
+            Operator::GreaterThan => value + leniency > self.value,
+            Operator::LessThan => value - leniency < self.value,
         }
     }
 }
@@ -60,7 +76,7 @@ pub struct SetBonusRestriction {
 }
 
 impl Restriction for SetBonusRestriction {
-    fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32) -> bool {
+    fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32, _leniency: i32) -> bool {
         match self.operator {
             Operator::GreaterThan => set_bonus > self.value,
             Operator::LessThan => set_bonus < self.value,
@@ -71,7 +87,7 @@ impl Restriction for SetBonusRestriction {
 pub struct NullRestriction;
 
 impl Restriction for NullRestriction {
-    fn accepts(&self, _characteristics: &Characteristic, _set_bonus: i32) -> bool {
+    fn accepts(&self, _characteristics: &Characteristic, _set_bonus: i32, _leniency: i32) -> bool {
         true
     }
 }
