@@ -107,9 +107,14 @@ const StatIcons = [
     'icon/Melee_Resistance.svg',
 ]
 
+function getStatIconURL(stat: number) {
+    return `https://d2iuiayak06k8j.cloudfront.net/${StatIcons[stat]}`
+}
+
 const IdForStatName = (name: string) => StatNames.findIndex(statName => statName === name)
 
 export {
     StatNames,
-    IdForStatName
+    IdForStatName,
+    getStatIconURL,
 }
