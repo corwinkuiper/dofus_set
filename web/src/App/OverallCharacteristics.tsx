@@ -6,7 +6,11 @@ export function OverallCharacteristics({ characteristics }: { characteristics: n
         <table className="resulting-characteristics">
             {characteristics.map((value, index) => (
                 <tr key={index}>
-                    <td><img className="stat-icon" src={getStatIconURL(index)}></img></td>
+                    <td>
+                        <div className="stat-icon-container">
+                            <img className="stat-icon" src={getStatIconURL(index)} />
+                        </div>
+                    </td>
                     <td>{value}</td>
                     <td>{StatNames[index]}</td>
                 </tr>
