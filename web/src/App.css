@@ -179,3 +179,7 @@ button:hover {
     display: flex;
     align-items: center;
 }
+
+.exo-checkbox label {
+    padding-right: 15px;
+}
