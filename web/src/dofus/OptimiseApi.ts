@@ -1,6 +1,6 @@
 import { ItemResponse } from './Items'
 
-interface SetWeightOptions {
+interface OptimiseRequest {
   weights: number[]
   maxLevel: number
   fixedItems: (number | undefined)[]
@@ -20,7 +20,7 @@ export class OptimiseApi {
     this.apiEndpoint = apiEndpoint
   }
 
-  async optimiseSet(options: SetWeightOptions): Promise<OptimiseSetResponse> {
+  async optimiseSet(options: OptimiseRequest): Promise<OptimiseSetResponse> {
     const response = await fetch(`${this.apiEndpoint}/api/optimise`, {
       method: 'POST',
       headers: {
