@@ -63,7 +63,7 @@ fn item_list(items: &[usize]) -> Vec<OptimiseResponseItem> {
         .collect()
 }
 
-//#[get("/item/slot/<slot>")]
+// GET /item/slot/<slot>
 fn get_item_list_index(slot: usize) -> Option<Vec<OptimiseResponseItem>> {
     if slot >= 16 {
         return None;
@@ -73,7 +73,7 @@ fn get_item_list_index(slot: usize) -> Option<Vec<OptimiseResponseItem>> {
     )))
 }
 
-//#[post("/optimise", data = "<config>")]
+// POST /optimise
 fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
     if config.weights.len() != 51 {
         return None;
@@ -153,23 +153,15 @@ fn handle_api_request(request: Request) -> Response {
     )
 }
 
-fn add_access_control_headers(mut response: Response) -> Response {
-    response.headers.push((
-        Cow::Borrowed("Access-Control-Allow-Origin"),
-        Cow::Borrowed("*"),
-    ));
-    response.headers.push((
-        Cow::Borrowed("Access-Control-Allow-Headers"),
-        Cow::Borrowed("Content-Type"),
-    ));
+fn add_access_control_headers(response: Response) -> Response {
     response
+        .with_additional_header("Access-Control-Allow-Origin", "*")
+        .with_additional_header("Access-Control-Allow-Headers", "Content-Type")
 }
 
 fn main() {
-    let static_asset_path = concat!(env!("CARGO_MANIFEST_DIR"), "/web/build");
-
     rouille::start_server_with_pool("0.0.0.0:8000", Some(4), move |request| {
-        let response = rouille::match_assets(&request, static_asset_path);
+        let response = rouille::match_assets(&request, "web/build");
         if response.is_success() {
             return add_access_control_headers(response);
         }
