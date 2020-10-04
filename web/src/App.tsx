@@ -25,6 +25,7 @@ class AppState {
   maxLevel: number = 149
   optimising: boolean = false
   searchingSlot: number | undefined = undefined
+  rateLimited: boolean = false
 }
 
 function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
@@ -104,12 +105,22 @@ class App extends React.Component<{}, AppState> {
         rangeExo: exoOptions.rangeExo,
       })
 
+      if (setResult.rateLimited) {
+        this.rateLimited()
+        return
+      }
+
       const bestItems = setResult.items.map(item => item && new Item(item.name, item.characteristics, item.level, item.imageUrl, item.dofusId))
       const setBonuses = setResult.setBonuses.map(bonus => new SetBonus(bonus.name, bonus.characteristics, bonus.numberOfItems))
       this.setState({ bestItems, setBonuses, resultingCharacteristics: setResult.overallCharacteristics })
     } finally {
       this.setState({ optimising: false })
     }
+  }
+
+  private rateLimited() {
+    this.setState({ rateLimited: true })
+    setTimeout(() => this.setState({ rateLimited: false }), 3000)
   }
 
   togglePinned(slot: number) {
@@ -161,9 +172,10 @@ class App extends React.Component<{}, AppState> {
       <div className="app-container">
         <div className="weights-container">
           <OptimisationSettings weights={this.state.weightsState} updateWeightsState={this.updateWeightsState} maxLevel={this.state.maxLevel} setMaxLevel={this.setMaxLevel} />
-          <button className="optimise-button" disabled={this.state.optimising} onClick={this.runOptimiser}>
+          <button className="optimise-button" disabled={this.state.optimising || this.state.rateLimited} onClick={this.runOptimiser}>
             Optimise!
             {this.state.optimising && <Spinner />}
+            {this.state.rateLimited && " (server busy, please try again)"}
           </button>
           {
             this.state.searchingSlot !== undefined &&
