@@ -4,14 +4,18 @@ use ::dofus_set::config;
 use ::dofus_set::dofus_set;
 use ::dofus_set::items;
 
+use rouille::{Request, Response};
 use serde::{Deserialize, Serialize};
+
+use std::time::Duration;
 
 #[macro_use]
 extern crate rouille;
 
+mod rate_limit;
 mod static_files;
 
-use rouille::{Request, Response};
+use rate_limit::RateLimiter;
 
 #[derive(Deserialize)]
 struct OptimiseRequest {
@@ -134,12 +138,14 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
     })
 }
 
-fn handle_api_request(request: Request) -> Response {
+fn handle_api_request(request: Request, rate_limiter: &RateLimiter) -> Response {
     router!(request,
         (POST) (/optimise) => {
-            Response::json(&create_optimised_set(try_or_400!(
-                rouille::input::json_input(&request)
-            )))
+            rate_limiter.rate_limit(&request, |request|
+                Response::json(&create_optimised_set(try_or_400!(
+                    rouille::input::json_input(request)
+                )))
+            )
         },
         (OPTIONS) (/optimise) => {
             Response::empty_204()
@@ -160,14 +166,16 @@ fn add_access_control_headers(response: Response) -> Response {
 }
 
 fn main() {
-    rouille::start_server_with_pool("0.0.0.0:8000", Some(4), move |request| {
+    let rate_limiter = RateLimiter::new(4, Duration::from_secs(2));
+
+    rouille::start_server_with_pool("0.0.0.0:8000", Some(8), move |request| {
         let response = static_files::static_file(request);
         if response.is_success() {
             return add_access_control_headers(response);
         }
 
         if let Some(request) = request.remove_prefix("/api") {
-            add_access_control_headers(handle_api_request(request))
+            add_access_control_headers(handle_api_request(request, &rate_limiter))
         } else {
             Response::empty_404()
         }
