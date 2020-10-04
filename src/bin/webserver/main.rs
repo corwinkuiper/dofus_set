@@ -166,9 +166,9 @@ fn add_access_control_headers(response: Response) -> Response {
 }
 
 fn main() {
-    let rate_limiter = RateLimiter::new(4, Duration::from_secs(2));
+    let rate_limiter = RateLimiter::new(num_cpus::get(), Duration::from_secs(2));
 
-    rouille::start_server_with_pool("0.0.0.0:8000", Some(8), move |request| {
+    rouille::start_server_with_pool("0.0.0.0:8000", Some(num_cpus::get() * 2), move |request| {
         let response = static_files::static_file(request);
         if response.is_success() {
             return add_access_control_headers(response);

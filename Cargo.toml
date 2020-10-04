@@ -16,6 +16,7 @@ rouille = "3.0.0"
 include_dir = "0.6.0"
 
 governor = "0.3.1"
+num_cpus = "1.0"
 
 [build-dependencies]
 walkdir = "2.3.1"
