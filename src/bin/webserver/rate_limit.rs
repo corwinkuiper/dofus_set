@@ -1,5 +1,3 @@
-use governor;
-
 use rouille::{Request, Response};
 use std::net::IpAddr;
 use std::num::NonZeroU32;
@@ -17,8 +15,8 @@ pub struct RateLimiter {
     >,
 }
 
-const PERSONAL_RATE_LIMIT: &'static str = r#"{"rate_limited":true,"personal":true}"#;
-const GLOBAL_RATE_LIMIT: &'static str = r#"{"rate_limited":true,"personal":false}"#;
+const PERSONAL_RATE_LIMIT: &str = r#"{"rate_limited":true,"personal":true}"#;
+const GLOBAL_RATE_LIMIT: &str = r#"{"rate_limited":true,"personal":false}"#;
 
 impl RateLimiter {
     pub fn new(total: usize, per_time_unit: Duration) -> Self {
