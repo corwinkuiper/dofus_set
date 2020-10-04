@@ -11,8 +11,6 @@ extern crate rouille;
 
 use rouille::{Request, Response};
 
-use std::borrow::Cow;
-
 #[derive(Deserialize)]
 struct OptimiseRequest {
     weights: Vec<f64>,
