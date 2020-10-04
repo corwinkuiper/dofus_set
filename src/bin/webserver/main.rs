@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 #[macro_use]
 extern crate rouille;
 
+mod static_files;
+
 use rouille::{Request, Response};
 
 #[derive(Deserialize)]
@@ -159,7 +161,7 @@ fn add_access_control_headers(response: Response) -> Response {
 
 fn main() {
     rouille::start_server_with_pool("0.0.0.0:8000", Some(4), move |request| {
-        let response = rouille::match_assets(&request, "web/build");
+        let response = static_files::static_file(request);
         if response.is_success() {
             return add_access_control_headers(response);
         }
