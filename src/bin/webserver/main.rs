@@ -1,20 +1,21 @@
-#![feature(proc_macro_hygiene, decl_macro)]
 #![deny(clippy::all)]
-#![allow(clippy::unit_arg)] // because create_optimised_set_options had an error
 
 use ::dofus_set::config;
 use ::dofus_set::dofus_set;
 use ::dofus_set::items;
 
+use rouille::{Request, Response};
 use serde::{Deserialize, Serialize};
 
+use std::time::Duration;
+
 #[macro_use]
-extern crate rocket;
+extern crate rouille;
 
-use rocket_contrib::json::Json;
-use rocket_contrib::serve::StaticFiles;
+mod rate_limit;
+mod static_files;
 
-use rocket::fairing;
+use rate_limit::RateLimiter;
 
 #[derive(Deserialize)]
 struct OptimiseRequest {
@@ -51,43 +52,23 @@ struct OptimiseResponse {
     set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
 
-fn item_list(items: &[usize]) -> Json<Vec<OptimiseResponseItem>> {
-    Json(
-        items
-            .iter()
-            .map(|x| &items::ITEMS[*x])
-            .map(|x| OptimiseResponseItem {
-                dofus_id: x.dofus_id,
-                characteristics: x.stats.to_vec(),
-                name: x.name.clone(),
-                item_type: x.item_type.clone(),
-                level: x.level,
-                image_url: x.image_url.clone(),
-            })
-            .collect(),
-    )
+fn item_list(items: &[usize]) -> Vec<OptimiseResponseItem> {
+    items
+        .iter()
+        .map(|x| &items::ITEMS[*x])
+        .map(|x| OptimiseResponseItem {
+            dofus_id: x.dofus_id,
+            characteristics: x.stats.to_vec(),
+            name: x.name.clone(),
+            item_type: x.item_type.clone(),
+            level: x.level,
+            image_url: x.image_url.clone(),
+        })
+        .collect()
 }
 
-#[get("/item/type/<item>")]
-fn get_item_list(item: String) -> Option<Json<Vec<OptimiseResponseItem>>> {
-    let item = item.as_str();
-    Some(match item {
-        "hats" => item_list(&items::HATS),
-        "cloaks" => item_list(&items::CLOAKS),
-        "amulets" => item_list(&items::AMULETS),
-        "rings" => item_list(&items::RINGS),
-        "belts" => item_list(&items::BELTS),
-        "boots" => item_list(&items::BOOTS),
-        "weapons" => item_list(&items::WEAPONS),
-        "shields" => item_list(&items::SHIELDS),
-        "dofus" => item_list(&items::DOFUS),
-        "mounts" => item_list(&items::MOUNTS),
-        _ => return None,
-    })
-}
-
-#[get("/item/slot/<slot>")]
-fn get_item_list_index(slot: usize) -> Option<Json<Vec<OptimiseResponseItem>>> {
+// GET /item/slot/<slot>
+fn get_item_list_index(slot: usize) -> Option<Vec<OptimiseResponseItem>> {
     if slot >= 16 {
         return None;
     }
@@ -96,11 +77,8 @@ fn get_item_list_index(slot: usize) -> Option<Json<Vec<OptimiseResponseItem>>> {
     )))
 }
 
-#[options("/optimise")]
-fn create_optimised_set_options() {}
-
-#[post("/optimise", data = "<config>")]
-fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseResponse>> {
+// POST /optimise
+fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
     if config.weights.len() != 51 {
         return None;
     }
@@ -141,7 +119,7 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
         })
         .collect();
 
-    Some(Json(OptimiseResponse {
+    Some(OptimiseResponse {
         overall_characteristics: final_state.stats(&dofus_set_config).to_vec(),
         items: final_state
             .set()
@@ -157,30 +135,49 @@ fn create_optimised_set(config: Json<OptimiseRequest>) -> Option<Json<OptimiseRe
             })
             .collect(),
         set_bonuses,
-    }))
+    })
+}
+
+fn handle_api_request(request: Request, rate_limiter: &RateLimiter) -> Response {
+    router!(request,
+        (POST) (/optimise) => {
+            rate_limiter.rate_limit(&request, |request|
+                Response::json(&create_optimised_set(try_or_400!(
+                    rouille::input::json_input(request)
+                )))
+            )
+        },
+        (OPTIONS) (/optimise) => {
+            Response::empty_204()
+        },
+        (GET) (/item/slot/{slot: usize}) => {
+            Response::json(&get_item_list_index(slot))
+        },
+        _ => {
+            Response::empty_404()
+        }
+    )
+}
+
+fn add_access_control_headers(response: Response) -> Response {
+    response
+        .with_additional_header("Access-Control-Allow-Origin", "*")
+        .with_additional_header("Access-Control-Allow-Headers", "Content-Type")
 }
 
 fn main() {
-    rocket::ignite()
-        .attach(fairing::AdHoc::on_response(
-            "Add CORS headers",
-            |_: &rocket::Request, response: &mut rocket::Response| {
-                response.adjoin_raw_header("Access-Control-Allow-Origin", "*");
-                response.adjoin_raw_header("Access-Control-Allow-Headers", "Content-Type");
-            },
-        ))
-        .mount(
-            "/api",
-            routes![
-                create_optimised_set,
-                create_optimised_set_options,
-                get_item_list,
-                get_item_list_index
-            ],
-        )
-        .mount(
-            "/",
-            StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/web/build")),
-        )
-        .launch();
+    let rate_limiter = RateLimiter::new(num_cpus::get(), Duration::from_secs(2));
+
+    rouille::start_server_with_pool("0.0.0.0:8000", Some(num_cpus::get() * 2), move |request| {
+        let response = static_files::static_file(request);
+        if response.is_success() {
+            return add_access_control_headers(response);
+        }
+
+        if let Some(request) = request.remove_prefix("/api") {
+            add_access_control_headers(handle_api_request(request, &rate_limiter))
+        } else {
+            Response::empty_404()
+        }
+    })
 }

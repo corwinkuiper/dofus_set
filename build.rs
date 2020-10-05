@@ -25,6 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send>> {
                 .starts_with(format!("{}/{}", WEB_DIRECTORY, "build"))
         })
         .filter(|x| !x.file_name().to_string_lossy().starts_with('.'))
+        .filter(|x| x.path().is_file())
     {
         println!("cargo:rerun-if-changed={}", entry.path().to_string_lossy());
     }

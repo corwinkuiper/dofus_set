@@ -16,11 +16,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install Nightly Rust
+    - name: Install Rust
       id: rust_install
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: nightly-2020-09-18
+        toolchain: 1.46.0
         components: clippy
         override: true
     - name: Cache
