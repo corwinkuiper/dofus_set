@@ -1,0 +1,4 @@
+target
+.git
+web/build
+web/node_modules
