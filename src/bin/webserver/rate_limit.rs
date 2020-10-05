@@ -15,6 +15,8 @@ pub struct RateLimiter {
     >,
 }
 
+const HTTP_TOO_MANY_REQUESTS: u16 = 429;
+
 const PERSONAL_RATE_LIMIT: &str = r#"{"rate_limited":true,"personal":true}"#;
 const GLOBAL_RATE_LIMIT: &str = r#"{"rate_limited":true,"personal":false}"#;
 
@@ -38,7 +40,7 @@ impl RateLimiter {
         let key = request.remote_addr().ip();
         if self.rate_limiter.check_key(&key).is_err() {
             return Response::from_data("application/json; charset=utf8", PERSONAL_RATE_LIMIT)
-                .with_status_code(429);
+                .with_status_code(HTTP_TOO_MANY_REQUESTS);
         }
 
         let should_allow =
@@ -52,7 +54,7 @@ impl RateLimiter {
                 });
         if should_allow.is_err() {
             return Response::from_data("application/json; charset=utf8", GLOBAL_RATE_LIMIT)
-                .with_status_code(429);
+                .with_status_code(HTTP_TOO_MANY_REQUESTS);
         }
 
         let response = panic::catch_unwind(|| rate_limited_fn(request));
