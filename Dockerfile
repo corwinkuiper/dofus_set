@@ -14,7 +14,6 @@ COPY . .
 RUN cargo build --release
 
 
-FROM scratch
+FROM alpine
 COPY --from=builder /dofus_optimiser/target/release/webserver .
-EXPOSE 8000
 CMD ["./webserver"]
