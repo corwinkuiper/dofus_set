@@ -15,5 +15,7 @@ RUN cargo build --release
 
 
 FROM alpine
+RUN apk add dumb-init --no-cache
 COPY --from=builder /dofus_optimiser/target/release/webserver .
+ENTRYPOINT ["dumb-init"]
 CMD ["./webserver"]
