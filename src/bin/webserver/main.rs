@@ -169,8 +169,10 @@ fn main() {
     let rate_limiter = RateLimiter::new(num_cpus::get(), Duration::from_secs(2));
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "8000".to_string());
+    let address = "0.0.0.0";
+    println!("Starting server on {}:{}", address, port);
 
-    rouille::start_server_with_pool(format!("{}:{}", "0.0.0.0", port), Some(num_cpus::get() * 2), move |request| {
+    rouille::start_server_with_pool(format!("{}:{}", address, port), Some(num_cpus::get() * 2), move |request| {
         let response = static_files::static_file(request);
         if response.is_success() {
             return add_access_control_headers(response);
