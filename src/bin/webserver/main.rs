@@ -92,6 +92,7 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
     let dofus_set_config = config::Config {
         max_level: config.max_level,
         weights,
+        targets: [None; 51],
         changable: fixed_items
             .iter()
             .enumerate()

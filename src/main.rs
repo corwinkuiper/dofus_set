@@ -19,6 +19,7 @@ fn main() {
     let config = config::Config {
         max_level: 148,
         weights,
+        targets: [None; 51],
         changable: (1..16).collect(),
         ban_list: Vec::new(),
         exo_ap: false,
