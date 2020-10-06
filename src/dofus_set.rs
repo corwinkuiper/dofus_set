@@ -179,9 +179,10 @@ impl State {
         // need to take the negative due to being a minimiser
         -stats
             .iter()
-            .zip(config.weights.iter())
-            .fold(0.0, |accumulate, (stat, weight)| {
-                accumulate + *stat as f64 * weight
+            .zip(config.weights.iter()).zip(config.targets.iter())
+            .fold(0.0, |accumulate, ((&stat, &weight), &target)| {
+                let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
+                accumulate + stat as f64 * weight
             })
     }
 
