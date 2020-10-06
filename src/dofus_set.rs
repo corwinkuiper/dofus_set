@@ -198,7 +198,12 @@ impl State {
                 stat as f64 * weight
             });
         let energy_element = if config.multi_element {
-            element_iter.fold(f64::NAN, f64::min)
+            let e = element_iter.fold(f64::NAN, f64::min);
+            if e.is_nan() {
+                0.
+            } else {
+                e
+            }
         } else {
             element_iter.sum()
         };
