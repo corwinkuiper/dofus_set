@@ -180,12 +180,8 @@ impl State {
         -stats
             .iter()
             .zip(config.weights.iter()).zip(config.targets.iter())
-            .fold(0.0, |accumulate, ((stat, weight), target)| {
-                let stat = if let Some(target) = *target {
-                    std::cmp::min(*stat, target)
-                } else {
-                    *stat
-                };
+            .fold(0.0, |accumulate, ((&stat, &weight), &target)| {
+                let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
                 accumulate + stat as f64 * weight
             })
     }
