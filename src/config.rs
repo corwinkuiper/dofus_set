@@ -7,4 +7,5 @@ pub struct Config {
     pub exo_ap: bool,
     pub exo_mp: bool,
     pub exo_range: bool,
+    pub multi_element: bool,
 }

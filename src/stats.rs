@@ -280,3 +280,14 @@ impl std::fmt::Display for Stat {
         write!(f, "{}", s)
     }
 }
+
+pub fn stat_is_element(n: usize) -> bool {
+    n >= Stat::Agility as usize && n <= Stat::Intelligence as usize
+}
+
+pub const STAT_ELEMENT: [usize; 4] = [
+    Stat::Agility as usize,
+    Stat::Chance as usize,
+    Stat::Strength as usize,
+    Stat::Intelligence as usize,
+];

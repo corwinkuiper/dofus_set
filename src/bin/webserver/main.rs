@@ -105,6 +105,7 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
         exo_ap: config.exo_ap,
         exo_mp: config.exo_mp,
         exo_range: config.exo_range,
+        multi_element: false,
     };
 
     let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
@@ -173,16 +174,20 @@ fn main() {
     let address = "0.0.0.0";
     println!("Starting server on {}:{}", address, port);
 
-    rouille::start_server_with_pool(format!("{}:{}", address, port), Some(num_cpus::get() * 2), move |request| {
-        let response = static_files::static_file(request);
-        if response.is_success() {
-            return add_access_control_headers(response);
-        }
+    rouille::start_server_with_pool(
+        format!("{}:{}", address, port),
+        Some(num_cpus::get() * 2),
+        move |request| {
+            let response = static_files::static_file(request);
+            if response.is_success() {
+                return add_access_control_headers(response);
+            }
 
-        if let Some(request) = request.remove_prefix("/api") {
-            add_access_control_headers(handle_api_request(request, &rate_limiter))
-        } else {
-            Response::empty_404()
-        }
-    })
+            if let Some(request) = request.remove_prefix("/api") {
+                add_access_control_headers(handle_api_request(request, &rate_limiter))
+            } else {
+                Response::empty_404()
+            }
+        },
+    )
 }
