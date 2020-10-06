@@ -192,6 +192,7 @@ impl State {
         let element_iter = stats::STAT_ELEMENT
             .iter()
             .map(|&x| (stats[x], config.weights[x], config.targets[x]))
+            .filter(|(_, weight, _)| *weight > 0.)
             .map(|(stat, weight, target)| {
                 let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
                 stat as f64 * weight
