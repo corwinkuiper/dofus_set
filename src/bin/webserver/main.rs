@@ -4,10 +4,12 @@ use ::dofus_set::config;
 use ::dofus_set::dofus_set;
 use ::dofus_set::items;
 
+use log;
 use rouille::{Request, Response};
 use serde::{Deserialize, Serialize};
+use simple_logger::SimpleLogger;
 
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 #[macro_use]
 extern crate rouille;
@@ -143,11 +145,17 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
 fn handle_api_request(request: Request, rate_limiter: &RateLimiter) -> Response {
     router!(request,
         (POST) (/optimise) => {
-            rate_limiter.rate_limit(&request, |request|
-                Response::json(&create_optimised_set(try_or_400!(
+            rate_limiter.rate_limit(&request, |request| {
+                let now = Instant::now();
+
+                let response = Response::json(&create_optimised_set(try_or_400!(
                     rouille::input::json_input(request)
-                )))
-            )
+                )));
+
+                log::info!("Took {}ms to complete optimisation", now.elapsed().as_millis());
+
+                response
+            })
         },
         (OPTIONS) (/optimise) => {
             Response::empty_204()
@@ -168,11 +176,13 @@ fn add_access_control_headers(response: Response) -> Response {
 }
 
 fn main() {
+    SimpleLogger::new().init().unwrap();
+
     let rate_limiter = RateLimiter::new(num_cpus::get(), Duration::from_secs(2));
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "8000".to_string());
     let address = "0.0.0.0";
-    println!("Starting server on {}:{}", address, port);
+    log::info!("Starting server on {}:{}", address, port);
 
     rouille::start_server_with_pool(
         format!("{}:{}", address, port),
@@ -184,6 +194,7 @@ fn main() {
             }
 
             if let Some(request) = request.remove_prefix("/api") {
+                log::info!("Request for {} {}", request.method(), request.url());
                 add_access_control_headers(handle_api_request(request, &rate_limiter))
             } else {
                 Response::empty_404()

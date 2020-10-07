@@ -1,3 +1,4 @@
+use log;
 use rouille::{Request, Response};
 use std::net::IpAddr;
 use std::num::NonZeroU32;
@@ -54,6 +55,7 @@ impl RateLimiter {
     ) -> Response {
         let key = get_remote_ip(request);
         if self.rate_limiter.check_key(&key).is_err() {
+            log::warn!("Rate limiting specific user");
             return Response::from_data("application/json; charset=utf8", PERSONAL_RATE_LIMIT)
                 .with_status_code(HTTP_TOO_MANY_REQUESTS);
         }
@@ -67,9 +69,13 @@ impl RateLimiter {
                         Some(old_value - 1)
                     }
                 });
-        if should_allow.is_err() {
-            return Response::from_data("application/json; charset=utf8", GLOBAL_RATE_LIMIT)
-                .with_status_code(HTTP_TOO_MANY_REQUESTS);
+        match should_allow {
+            Ok(old_value) => log::info!("Global rate limit is at {}", old_value - 1),
+            Err(_) => {
+                log::warn!("Global rate limit reached");
+                return Response::from_data("application/json; charset=utf8", GLOBAL_RATE_LIMIT)
+                    .with_status_code(HTTP_TOO_MANY_REQUESTS);
+            }
         }
 
         let response = panic::catch_unwind(|| rate_limited_fn(request));
