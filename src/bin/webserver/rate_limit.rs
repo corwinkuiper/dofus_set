@@ -20,6 +20,21 @@ const HTTP_TOO_MANY_REQUESTS: u16 = 429;
 const PERSONAL_RATE_LIMIT: &str = r#"{"rate_limited":true,"personal":true}"#;
 const GLOBAL_RATE_LIMIT: &str = r#"{"rate_limited":true,"personal":false}"#;
 
+// Because fly.io acts as a proxy, the remote address from the request isn't
+// the actual user's IP address which we would like to rate limit on.
+// So we fetch the `Fly-Client-IP` header instead and if that doesn't exist, default
+// to the remote address
+fn get_remote_ip(request: &Request) -> IpAddr {
+    let fly_client_ip = request.header("Fly-Client-IP");
+    if let Some(client_ip) = fly_client_ip {
+        if let Ok(ip) = client_ip.parse() {
+            return ip;
+        }
+    }
+
+    request.remote_addr().ip()
+}
+
 impl RateLimiter {
     pub fn new(total: usize, per_time_unit: Duration) -> Self {
         RateLimiter {
@@ -37,7 +52,7 @@ impl RateLimiter {
         request: &Request,
         rate_limited_fn: impl FnOnce(&Request) -> Response + panic::UnwindSafe,
     ) -> Response {
-        let key = request.remote_addr().ip();
+        let key = get_remote_ip(request);
         if self.rate_limiter.check_key(&key).is_err() {
             return Response::from_data("application/json; charset=utf8", PERSONAL_RATE_LIMIT)
                 .with_status_code(HTTP_TOO_MANY_REQUESTS);
