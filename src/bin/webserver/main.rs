@@ -4,7 +4,6 @@ use ::dofus_set::config;
 use ::dofus_set::dofus_set;
 use ::dofus_set::items;
 
-use log;
 use rouille::{Request, Response};
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;

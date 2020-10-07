@@ -1,4 +1,3 @@
-use log;
 use rouille::{Request, Response};
 use std::net::IpAddr;
 use std::num::NonZeroU32;
