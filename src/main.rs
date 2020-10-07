@@ -25,6 +25,7 @@ fn main() {
         exo_ap: false,
         exo_mp: false,
         exo_range: false,
+        multi_element: false,
     };
 
     let mut initial_set: [Option<i32>; 16] = [None; 16];

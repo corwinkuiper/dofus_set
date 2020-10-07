@@ -177,13 +177,38 @@ impl State {
     pub fn energy(&self, config: &config::Config) -> f64 {
         let stats = self.stats(config);
         // need to take the negative due to being a minimiser
-        -stats
+        let energy_non_element = stats
             .iter()
-            .zip(config.weights.iter()).zip(config.targets.iter())
+            .zip(config.weights.iter())
+            .zip(config.targets.iter())
+            .enumerate()
+            .filter(|(x, _)| !stats::stat_is_element(*x))
+            .map(|(_, x)| x)
             .fold(0.0, |accumulate, ((&stat, &weight), &target)| {
                 let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
                 accumulate + stat as f64 * weight
-            })
+            });
+
+        let element_iter = stats::STAT_ELEMENT
+            .iter()
+            .map(|&x| (stats[x], config.weights[x], config.targets[x]))
+            .filter(|(_, weight, _)| *weight > 0.)
+            .map(|(stat, weight, target)| {
+                let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
+                stat as f64 * weight
+            });
+        let energy_element = if config.multi_element {
+            let e = element_iter.fold(f64::NAN, f64::min);
+            if e.is_nan() {
+                0.
+            } else {
+                e
+            }
+        } else {
+            element_iter.sum()
+        };
+
+        -energy_non_element - energy_element
     }
 
     fn items(&self) -> impl std::iter::Iterator<Item = &items::Item> {
