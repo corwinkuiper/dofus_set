@@ -8,6 +8,7 @@ use rouille::{Request, Response};
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;
 
+use std::convert::TryInto;
 use std::time::{Duration, Instant};
 
 #[macro_use]
@@ -84,11 +85,8 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
         return None;
     }
 
-    let mut weights = [0.0f64; 51];
-    weights[..51].clone_from_slice(&config.weights[..51]);
-
-    let mut fixed_items = [None; 16];
-    fixed_items[..16].clone_from_slice(&config.fixed_items[..16]);
+    let weights = config.weights[..51].try_into().unwrap();
+    let fixed_items: [_; 16] = config.fixed_items[..16].try_into().unwrap();
 
     let dofus_set_config = config::Config {
         max_level: config.max_level,
