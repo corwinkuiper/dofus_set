@@ -20,7 +20,7 @@ jobs:
       id: rust_install
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: 1.46.0
+        toolchain: 1.47.0
         components: clippy
         override: true
     - name: Cache
