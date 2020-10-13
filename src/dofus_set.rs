@@ -270,6 +270,9 @@ pub struct Optimiser<'a> {
     config: &'a config::Config,
     initial_state: State,
     item_list: Vec<Vec<usize>>,
+    temperature_initial: f64,
+    temperature_time_constant: f64,
+    temperature_quench: f64,
 }
 
 impl<'a> Optimiser<'a> {
@@ -293,10 +296,17 @@ impl<'a> Optimiser<'a> {
             })
             .collect();
 
+        let temperature_initial = 1000.;
+        let temperature_quench = 5.;
+        let temperature_time_constant =
+            (0.01 / temperature_initial as f64).ln() / 0.95_f64.powf(temperature_quench);
         Ok(Optimiser {
             config,
             initial_state,
             item_list,
+            temperature_initial,
+            temperature_quench,
+            temperature_time_constant,
         })
     }
 
@@ -349,6 +359,8 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     }
 
     fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
-        30000.0 * std::f64::consts::E.powf(-16.0 * iteration)
+        self.temperature_initial
+            * std::f64::consts::E
+                .powf(self.temperature_time_constant * iteration.powf(self.temperature_quench))
     }
 }
