@@ -1,6 +1,6 @@
 pub trait Anneal<T> {
     fn accept_probability(energy_current: f64, energy_neighbour: f64, temperature: f64) -> f64 {
-        if energy_neighbour < energy_current {
+        if energy_neighbour <= energy_current {
             1.0
         } else {
             core::f64::consts::E.powf(-(energy_neighbour - energy_current) / temperature)
