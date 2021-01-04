@@ -12,9 +12,9 @@ fn main() {
     let mut weights = [0.0; 51];
     weights[Stat::Power as usize] = 1.0;
     weights[Stat::Strength as usize] = 1.0;
-    weights[Stat::AP as usize] = 400.0;
-    weights[Stat::MP as usize] = 300.0;
-    weights[Stat::Range as usize] = 5.0;
+    weights[Stat::AP as usize] = 100.0;
+    weights[Stat::MP as usize] = 100.0;
+    weights[Stat::Range as usize] = 50.0;
 
     let config = config::Config {
         max_level: 148,
@@ -59,6 +59,11 @@ pub fn print_state(state: &State, config: &config::Config) {
     for set_bonus in state.sets() {
         println!("{} - {} items", set_bonus.name, set_bonus.number_of_items);
         print_stats(&set_bonus.bonus);
+    }
+    println!("Characteristic Points");
+    println!("-----------------------------");
+    for (characteristic, points) in state.characteristics() {
+        println!("{} - {}", characteristic, points);
     }
 }
 

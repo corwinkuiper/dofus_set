@@ -6,6 +6,7 @@ use crate::stats;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
+use std::convert::TryInto;
 
 pub fn item_type_to_item_list<'a>(index: usize) -> &'a [usize] {
     match index {
@@ -46,6 +47,7 @@ const MAX_RANGE: i32 = 6;
 #[derive(Clone, Debug, Default)]
 pub struct State {
     set: [Option<usize>; 16],
+    characteristics: [i32; 6],
 }
 
 #[cfg(test)]
@@ -91,7 +93,10 @@ impl State {
                 }
             }
         }
-        Ok(State { set })
+        Ok(State {
+            set,
+            characteristics: [0; 6],
+        })
     }
 }
 
@@ -126,6 +131,26 @@ impl State {
                 number_of_items,
             })
         })
+    }
+
+    pub fn characteristics(&self) -> impl std::iter::Iterator<Item = (stats::Stat, i32)> + '_ {
+        self.characteristics
+            .iter()
+            .enumerate()
+            .map(|(index, points)| {
+                (
+                    if index == 0 {
+                        stats::Stat::Vitality
+                    } else if index == 5 {
+                        stats::Stat::Wisdom
+                    } else {
+                        (index - 1 + stats::Stat::Agility as usize)
+                            .try_into()
+                            .unwrap()
+                    },
+                    *points,
+                )
+            })
     }
 
     fn valid(&self, config: &config::Config, leniency: i32) -> bool {
@@ -254,6 +279,19 @@ impl State {
         stat[stats::Stat::ResistanceAirPercent as usize] =
             std::cmp::min(stat[stats::Stat::ResistanceAirPercent as usize], 50);
 
+        stat[stats::Stat::Vitality as usize] +=
+            calculate_bonus_from_characteristics_points(0, self.characteristics[0]);
+        stat[stats::Stat::Agility as usize] +=
+            calculate_bonus_from_characteristics_points(1, self.characteristics[1]);
+        stat[stats::Stat::Chance as usize] +=
+            calculate_bonus_from_characteristics_points(2, self.characteristics[2]);
+        stat[stats::Stat::Strength as usize] +=
+            calculate_bonus_from_characteristics_points(3, self.characteristics[3]);
+        stat[stats::Stat::Intelligence as usize] +=
+            calculate_bonus_from_characteristics_points(4, self.characteristics[4]);
+        stat[stats::Stat::Wisdom as usize] +=
+            calculate_bonus_from_characteristics_points(5, self.characteristics[5]);
+
         stat
     }
 }
@@ -263,6 +301,23 @@ fn level_initial_ap(level: i32) -> i32 {
         7
     } else {
         6
+    }
+}
+
+fn level_characteristic_points(level: i32) -> i32 {
+    level * 5
+}
+
+fn calculate_bonus_from_characteristics_points(characteristic: usize, points: i32) -> i32 {
+    if characteristic == 0 {
+        points
+    } else if characteristic == 5 {
+        points / 3
+    } else {
+        points.min(100)
+            + (points - 100).min(0).max(200) / 2
+            + (points - 300).min(0).max(300) / 3
+            + (points - 600).min(0) / 4
     }
 }
 
@@ -331,26 +386,39 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     fn neighbour(&self, state: &State, temperature: f64) -> State {
         let mut attempts = 0;
         let mut rng = rand::thread_rng();
-        loop {
-            let mut new_state = state.clone();
-            let (item_slot, item) = loop {
-                let item_slot = *self.config.changable.choose(&mut rng).unwrap();
-                let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
-                if item_type.is_empty() {
-                    continue;
-                }
-                let item_index = item_type[rng.gen_range(0, item_type.len())];
-                break (item_slot, item_index);
-            };
+        if rng.gen_range(0, 22) < 16 {
+            loop {
+                let mut new_state = state.clone();
+                let (item_slot, item) = loop {
+                    let item_slot = *self.config.changable.choose(&mut rng).unwrap();
+                    let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
+                    if item_type.is_empty() {
+                        continue;
+                    }
+                    let item_index = item_type[rng.gen_range(0, item_type.len())];
+                    break (item_slot, item_index);
+                };
 
-            new_state.set[item_slot] = Some(item);
-            if new_state.valid(self.config, temperature as i32) {
-                return new_state;
+                new_state.set[item_slot] = Some(item);
+                if new_state.valid(self.config, temperature as i32) {
+                    return new_state;
+                }
+                attempts += 1;
+                if attempts > 1000 {
+                    panic!("Exceeded max number of attempts at finding a valid item");
+                }
             }
-            attempts += 1;
-            if attempts > 1000 {
-                panic!("Exceeded max number of attempts at finding a valid item");
-            }
+        } else {
+            let current_allocated_points: i32 = state.characteristics.iter().sum();
+            let allocatable_points =
+                level_characteristic_points(self.config.max_level) - current_allocated_points;
+
+            let mut new_state = state.clone();
+
+            let new_allocated_points = rng.gen_range(0, allocatable_points);
+            *new_state.characteristics.choose_mut(&mut rng).unwrap() = new_allocated_points;
+
+            new_state
         }
     }
 
