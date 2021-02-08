@@ -10,7 +10,7 @@ pub struct Item {
     pub item_type: String,
     pub stats: stats::Characteristic,
     pub level: i32,
-    pub set_id: Option<i32>,
+    pub set_id: Option<i64>,
     pub restriction: Box<dyn stats::Restriction + Sync>,
     pub image_url: Option<String>,
 }
@@ -166,7 +166,7 @@ struct DofusLabSet {
     bonuses: HashMap<String, Vec<DofusLabSetStat>>,
 }
 
-pub fn parse_sets(data: &[u8]) -> HashMap<i32, Set> {
+pub fn parse_sets(data: &[u8]) -> HashMap<i64, Set> {
     let data: Vec<DofusLabSet> = serde_json::from_slice(data).unwrap();
 
     data.iter()
@@ -290,5 +290,5 @@ lazy_static! {
     pub static ref SHIELDS: Vec<usize> = item_filter(&ITEMS, &["Shield"]).collect();
     pub static ref DOFUS: Vec<usize> =
         item_filter(&ITEMS, &["Dofus", "Trophy", "Prysmaradite"]).collect();
-    pub static ref SETS: HashMap<i32, Set> = parse_sets(include_bytes!("../data/sets.json"));
+    pub static ref SETS: HashMap<i64, Set> = parse_sets(include_bytes!("../data/sets.json"));
 }

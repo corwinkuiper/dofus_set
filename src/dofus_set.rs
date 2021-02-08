@@ -109,7 +109,7 @@ impl State {
     }
 
     pub fn sets(&self) -> impl std::iter::Iterator<Item = SetBonus> {
-        let mut sets = HashMap::<i32, i32>::new(); // map of set ids to number of items in that set
+        let mut sets = HashMap::<i64, i32>::new(); // map of set ids to number of items in that set
 
         for item in self.items() {
             if let Some(set_id) = item.set_id {
