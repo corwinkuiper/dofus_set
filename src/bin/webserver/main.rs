@@ -1,22 +1,14 @@
 #![deny(clippy::all)]
-
 use ::dofus_set::config;
 use ::dofus_set::dofus_set;
 use ::dofus_set::items;
-
-use rouille::{Request, Response};
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;
+use std::convert::Infallible;
+use tokio;
+use warp::http::header::{HeaderMap, HeaderValue};
 
-use std::time::{Duration, Instant};
-
-#[macro_use]
-extern crate rouille;
-
-mod rate_limit;
-mod static_files;
-
-use rate_limit::RateLimiter;
+use warp::Filter;
 
 #[derive(Deserialize)]
 struct OptimiseRequest {
@@ -141,63 +133,49 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
     })
 }
 
-fn handle_api_request(request: Request, rate_limiter: &RateLimiter) -> Response {
-    router!(request,
-        (POST) (/optimise) => {
-            rate_limiter.rate_limit(&request, |request| {
-                let now = Instant::now();
-
-                let response = Response::json(&create_optimised_set(try_or_400!(
-                    rouille::input::json_input(request)
-                )));
-
-                log::info!("Took {}ms to complete optimisation", now.elapsed().as_millis());
-
-                response
-            })
-        },
-        (OPTIONS) (/optimise) => {
-            Response::empty_204()
-        },
-        (GET) (/item/slot/{slot: usize}) => {
-            Response::json(&get_item_list_index(slot))
-        },
-        _ => {
-            Response::empty_404()
-        }
-    )
+async fn create_optimised_set_async(
+    config: OptimiseRequest,
+) -> Result<impl warp::Reply, Infallible> {
+    let optimal = tokio::task::spawn_blocking(|| create_optimised_set(config))
+        .await
+        .unwrap();
+    Ok(warp::reply::json(&optimal))
 }
 
-fn add_access_control_headers(response: Response) -> Response {
-    response
-        .with_additional_header("Access-Control-Allow-Origin", "*")
-        .with_additional_header("Access-Control-Allow-Headers", "Content-Type")
-}
-
-fn main() {
+#[tokio::main]
+async fn main() {
     SimpleLogger::new().init().unwrap();
 
-    let rate_limiter = RateLimiter::new(num_cpus::get(), Duration::from_secs(2));
+    let port = std::env::var("PORT")
+        .unwrap_or_else(|_| "8000".to_string())
+        .parse()
+        .unwrap();
+    let address = [0, 0, 0, 0];
 
-    let port = std::env::var("PORT").unwrap_or_else(|_| "8000".to_string());
-    let address = "0.0.0.0";
-    log::info!("Starting server on {}:{}", address, port);
+    let optimise = warp::post()
+        .and(warp::path("optimise"))
+        .and(warp::body::json())
+        .and_then(create_optimised_set_async);
+    let optimise_options = warp::options()
+        .and(warp::path("optimise"))
+        .map(|| Ok(warp::http::StatusCode::NO_CONTENT));
+    let item = warp::get()
+        .and(warp::path!("item" / usize))
+        .map(|slot: usize| Ok(warp::reply::json(&get_item_list_index(slot))));
 
-    rouille::start_server_with_pool(
-        format!("{}:{}", address, port),
-        Some(num_cpus::get() * 2),
-        move |request| {
-            let response = static_files::static_file(request);
-            if response.is_success() {
-                return add_access_control_headers(response);
-            }
+    let mut access_control_headers = HeaderMap::new();
+    access_control_headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
+    access_control_headers.insert(
+        "Access-Control-Allow-Headers",
+        HeaderValue::from_static("Content-Type"),
+    );
 
-            if let Some(request) = request.remove_prefix("/api") {
-                log::info!("Request for {} {}", request.method(), request.url());
-                add_access_control_headers(handle_api_request(request, &rate_limiter))
-            } else {
-                Response::empty_404()
-            }
-        },
-    )
+    let static_files = warp::fs::dir("web/build");
+    let api = warp::path("api")
+        .and(optimise_options.or(optimise).or(item))
+        .with(warp::reply::with::headers(access_control_headers));
+
+    let routes = warp::any().and(api.or(static_files));
+
+    warp::serve(routes).run((address, port)).await;
 }
