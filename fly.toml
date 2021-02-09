@@ -8,7 +8,7 @@ app = "dofusoptimiser"
   protocol = "tcp"
 
   [services.concurrency]
-    hard_limit = 25
+    hard_limit = 100
     soft_limit = 20
 
   [[services.ports]]
