@@ -8,6 +8,8 @@ use std::convert::Infallible;
 use warp::http::header::{HeaderMap, HeaderValue};
 use warp::Filter;
 
+use std::time::Instant;
+
 #[derive(Deserialize)]
 struct OptimiseRequest {
     weights: Vec<f64>,
@@ -134,15 +136,26 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
 async fn create_optimised_set_async(
     config: OptimiseRequest,
 ) -> Result<impl warp::Reply, Infallible> {
-    let optimal = tokio::task::spawn_blocking(|| create_optimised_set(config))
-        .await
-        .unwrap();
+    let optimal = tokio::task::spawn_blocking(|| {
+        let now = Instant::now();
+        let optimum = create_optimised_set(config);
+        log::info!(
+            "Took {}ms to complete optimisation",
+            now.elapsed().as_millis()
+        );
+        optimum
+    })
+    .await
+    .unwrap();
     Ok(warp::reply::json(&optimal))
 }
 
 #[tokio::main]
 async fn main() {
-    SimpleLogger::new().init().unwrap();
+    SimpleLogger::new()
+        .with_level(log::LevelFilter::Info)
+        .init()
+        .unwrap();
 
     let port = std::env::var("PORT")
         .unwrap_or_else(|_| "8000".to_string())

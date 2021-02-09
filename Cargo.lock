@@ -168,6 +168,7 @@ version = "0.1.0"
 dependencies = [
  "include_dir",
  "lazy_static",
+ "log",
  "rand 0.7.3",
  "serde",
  "serde_json",
