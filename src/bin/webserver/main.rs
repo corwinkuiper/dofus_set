@@ -134,8 +134,10 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
 }
 
 async fn create_optimised_set_async(
+    semaphore: std::sync::Arc<tokio::sync::Semaphore>,
     config: OptimiseRequest,
 ) -> Result<impl warp::Reply, Infallible> {
+    let _permit = semaphore.acquire().await.unwrap();
     let optimal = tokio::task::spawn_blocking(|| {
         let now = Instant::now();
         let optimum = create_optimised_set(config);
@@ -163,8 +165,11 @@ async fn main() {
         .unwrap();
     let address = [0, 0, 0, 0];
 
+    let optimiser_semaphore = std::sync::Arc::new(tokio::sync::Semaphore::new(num_cpus::get()));
+
     let optimise = warp::post()
         .and(warp::path("optimise"))
+        .and(warp::any().map(move || optimiser_semaphore.clone()))
         .and(warp::body::json())
         .and_then(create_optimised_set_async);
     let optimise_options = warp::options()

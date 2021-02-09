@@ -20,6 +20,8 @@ include_dir = "0.6.0"
 simple_logger = "1.10.0"
 log = "0.4.11"
 
+num_cpus = "1.0"
+
 [build-dependencies]
 walkdir = "2.3.1"
 

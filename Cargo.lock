@@ -169,6 +169,7 @@ dependencies = [
  "include_dir",
  "lazy_static",
  "log",
+ "num_cpus",
  "rand 0.7.3",
  "serde",
  "serde_json",
