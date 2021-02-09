@@ -5,9 +5,7 @@ use ::dofus_set::items;
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;
 use std::convert::Infallible;
-use tokio;
 use warp::http::header::{HeaderMap, HeaderValue};
-
 use warp::Filter;
 
 #[derive(Deserialize)]
