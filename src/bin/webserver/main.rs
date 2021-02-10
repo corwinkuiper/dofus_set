@@ -176,7 +176,7 @@ async fn main() {
         .and(warp::path("optimise"))
         .map(|| Ok(warp::http::StatusCode::NO_CONTENT));
     let item = warp::get()
-        .and(warp::path!("item" / usize))
+        .and(warp::path!("item" / "slot" / usize))
         .map(|slot: usize| Ok(warp::reply::json(&get_item_list_index(slot))));
 
     let mut access_control_headers = HeaderMap::new();
