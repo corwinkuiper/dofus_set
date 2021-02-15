@@ -30,8 +30,11 @@ class AppState {
 
 function OptimisationSettings({ weights, updateWeightsState, maxLevel, setMaxLevel }: { weights: WeightsState, updateWeightsState: (newWeightsState: WeightsState) => void, maxLevel: number, setMaxLevel: (newMaxLevel: number) => void }) {
   return (
-    <div>
-      <LevelSelector maxLevel={maxLevel} setMaxLevel={setMaxLevel} />
+    <div className="optimisation-settings">
+      <div className="optimisation-header">
+        <a href="https://blog.kuiper.dev/optimisation-of-dofus-equipment-sets" target="_blank" rel="noopener noreferrer">Help!</a>
+        <LevelSelector maxLevel={maxLevel} setMaxLevel={setMaxLevel} />
+      </div>
       <WeightsSelector weights={weights} updateWeightsState={updateWeightsState} />
       <ExoSelector exoOptions={weights.exoOptions} updateExoOptions={(newOptions: ExoOptions) => updateWeightsState(weights.alterExoOptions(newOptions))} />
     </div>

@@ -189,3 +189,13 @@ button:hover {
 .exo-checkbox label .stat-icon {
     margin-right: 5px;
 }
+
+.optimisation-settings {
+    display: flex;
+    flex-direction: column;
+}
+
+.optimisation-settings .optimisation-header {
+    display: flex;
+    justify-content: space-between;
+}
