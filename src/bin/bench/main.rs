@@ -1,12 +1,8 @@
 #![deny(clippy::all)]
 
 use ::dofus_set::config;
-use ::dofus_set::dofus_set::{Optimiser, State};
-use ::dofus_set::items;
-use ::dofus_set::stats;
+use ::dofus_set::dofus_set::Optimiser;
 use ::dofus_set::stats::Stat;
-
-use std::convert::TryInto;
 
 fn main() {
     let mut weights = [0.0; 51];
@@ -32,7 +28,7 @@ fn main() {
     initial_set[0] = Some(8243);
 
     for _ in 0..10 {
-        let optimiser = Optimiser::new(&config, initial_set.clone()).unwrap();
+        let optimiser = Optimiser::new(&config, initial_set).unwrap();
 
         let final_state = optimiser.optimise();
         println!("Set Energy: {}", -final_state.energy(&config));

@@ -305,8 +305,8 @@ impl<'a> Optimiser<'a> {
             initial_state,
             item_list,
             temperature_initial,
-            temperature_quench,
             temperature_time_constant,
+            temperature_quench,
         })
     }
 

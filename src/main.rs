@@ -41,7 +41,7 @@ fn main() {
 pub fn print_state(state: &State, config: &config::Config) {
     let mut last_state_name = "";
 
-    for item in state.set().filter_map(|x| x) {
+    for item in state.set().flatten() {
         let state_name = &item.item_type;
         if state_name != last_state_name {
             println!("{}", state_name);
