@@ -106,6 +106,7 @@ class App extends React.Component<{}, AppState> {
         apExo: exoOptions.apExo,
         mpExo: exoOptions.mpExo,
         rangeExo: exoOptions.rangeExo,
+        multiElement: exoOptions.multiElement,
       })
 
       if (setResult.rateLimited) {
