@@ -16,7 +16,7 @@ import { OverallCharacteristics } from './App/OverallCharacteristics'
 import { SearchBox } from './App/SearchItem'
 
 class AppState {
-  weightsState = new WeightsState([], { apExo: false, mpExo: false, rangeExo: false })
+  weightsState = new WeightsState([], { apExo: false, mpExo: false, rangeExo: false, multiElement: false })
   bestItems: (Item | null)[] = []
   bannedItems: Item[] = []
   pinnedSlots: number[] = []
