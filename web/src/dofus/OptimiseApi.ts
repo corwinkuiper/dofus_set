@@ -8,6 +8,7 @@ interface OptimiseRequest {
   apExo: boolean
   mpExo: boolean
   rangeExo: boolean
+  multiElement: boolean
 }
 
 interface OptimiseSetResponse {
@@ -43,6 +44,7 @@ export class OptimiseApi {
         exo_ap: options.apExo,
         exo_mp: options.mpExo,
         exo_range: options.rangeExo,
+        multi_element: options.multiElement,
       })
     })
 

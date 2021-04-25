@@ -72,7 +72,7 @@ class Weight extends React.Component<{ onWeightOptionChange: (newOption: WeightO
 }
 
 export function ExoSelector({ exoOptions, updateExoOptions }: { exoOptions: ExoOptions, updateExoOptions: (newOptions: ExoOptions) => void }) {
-  function toggleExoValue(name: 'apExo' | 'mpExo' | 'rangeExo') {
+  function toggleExoValue(name: 'apExo' | 'mpExo' | 'rangeExo' | 'multiElement') {
     updateExoOptions(Object.assign({}, exoOptions, {
       [name]: !exoOptions[name]
     }))
@@ -101,6 +101,12 @@ export function ExoSelector({ exoOptions, updateExoOptions }: { exoOptions: ExoO
         </label>
         <input type="checkbox" id="range-exo" checked={exoOptions.rangeExo} onChange={() => toggleExoValue('rangeExo')} />
       </div>
+      <div className="exo-checkbox">
+        <label htmlFor="multi-element">
+          Multi
+        </label>
+        <input type="checkbox" id="multi-element" checked={exoOptions.multiElement} onChange={() => toggleExoValue('multiElement')} />
+      </div>
     </div>
   )
 }
@@ -109,6 +115,7 @@ export interface ExoOptions {
   readonly apExo: boolean
   readonly mpExo: boolean
   readonly rangeExo: boolean
+  readonly multiElement: boolean
 }
 
 export class WeightsState {

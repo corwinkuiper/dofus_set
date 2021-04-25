@@ -19,6 +19,7 @@ struct OptimiseRequest {
     exo_ap: bool,
     exo_mp: bool,
     exo_range: bool,
+    multi_element: bool,
 }
 
 #[derive(Serialize)]
@@ -98,7 +99,7 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
         exo_ap: config.exo_ap,
         exo_mp: config.exo_mp,
         exo_range: config.exo_range,
-        multi_element: false,
+        multi_element: config.multi_element,
     };
 
     let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
