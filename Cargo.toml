@@ -18,6 +18,8 @@ warp = "0.3"
 simple_logger = "1.10.0"
 log = "0.4.11"
 
+rustc-hash = "1.0"
+
 num_cpus = "1.0"
 
 [build-dependencies]

@@ -1,7 +1,8 @@
 use super::stats;
 
+use lazy_static::lazy_static;
+use rustc_hash::FxHashMap;
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::convert::TryInto;
 
 pub struct Item {
@@ -150,7 +151,7 @@ fn parse_items(data: &[u8], id_offset: i32) -> Vec<Item> {
 
 pub struct Set {
     pub name: String,
-    pub bonuses: HashMap<i32, stats::Characteristic>,
+    pub bonuses: FxHashMap<i32, stats::Characteristic>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -163,15 +164,15 @@ struct DofusLabSetStat {
 struct DofusLabSet {
     name: DofusLabItemName,
     id: String,
-    bonuses: HashMap<String, Vec<DofusLabSetStat>>,
+    bonuses: FxHashMap<String, Vec<DofusLabSetStat>>,
 }
 
-pub fn parse_sets(data: &[u8]) -> HashMap<i64, Set> {
+pub fn parse_sets(data: &[u8]) -> FxHashMap<i64, Set> {
     let data: Vec<DofusLabSet> = serde_json::from_slice(data).unwrap();
 
     data.iter()
         .map(|set| {
-            let bonuses: HashMap<_, _> = set
+            let bonuses: FxHashMap<_, _> = set
                 .bonuses
                 .iter()
                 .map(|(number_of_items, bonus)| {
@@ -290,5 +291,5 @@ lazy_static! {
     pub static ref SHIELDS: Vec<usize> = item_filter(&ITEMS, &["Shield"]).collect();
     pub static ref DOFUS: Vec<usize> =
         item_filter(&ITEMS, &["Dofus", "Trophy", "Prysmaradite"]).collect();
-    pub static ref SETS: HashMap<i64, Set> = parse_sets(include_bytes!("../data/sets.json"));
+    pub static ref SETS: FxHashMap<i64, Set> = parse_sets(include_bytes!("../data/sets.json"));
 }

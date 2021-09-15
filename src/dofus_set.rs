@@ -5,7 +5,7 @@ use crate::stats;
 
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 pub fn item_type_to_item_list<'a>(index: usize) -> &'a [usize] {
     match index {
@@ -109,7 +109,7 @@ impl State {
     }
 
     pub fn sets(&self) -> impl std::iter::Iterator<Item = SetBonus> {
-        let mut sets = HashMap::<i64, i32>::new(); // map of set ids to number of items in that set
+        let mut sets = FxHashMap::<i64, i32>::default(); // map of set ids to number of items in that set
 
         for item in self.items() {
             if let Some(set_id) = item.set_id {
