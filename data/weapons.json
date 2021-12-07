@@ -4553,24 +4553,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Reduces the Lightning Strike spell's AP cost by 1"
-      ],
-      "fr": [
-        "Réduit de 1 le coût en PA du sort Foudroiement"
-      ],
-      "de": [
-        "Senkt die AP-Kosten des Zaubers Blitzschlag um 1"
-      ],
-      "es": [
-        "Reduce en 1 el número de PA que cuesta el hechizo Fulminación."
-      ],
-      "it": [
-        "Diminuisce di 1 il costo di PA dell'incantesimo Folgorazione"
-      ],
-      "pt": [
-        "Reduz em 1 o custo de PA do feitiço Fulminante"
-      ]
+      "en": ["Reduces the Lightning Strike spell's AP cost by 1"],
+      "fr": ["Réduit de 1 le coût en PA du sort Foudroiement"],
+      "de": ["Senkt die AP-Kosten des Zaubers Blitzschlag um 1"],
+      "es": ["Reduce en 1 el número de PA que cuesta el hechizo Fulminación."],
+      "it": ["Diminuisce di 1 il costo di PA dell'incantesimo Folgorazione"],
+      "pt": ["Reduz em 1 o custo de PA do feitiço Fulminante"]
     },
     "conditions": {
       "conditions": {},
@@ -4684,24 +4672,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Reduces the Lightning Strike spell's AP cost by 1"
-      ],
-      "fr": [
-        "Réduit de 1 le coût en PA du sort Foudroiement"
-      ],
-      "de": [
-        "Senkt die AP-Kosten des Zaubers Blitzschlag um 1"
-      ],
-      "es": [
-        "Reduce en 1 el número de PA que cuesta el hechizo Fulminación."
-      ],
-      "it": [
-        "Diminuisce di 1 il costo di PA dell'incantesimo Folgorazione"
-      ],
-      "pt": [
-        "Reduz em 1 o custo de PA do feitiço Fulminante"
-      ]
+      "en": ["Reduces the Lightning Strike spell's AP cost by 1"],
+      "fr": ["Réduit de 1 le coût en PA du sort Foudroiement"],
+      "de": ["Senkt die AP-Kosten des Zaubers Blitzschlag um 1"],
+      "es": ["Reduce en 1 el número de PA que cuesta el hechizo Fulminación."],
+      "it": ["Diminuisce di 1 il costo di PA dell'incantesimo Folgorazione"],
+      "pt": ["Reduz em 1 o custo de PA do feitiço Fulminante"]
     },
     "conditions": {
       "conditions": {},
@@ -12412,24 +12388,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -12886,24 +12850,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -13403,24 +13355,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Unequippable item"
-        ],
-        "fr": [
-          "Objet non équipable"
-        ],
-        "de": [
-          "Nicht ausrüstbarer Gegenstand"
-        ],
-        "es": [
-          "Objeto no equipable"
-        ],
-        "it": [
-          "Oggetto non equipaggiabile"
-        ],
-        "pt": [
-          "Item que não pode ser equipado"
-        ]
+        "en": ["Unequippable item"],
+        "fr": ["Objet non équipable"],
+        "de": ["Nicht ausrüstbarer Gegenstand"],
+        "es": ["Objeto no equipable"],
+        "it": ["Oggetto non equipaggiabile"],
+        "pt": ["Item que não pode ser equipado"]
       }
     },
     "imageUrl": "item/4111.png"
@@ -14003,24 +13943,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Food, Folks and Fungus' in progress"
-        ],
-        "fr": [
-          "Map : [ -14 : 34 ] et"
-        ],
-        "de": [
-          "Quest 'Pilze für alle' am Laufen"
-        ],
-        "es": [
-          "Misión 'Limpieza de funguis' en curso"
-        ],
-        "it": [
-          "Missione \"Passa il Fungus intorno a te\" in corso"
-        ],
-        "pt": [
-          "Missão \"Bênção fúngica\" em andamento"
-        ]
+        "en": ["Quest 'Food, Folks and Fungus' in progress"],
+        "fr": ["Map : [ -14 : 34 ] et"],
+        "de": ["Quest 'Pilze für alle' am Laufen"],
+        "es": ["Misión 'Limpieza de funguis' en curso"],
+        "it": ["Missione \"Passa il Fungus intorno a te\" in corso"],
+        "pt": ["Missão \"Bênção fúngica\" em andamento"]
       }
     },
     "imageUrl": "item/6061.png"
@@ -14194,24 +14122,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Food, Folks and Fungus' in progress"
-        ],
-        "fr": [
-          "Map : [ -14 : 34 ] et"
-        ],
-        "de": [
-          "Quest 'Pilze für alle' am Laufen"
-        ],
-        "es": [
-          "Misión 'Limpieza de funguis' en curso"
-        ],
-        "it": [
-          "Missione \"Passa il Fungus intorno a te\" in corso"
-        ],
-        "pt": [
-          "Missão \"Bênção fúngica\" em andamento"
-        ]
+        "en": ["Quest 'Food, Folks and Fungus' in progress"],
+        "fr": ["Map : [ -14 : 34 ] et"],
+        "de": ["Quest 'Pilze für alle' am Laufen"],
+        "es": ["Misión 'Limpieza de funguis' en curso"],
+        "it": ["Missione \"Passa il Fungus intorno a te\" in corso"],
+        "pt": ["Missão \"Bênção fúngica\" em andamento"]
       }
     },
     "imageUrl": "item/6061.png"
@@ -14572,24 +14488,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -16090,24 +15994,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -17948,24 +17840,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -20676,24 +20556,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -23270,24 +23138,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -23672,24 +23528,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Break One's Chains' in progress"
-        ],
-        "fr": [
-          "Quête 'Briser ses chaines' en cours"
-        ],
-        "de": [
-          "Quest 'Die Ketten zerbrechen' am Laufen"
-        ],
-        "es": [
-          "Misión 'Romper las cadenas' en curso"
-        ],
-        "it": [
-          "Missione \"Spezzare le catene\" in corso"
-        ],
-        "pt": [
-          "Missão \"Quebrar as correntes\" em andamento"
-        ]
+        "en": ["Quest 'Break One's Chains' in progress"],
+        "fr": ["Quête 'Briser ses chaines' en cours"],
+        "de": ["Quest 'Die Ketten zerbrechen' am Laufen"],
+        "es": ["Misión 'Romper las cadenas' en curso"],
+        "it": ["Missione \"Spezzare le catene\" in corso"],
+        "pt": ["Missão \"Quebrar as correntes\" em andamento"]
       }
     },
     "imageUrl": "item/7001.png"
@@ -24154,67 +23998,89 @@
     "setID": "67",
     "stats": [
       {
-        "stat": "Agility",
-        "minStat": 26,
-        "maxStat": 35
-      },
-      {
-        "stat": "Strength",
-        "minStat": 11,
-        "maxStat": 20
-      },
-      {
         "stat": "Vitality",
+        "minStat": 81,
+        "maxStat": 150
+      },
+      {
+        "stat": "Intelligence",
         "minStat": 31,
         "maxStat": 50
       },
       {
-        "stat": "Critical",
-        "minStat": 3,
+        "stat": "Chance",
+        "minStat": 31,
+        "maxStat": 50
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 16,
+        "maxStat": 20
+      },
+      {
+        "stat": "Fire Damage",
+        "minStat": 4,
+        "maxStat": 6
+      },
+      {
+        "stat": "Water Damage",
+        "minStat": 4,
+        "maxStat": 6
+      },
+      {
+        "stat": "Heals",
+        "minStat": 2,
         "maxStat": 4
       },
       {
-        "stat": "Damage",
-        "minStat": 2,
-        "maxStat": 3
+        "stat": "Prospecting",
+        "minStat": 4,
+        "maxStat": 6
+      },
+      {
+        "stat": "Initiative",
+        "minStat": 101,
+        "maxStat": 150
+      },
+      {
+        "stat": "AP Reduction",
+        "minStat": 3,
+        "maxStat": 5
+      },
+      {
+        "stat": "MP Reduction",
+        "minStat": 3,
+        "maxStat": 5
       }
     ],
     "weaponStats": {
-      "apCost": 5,
+      "apCost": 4,
       "usesPerTurn": 1,
       "minRange": null,
       "maxRange": 1,
-      "baseCritChance": 30,
+      "baseCritChance": 25,
       "critBonusDamage": 10,
       "weapon_effects": [
         {
-          "stat": "Air damage",
-          "minStat": 23,
-          "maxStat": 38
+          "stat": "Fire damage",
+          "minStat": 16,
+          "maxStat": 28
         },
         {
-          "stat": "Neutral steal",
-          "minStat": 3,
-          "maxStat": 5
+          "stat": "Water damage",
+          "minStat": 16,
+          "maxStat": 28
+        },
+        {
+          "stat": "AP",
+          "minStat": null,
+          "maxStat": -1
         }
       ]
     },
     "customStats": {},
     "conditions": {
-      "conditions": {
-        "and": [
-          {
-            "stat": "AGILITY",
-            "operator": ">",
-            "value": 140
-          },
-          {
-            "stat": "STRENGTH",
-            "operator": ">",
-            "value": 90
-          }
-        ]
-      },
+      "conditions": {},
       "customConditions": {}
     },
     "imageUrl": "item/6071.png"
@@ -24306,39 +24172,64 @@
     "setID": "68",
     "stats": [
       {
-        "stat": "Agility",
-        "minStat": 26,
-        "maxStat": 40
+        "stat": "Vitality",
+        "minStat": 81,
+        "maxStat": 150
       },
       {
-        "stat": "Vitality",
-        "minStat": 41,
-        "maxStat": 60
+        "stat": "Strength",
+        "minStat": 31,
+        "maxStat": 50
+      },
+      {
+        "stat": "Agility",
+        "minStat": 31,
+        "maxStat": 50
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 16,
+        "maxStat": 20
       },
       {
         "stat": "Critical",
-        "minStat": 2,
-        "maxStat": 3
+        "minStat": 1,
+        "maxStat": 2
       },
       {
-        "stat": "Damage",
+        "stat": "Neutral Damage",
+        "minStat": 4,
+        "maxStat": 6
+      },
+      {
+        "stat": "Earth Damage",
+        "minStat": 4,
+        "maxStat": 6
+      },
+      {
+        "stat": "Air Damage",
+        "minStat": 4,
+        "maxStat": 6
+      },
+      {
+        "stat": "Prospecting",
+        "minStat": 4,
+        "maxStat": 6
+      },
+      {
+        "stat": "Initiative",
+        "minStat": 101,
+        "maxStat": 150
+      },
+      {
+        "stat": "AP Parry",
         "minStat": 3,
         "maxStat": 5
       },
       {
-        "stat": "Trap Damage",
-        "minStat": 6,
-        "maxStat": 10
-      },
-      {
-        "stat": "Power (traps)",
-        "minStat": 21,
-        "maxStat": 30
-      },
-      {
-        "stat": "Initiative",
-        "minStat": null,
-        "maxStat": 100
+        "stat": "MP Parry",
+        "minStat": 3,
+        "maxStat": 5
       }
     ],
     "weaponStats": {
@@ -24350,33 +24241,20 @@
       "critBonusDamage": 10,
       "weapon_effects": [
         {
-          "stat": "Air damage",
-          "minStat": 17,
-          "maxStat": 20
+          "stat": "Neutral damage",
+          "minStat": 13,
+          "maxStat": 22
+        },
+        {
+          "stat": "Air steal",
+          "minStat": 4,
+          "maxStat": 6
         }
       ]
     },
     "customStats": {},
     "conditions": {
-      "conditions": {
-        "and": [
-          {
-            "stat": "AGILITY",
-            "operator": ">",
-            "value": 250
-          },
-          {
-            "stat": "WISDOM",
-            "operator": ">",
-            "value": 90
-          },
-          {
-            "stat": "VITALITY",
-            "operator": ">",
-            "value": 300
-          }
-        ]
-      },
+      "conditions": {},
       "customConditions": {}
     },
     "imageUrl": "item/5059.png"
@@ -26514,24 +26392,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {
@@ -26544,24 +26410,12 @@
         ]
       },
       "customConditions": {
-        "en": [
-          "Quest 'The Icefields' complete"
-        ],
-        "fr": [
-          "Quête 'La terre banquise.' achevée"
-        ],
-        "de": [
-          "Quest 'Packeis - Ein eisiges Pack' beendet"
-        ],
-        "es": [
-          "Misión 'La tierra banquisa' completada"
-        ],
-        "it": [
-          "Missione \"La terra banchisa\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Os Campos de Gelo\" concluída"
-        ]
+        "en": ["Quest 'The Icefields' complete"],
+        "fr": ["Quête 'La terre banquise.' achevée"],
+        "de": ["Quest 'Packeis - Ein eisiges Pack' beendet"],
+        "es": ["Misión 'La tierra banquisa' completada"],
+        "it": ["Missione \"La terra banchisa\" compiuta"],
+        "pt": ["Missão \"Os Campos de Gelo\" concluída"]
       }
     },
     "imageUrl": "item/6108.png"
@@ -26601,24 +26455,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {
@@ -26631,24 +26473,12 @@
         ]
       },
       "customConditions": {
-        "en": [
-          "Quest 'The Icefields' complete"
-        ],
-        "fr": [
-          "Quête 'La terre banquise.' achevée"
-        ],
-        "de": [
-          "Quest 'Packeis - Ein eisiges Pack' beendet"
-        ],
-        "es": [
-          "Misión 'La tierra banquisa' completada"
-        ],
-        "it": [
-          "Missione \"La terra banchisa\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Os Campos de Gelo\" concluída"
-        ]
+        "en": ["Quest 'The Icefields' complete"],
+        "fr": ["Quête 'La terre banquise.' achevée"],
+        "de": ["Quest 'Packeis - Ein eisiges Pack' beendet"],
+        "es": ["Misión 'La tierra banquisa' completada"],
+        "it": ["Missione \"La terra banchisa\" compiuta"],
+        "pt": ["Missão \"Os Campos de Gelo\" concluída"]
       }
     },
     "imageUrl": "item/8062.png"
@@ -26683,24 +26513,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {
@@ -26713,24 +26531,12 @@
         ]
       },
       "customConditions": {
-        "en": [
-          "Quest 'The Icefields' complete"
-        ],
-        "fr": [
-          "Quête 'La terre banquise.' achevée"
-        ],
-        "de": [
-          "Quest 'Packeis - Ein eisiges Pack' beendet"
-        ],
-        "es": [
-          "Misión 'La tierra banquisa' completada"
-        ],
-        "it": [
-          "Missione \"La terra banchisa\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Os Campos de Gelo\" concluída"
-        ]
+        "en": ["Quest 'The Icefields' complete"],
+        "fr": ["Quête 'La terre banquise.' achevée"],
+        "de": ["Quest 'Packeis - Ein eisiges Pack' beendet"],
+        "es": ["Misión 'La tierra banquisa' completada"],
+        "it": ["Missione \"La terra banchisa\" compiuta"],
+        "pt": ["Missão \"Os Campos de Gelo\" concluída"]
       }
     },
     "imageUrl": "item/7082.png"
@@ -26770,24 +26576,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {
@@ -26800,24 +26594,12 @@
         ]
       },
       "customConditions": {
-        "en": [
-          "Quest 'The Icefields' complete"
-        ],
-        "fr": [
-          "Quête 'La terre banquise.' achevée"
-        ],
-        "de": [
-          "Quest 'Packeis - Ein eisiges Pack' beendet"
-        ],
-        "es": [
-          "Misión 'La tierra banquisa' completada"
-        ],
-        "it": [
-          "Missione \"La terra banchisa\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Os Campos de Gelo\" concluída"
-        ]
+        "en": ["Quest 'The Icefields' complete"],
+        "fr": ["Quête 'La terre banquise.' achevée"],
+        "de": ["Quest 'Packeis - Ein eisiges Pack' beendet"],
+        "es": ["Misión 'La tierra banquisa' completada"],
+        "it": ["Missione \"La terra banchisa\" compiuta"],
+        "pt": ["Missão \"Os Campos de Gelo\" concluída"]
       }
     },
     "imageUrl": "item/5082.png"
@@ -26888,24 +26670,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -27777,24 +27547,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -28891,24 +28649,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Alignment 1"
-        ],
-        "fr": [
-          "Alignement 1"
-        ],
-        "de": [
-          "Gesinnung 1"
-        ],
-        "es": [
-          "Alineamiento 1"
-        ],
-        "it": [
-          "Allineamento 1"
-        ],
-        "pt": [
-          "Alinhamento 1"
-        ]
+        "en": ["Alignment 1"],
+        "fr": ["Alignement 1"],
+        "de": ["Gesinnung 1"],
+        "es": ["Alineamiento 1"],
+        "it": ["Allineamento 1"],
+        "pt": ["Alinhamento 1"]
       }
     },
     "imageUrl": "item/2008.png"
@@ -29806,24 +29552,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -32819,24 +32553,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -35439,24 +35161,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -38410,24 +38120,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -38754,24 +38452,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -39819,24 +39505,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -40019,24 +39693,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -40074,24 +39736,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -40274,24 +39924,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -40836,24 +40474,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -40891,24 +40517,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -41619,24 +41233,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -41674,24 +41276,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -41723,24 +41313,12 @@
       "weapon_effects": []
     },
     "customStats": {
-      "en": [
-        "Add a temporary spell"
-      ],
-      "fr": [
-        "Ajouter un sort temporaire"
-      ],
-      "de": [
-        "Einen temporären Zauberspruch hinzufügen"
-      ],
-      "es": [
-        "Añadir un hechizo temporal"
-      ],
-      "it": [
-        "Aggiungere un incantesimo temporaneo"
-      ],
-      "pt": [
-        "Adicionar um feitiço temporário"
-      ]
+      "en": ["Add a temporary spell"],
+      "fr": ["Ajouter un sort temporaire"],
+      "de": ["Einen temporären Zauberspruch hinzufügen"],
+      "es": ["Añadir un hechizo temporal"],
+      "it": ["Aggiungere un incantesimo temporaneo"],
+      "pt": ["Adicionar um feitiço temporário"]
     },
     "conditions": {
       "conditions": {},
@@ -42006,24 +41584,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -42281,24 +41847,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {},
@@ -42695,24 +42249,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -42910,24 +42452,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -43449,24 +42979,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -43684,24 +43202,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -43739,24 +43245,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -44231,24 +43725,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -44356,24 +43838,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -44486,24 +43956,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -44743,24 +44201,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -44798,24 +44244,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -45068,24 +44502,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -45123,24 +44545,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -45194,24 +44604,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -45381,24 +44779,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -46096,24 +45482,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Steals 21 to 30 kamas"
-      ],
-      "fr": [
-        "Vole 21 à 30 Kamas"
-      ],
-      "de": [
-        "Stiehlt 21 bis 30 Kamas"
-      ],
-      "es": [
-        "Roba 21 a 30 kamas"
-      ],
-      "it": [
-        "Ruba 21 a 30 kama"
-      ],
-      "pt": [
-        "Rouba 21 a 30 Kamas"
-      ]
+      "en": ["Steals 21 to 30 kamas"],
+      "fr": ["Vole 21 à 30 Kamas"],
+      "de": ["Stiehlt 21 bis 30 Kamas"],
+      "es": ["Roba 21 a 30 kamas"],
+      "it": ["Ruba 21 a 30 kama"],
+      "pt": ["Rouba 21 a 30 Kamas"]
     },
     "conditions": {
       "conditions": {},
@@ -46416,24 +45790,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Lack of Mussels' in progress"
-        ],
-        "fr": [
-          "Quête 'Manque de moule' en cours"
-        ],
-        "de": [
-          "Quest 'Muschelmangel' am Laufen"
-        ],
-        "es": [
-          "Misión 'A por almejillones' en curso"
-        ],
-        "it": [
-          "Missione \"Mancanza di cozze\" in corso"
-        ],
-        "pt": [
-          "Missão \"Falta de mexilhões\" em andamento"
-        ]
+        "en": ["Quest 'Lack of Mussels' in progress"],
+        "fr": ["Quête 'Manque de moule' en cours"],
+        "de": ["Quest 'Muschelmangel' am Laufen"],
+        "es": ["Misión 'A por almejillones' en curso"],
+        "it": ["Missione \"Mancanza di cozze\" in corso"],
+        "pt": ["Missão \"Falta de mexilhões\" em andamento"]
       }
     },
     "imageUrl": "item/5060.png"
@@ -47903,24 +47265,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -48590,24 +47940,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -48777,24 +48115,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -48880,24 +48206,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -49157,24 +48471,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -49335,24 +48637,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -49547,24 +48837,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {},
@@ -49602,24 +48880,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {
@@ -49991,24 +49257,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Level #5 Incarnation"
-      ],
-      "fr": [
-        "Incarnation Niveau #5"
-      ],
-      "de": [
-        "Inkarnation Stufe #5"
-      ],
-      "es": [
-        "Encarnación de nivel #5"
-      ],
-      "it": [
-        "Incarnazione Livello #5"
-      ],
-      "pt": [
-        "Encarnação de nível #5"
-      ]
+      "en": ["Level #5 Incarnation"],
+      "fr": ["Incarnation Niveau #5"],
+      "de": ["Inkarnation Stufe #5"],
+      "es": ["Encarnación de nivel #5"],
+      "it": ["Incarnazione Livello #5"],
+      "pt": ["Encarnação de nível #5"]
     },
     "conditions": {
       "conditions": {
@@ -50065,24 +49319,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -51589,24 +50831,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {},
@@ -52081,24 +51311,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -52277,24 +51495,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -52351,24 +51557,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {
@@ -52495,24 +51689,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {},
@@ -52805,24 +51987,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {},
@@ -56416,24 +55586,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {},
@@ -56516,30 +55674,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Ecaflip only and",
-          "Male only"
-        ],
-        "fr": [
-          "Être un Ecaflip et",
-          "Être de sexe masculin"
-        ],
-        "de": [
-          "Ein(e) Ecaflip sein und",
-          "Männlich sein"
-        ],
-        "es": [
-          "Ser un Zurcarák y",
-          "Ser de sexo masculino"
-        ],
-        "it": [
-          "Essere Ecaflip e",
-          "Essere di sesso Maschile"
-        ],
-        "pt": [
-          "Ser um Ecaflip e",
-          "Ser do sexo masculino"
-        ]
+        "en": ["Ecaflip only and", "Male only"],
+        "fr": ["Être un Ecaflip et", "Être de sexe masculin"],
+        "de": ["Ein(e) Ecaflip sein und", "Männlich sein"],
+        "es": ["Ser un Zurcarák y", "Ser de sexo masculino"],
+        "it": ["Essere Ecaflip e", "Essere di sesso Maschile"],
+        "pt": ["Ser um Ecaflip e", "Ser do sexo masculino"]
       }
     },
     "imageUrl": "item/6018.png"
@@ -56583,30 +55723,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Ecaflip only and",
-          "Female only"
-        ],
-        "fr": [
-          "Être un Ecaflip et",
-          "Être de sexe féminin"
-        ],
-        "de": [
-          "Ein(e) Ecaflip sein und",
-          "Weiblich sein"
-        ],
-        "es": [
-          "Ser un Zurcarák y",
-          "Ser de sexo femenino"
-        ],
-        "it": [
-          "Essere Ecaflip e",
-          "Essere di sesso Femminile"
-        ],
-        "pt": [
-          "Ser um Ecaflip e",
-          "Ser do sexo feminino"
-        ]
+        "en": ["Ecaflip only and", "Female only"],
+        "fr": ["Être un Ecaflip et", "Être de sexe féminin"],
+        "de": ["Ein(e) Ecaflip sein und", "Weiblich sein"],
+        "es": ["Ser un Zurcarák y", "Ser de sexo femenino"],
+        "it": ["Essere Ecaflip e", "Essere di sesso Femminile"],
+        "pt": ["Ser um Ecaflip e", "Ser do sexo feminino"]
       }
     },
     "imageUrl": "item/6018.png"
@@ -56707,24 +55829,12 @@
       "weapon_effects": []
     },
     "customStats": {
-      "en": [
-        "Play the flute emote"
-      ],
-      "fr": [
-        "Attitude Jouer de la flûte"
-      ],
-      "de": [
-        "Emote Flöte spielen"
-      ],
-      "es": [
-        "Actitud Tocar la flauta"
-      ],
-      "it": [
-        "Emote \"Suonare il flauto\""
-      ],
-      "pt": [
-        "Emote Tocar flauta"
-      ]
+      "en": ["Play the flute emote"],
+      "fr": ["Attitude Jouer de la flûte"],
+      "de": ["Emote Flöte spielen"],
+      "es": ["Actitud Tocar la flauta"],
+      "it": ["Emote \"Suonare il flauto\""],
+      "pt": ["Emote Tocar flauta"]
     },
     "conditions": {
       "conditions": {},
@@ -57053,24 +56163,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'An Eternal Harvest' in progress"
-        ],
-        "fr": [
-          "Quête 'L'éternelle moisson.' en cours"
-        ],
-        "de": [
-          "Quest 'Die Ewige Ernte' am Laufen"
-        ],
-        "es": [
-          "Misión 'La eterna cosecha' en curso"
-        ],
-        "it": [
-          "Missione \"L'eterna mietitura\" in corso"
-        ],
-        "pt": [
-          "Missão \"Colheita eterna\" em andamento"
-        ]
+        "en": ["Quest 'An Eternal Harvest' in progress"],
+        "fr": ["Quête 'L'éternelle moisson.' en cours"],
+        "de": ["Quest 'Die Ewige Ernte' am Laufen"],
+        "es": ["Misión 'La eterna cosecha' en curso"],
+        "it": ["Missione \"L'eterna mietitura\" in corso"],
+        "pt": ["Missão \"Colheita eterna\" em andamento"]
       }
     },
     "imageUrl": "item/83024.png"
@@ -57146,24 +56244,12 @@
       "weapon_effects": []
     },
     "customStats": {
-      "en": [
-        "Paint emote"
-      ],
-      "fr": [
-        "Attitude Peindre"
-      ],
-      "de": [
-        "Emote Malen"
-      ],
-      "es": [
-        "Actitud Pintar"
-      ],
-      "it": [
-        "Emote \"Dipingere\""
-      ],
-      "pt": [
-        "Emote Pintar"
-      ]
+      "en": ["Paint emote"],
+      "fr": ["Attitude Peindre"],
+      "de": ["Emote Malen"],
+      "es": ["Actitud Pintar"],
+      "it": ["Emote \"Dipingere\""],
+      "pt": ["Emote Pintar"]
     },
     "conditions": {
       "conditions": {},
@@ -57204,24 +56290,12 @@
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Algaeorhythm' in progress"
-        ],
-        "fr": [
-          "Quête 'Algue au rythme' en cours"
-        ],
-        "de": [
-          "Quest 'Alg-o-rhythmus' am Laufen"
-        ],
-        "es": [
-          "Misión 'Alga y ritmo' en curso"
-        ],
-        "it": [
-          "Missione \"Alga al ritmo\" in corso"
-        ],
-        "pt": [
-          "Missão \"Alga ao ritmo\" em andamento"
-        ]
+        "en": ["Quest 'Algaeorhythm' in progress"],
+        "fr": ["Quête 'Algue au rythme' en cours"],
+        "de": ["Quest 'Alg-o-rhythmus' am Laufen"],
+        "es": ["Misión 'Alga y ritmo' en curso"],
+        "it": ["Missione \"Alga al ritmo\" in corso"],
+        "pt": ["Missão \"Alga ao ritmo\" em andamento"]
       }
     },
     "imageUrl": "item/20005.png"
@@ -57292,24 +56366,12 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Hunting weapon"
-      ],
-      "fr": [
-        "Arme de chasse"
-      ],
-      "de": [
-        "Jagdwaffe"
-      ],
-      "es": [
-        "Arma de caza"
-      ],
-      "it": [
-        "Arma da caccia"
-      ],
-      "pt": [
-        "Arma de caça"
-      ]
+      "en": ["Hunting weapon"],
+      "fr": ["Arme de chasse"],
+      "de": ["Jagdwaffe"],
+      "es": ["Arma de caza"],
+      "it": ["Arma da caccia"],
+      "pt": ["Arma de caça"]
     },
     "conditions": {
       "conditions": {},
@@ -58422,46 +57484,22 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Cooperative crafting impossible"
-      ],
-      "fr": [
-        "Craft coopératif impossible."
-      ],
-      "de": [
-        "Gemeinsames Herstellen nicht möglich."
-      ],
-      "es": [
-        "Craft cooperativo imposible."
-      ],
-      "it": [
-        "Craft cooperativo impossibile."
-      ],
-      "pt": [
-        "Fabricação cooperativa impossível."
-      ]
+      "en": ["Cooperative crafting impossible"],
+      "fr": ["Craft coopératif impossible."],
+      "de": ["Gemeinsames Herstellen nicht möglich."],
+      "es": ["Craft cooperativo imposible."],
+      "it": ["Craft cooperativo impossibile."],
+      "pt": ["Fabricação cooperativa impossível."]
     },
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Gokwa: Path of the Staff' complete"
-        ],
-        "fr": [
-          "Quête 'Gokwa : Voie du bâton' achevée"
-        ],
-        "de": [
-          "Quest 'Gokwa: Der Weg des Steckens' beendet"
-        ],
-        "es": [
-          "Misión 'Gokwa: Vía del bastón' completada"
-        ],
-        "it": [
-          "Missione \"Gokwa: via del bastone\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Gokwa: Via do bastão\" concluída"
-        ]
+        "en": ["Quest 'Gokwa: Path of the Staff' complete"],
+        "fr": ["Quête 'Gokwa : Voie du bâton' achevée"],
+        "de": ["Quest 'Gokwa: Der Weg des Steckens' beendet"],
+        "es": ["Misión 'Gokwa: Vía del bastón' completada"],
+        "it": ["Missione \"Gokwa: via del bastone\" compiuta"],
+        "pt": ["Missão \"Gokwa: Via do bastão\" concluída"]
       }
     },
     "imageUrl": "item/6743.png"
@@ -58537,46 +57575,22 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Cooperative crafting impossible"
-      ],
-      "fr": [
-        "Craft coopératif impossible."
-      ],
-      "de": [
-        "Gemeinsames Herstellen nicht möglich."
-      ],
-      "es": [
-        "Craft cooperativo imposible."
-      ],
-      "it": [
-        "Craft cooperativo impossibile."
-      ],
-      "pt": [
-        "Fabricação cooperativa impossível."
-      ]
+      "en": ["Cooperative crafting impossible"],
+      "fr": ["Craft coopératif impossible."],
+      "de": ["Gemeinsames Herstellen nicht möglich."],
+      "es": ["Craft cooperativo imposible."],
+      "it": ["Craft cooperativo impossibile."],
+      "pt": ["Fabricação cooperativa impossível."]
     },
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Gokwa: Path of the Staff' complete"
-        ],
-        "fr": [
-          "Quête 'Gokwa : Voie du bâton' achevée"
-        ],
-        "de": [
-          "Quest 'Gokwa: Der Weg des Steckens' beendet"
-        ],
-        "es": [
-          "Misión 'Gokwa: Vía del bastón' completada"
-        ],
-        "it": [
-          "Missione \"Gokwa: via del bastone\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Gokwa: Via do bastão\" concluída"
-        ]
+        "en": ["Quest 'Gokwa: Path of the Staff' complete"],
+        "fr": ["Quête 'Gokwa : Voie du bâton' achevée"],
+        "de": ["Quest 'Gokwa: Der Weg des Steckens' beendet"],
+        "es": ["Misión 'Gokwa: Vía del bastón' completada"],
+        "it": ["Missione \"Gokwa: via del bastone\" compiuta"],
+        "pt": ["Missão \"Gokwa: Via do bastão\" concluída"]
       }
     },
     "imageUrl": "item/6744.png"
@@ -58652,46 +57666,22 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Cooperative crafting impossible"
-      ],
-      "fr": [
-        "Craft coopératif impossible."
-      ],
-      "de": [
-        "Gemeinsames Herstellen nicht möglich."
-      ],
-      "es": [
-        "Craft cooperativo imposible."
-      ],
-      "it": [
-        "Craft cooperativo impossibile."
-      ],
-      "pt": [
-        "Fabricação cooperativa impossível."
-      ]
+      "en": ["Cooperative crafting impossible"],
+      "fr": ["Craft coopératif impossible."],
+      "de": ["Gemeinsames Herstellen nicht möglich."],
+      "es": ["Craft cooperativo imposible."],
+      "it": ["Craft cooperativo impossibile."],
+      "pt": ["Fabricação cooperativa impossível."]
     },
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Gokwa: Path of the Staff' complete"
-        ],
-        "fr": [
-          "Quête 'Gokwa : Voie du bâton' achevée"
-        ],
-        "de": [
-          "Quest 'Gokwa: Der Weg des Steckens' beendet"
-        ],
-        "es": [
-          "Misión 'Gokwa: Vía del bastón' completada"
-        ],
-        "it": [
-          "Missione \"Gokwa: via del bastone\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Gokwa: Via do bastão\" concluída"
-        ]
+        "en": ["Quest 'Gokwa: Path of the Staff' complete"],
+        "fr": ["Quête 'Gokwa : Voie du bâton' achevée"],
+        "de": ["Quest 'Gokwa: Der Weg des Steckens' beendet"],
+        "es": ["Misión 'Gokwa: Vía del bastón' completada"],
+        "it": ["Missione \"Gokwa: via del bastone\" compiuta"],
+        "pt": ["Missão \"Gokwa: Via do bastão\" concluída"]
       }
     },
     "imageUrl": "item/6745.png"
@@ -58797,46 +57787,22 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Cooperative crafting impossible"
-      ],
-      "fr": [
-        "Craft coopératif impossible."
-      ],
-      "de": [
-        "Gemeinsames Herstellen nicht möglich."
-      ],
-      "es": [
-        "Craft cooperativo imposible."
-      ],
-      "it": [
-        "Craft cooperativo impossibile."
-      ],
-      "pt": [
-        "Fabricação cooperativa impossível."
-      ]
+      "en": ["Cooperative crafting impossible"],
+      "fr": ["Craft coopératif impossible."],
+      "de": ["Gemeinsames Herstellen nicht möglich."],
+      "es": ["Craft cooperativo imposible."],
+      "it": ["Craft cooperativo impossibile."],
+      "pt": ["Fabricação cooperativa impossível."]
     },
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Gokwa: Path of the Staff' complete"
-        ],
-        "fr": [
-          "Quête 'Gokwa : Voie du bâton' achevée"
-        ],
-        "de": [
-          "Quest 'Gokwa: Der Weg des Steckens' beendet"
-        ],
-        "es": [
-          "Misión 'Gokwa: Vía del bastón' completada"
-        ],
-        "it": [
-          "Missione \"Gokwa: via del bastone\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Gokwa: Via do bastão\" concluída"
-        ]
+        "en": ["Quest 'Gokwa: Path of the Staff' complete"],
+        "fr": ["Quête 'Gokwa : Voie du bâton' achevée"],
+        "de": ["Quest 'Gokwa: Der Weg des Steckens' beendet"],
+        "es": ["Misión 'Gokwa: Vía del bastón' completada"],
+        "it": ["Missione \"Gokwa: via del bastone\" compiuta"],
+        "pt": ["Missão \"Gokwa: Via do bastão\" concluída"]
       }
     },
     "imageUrl": "item/6747.png"
@@ -58912,46 +57878,22 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Cooperative crafting impossible"
-      ],
-      "fr": [
-        "Craft coopératif impossible."
-      ],
-      "de": [
-        "Gemeinsames Herstellen nicht möglich."
-      ],
-      "es": [
-        "Craft cooperativo imposible."
-      ],
-      "it": [
-        "Craft cooperativo impossibile."
-      ],
-      "pt": [
-        "Fabricação cooperativa impossível."
-      ]
+      "en": ["Cooperative crafting impossible"],
+      "fr": ["Craft coopératif impossible."],
+      "de": ["Gemeinsames Herstellen nicht möglich."],
+      "es": ["Craft cooperativo imposible."],
+      "it": ["Craft cooperativo impossibile."],
+      "pt": ["Fabricação cooperativa impossível."]
     },
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Gokwa: Path of the Staff' complete"
-        ],
-        "fr": [
-          "Quête 'Gokwa : Voie du bâton' achevée"
-        ],
-        "de": [
-          "Quest 'Gokwa: Der Weg des Steckens' beendet"
-        ],
-        "es": [
-          "Misión 'Gokwa: Vía del bastón' completada"
-        ],
-        "it": [
-          "Missione \"Gokwa: via del bastone\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Gokwa: Via do bastão\" concluída"
-        ]
+        "en": ["Quest 'Gokwa: Path of the Staff' complete"],
+        "fr": ["Quête 'Gokwa : Voie du bâton' achevée"],
+        "de": ["Quest 'Gokwa: Der Weg des Steckens' beendet"],
+        "es": ["Misión 'Gokwa: Vía del bastón' completada"],
+        "it": ["Missione \"Gokwa: via del bastone\" compiuta"],
+        "pt": ["Missão \"Gokwa: Via do bastão\" concluída"]
       }
     },
     "imageUrl": "item/6746.png"
@@ -59032,46 +57974,22 @@
       ]
     },
     "customStats": {
-      "en": [
-        "Cooperative crafting impossible"
-      ],
-      "fr": [
-        "Craft coopératif impossible."
-      ],
-      "de": [
-        "Gemeinsames Herstellen nicht möglich."
-      ],
-      "es": [
-        "Craft cooperativo imposible."
-      ],
-      "it": [
-        "Craft cooperativo impossibile."
-      ],
-      "pt": [
-        "Fabricação cooperativa impossível."
-      ]
+      "en": ["Cooperative crafting impossible"],
+      "fr": ["Craft coopératif impossible."],
+      "de": ["Gemeinsames Herstellen nicht möglich."],
+      "es": ["Craft cooperativo imposible."],
+      "it": ["Craft cooperativo impossibile."],
+      "pt": ["Fabricação cooperativa impossível."]
     },
     "conditions": {
       "conditions": {},
       "customConditions": {
-        "en": [
-          "Quest 'Rokwa: Path of the Fist' complete"
-        ],
-        "fr": [
-          "Quête 'Rokwa : Voie du poing' achevée"
-        ],
-        "de": [
-          "Quest 'Rokwa: Der Weg der Faust' beendet"
-        ],
-        "es": [
-          "Misión 'Rokwa: Vía del puño' completada"
-        ],
-        "it": [
-          "Missione \"Rokwa: via del pugno\" compiuta"
-        ],
-        "pt": [
-          "Missão \"Rokwa: Via do punho\" concluída"
-        ]
+        "en": ["Quest 'Rokwa: Path of the Fist' complete"],
+        "fr": ["Quête 'Rokwa : Voie du poing' achevée"],
+        "de": ["Quest 'Rokwa: Der Weg der Faust' beendet"],
+        "es": ["Misión 'Rokwa: Vía del puño' completada"],
+        "it": ["Missione \"Rokwa: via del pugno\" compiuta"],
+        "pt": ["Missão \"Rokwa: Via do punho\" concluída"]
       }
     },
     "imageUrl": "item/4108.png"
@@ -59987,5 +58905,700 @@
       "customConditions": {}
     },
     "imageUrl": "item/22007.png"
+  },
+  {
+    "dofusID": "553271100012837612195937",
+    "name": {
+      "en": "Pandamonium Wand",
+      "fr": "Baguette du Pandamonium",
+      "de": "Stab des Pandamoniums",
+      "es": "Varita de Pandamonium",
+      "it": "Bachetta del Pandamonium",
+      "pt": "Varinha do Pandamonium"
+    },
+    "itemType": "Wand",
+    "level": 200,
+    "setID": "009123111100000111",
+    "stats": [
+      {
+        "stat": "Vitality",
+        "minStat": 301,
+        "maxStat": 350
+      },
+      {
+        "stat": "Strength",
+        "minStat": 61,
+        "maxStat": 80
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 21,
+        "maxStat": 30
+      },
+      {
+        "stat": "Range",
+        "minStat": null,
+        "maxStat": 1
+      },
+      {
+        "stat": "Neutral Damage",
+        "minStat": 11,
+        "maxStat": 15
+      },
+      {
+        "stat": "Earth Damage",
+        "minStat": 11,
+        "maxStat": 15
+      },
+      {
+        "stat": "Heals",
+        "minStat": 11,
+        "maxStat": 15
+      },
+      {
+        "stat": "% Earth Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "% Air Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "Dodge",
+        "minStat": 7,
+        "maxStat": 10
+      },
+      {
+        "stat": "AP Parry",
+        "minStat": 9,
+        "maxStat": 12
+      },
+      {
+        "stat": "Pushback Resistance",
+        "minStat": 16,
+        "maxStat": 20
+      }
+    ],
+    "weaponStats": {
+      "apCost": 4,
+      "usesPerTurn": 1,
+      "minRange": 3,
+      "maxRange": 6,
+      "baseCritChance": 0,
+      "critBonusDamage": 0,
+      "weapon_effects": [
+        {
+          "stat": "Neutral steal",
+          "minStat": 18,
+          "maxStat": 21
+        },
+        {
+          "stat": "Earth steal",
+          "minStat": 18,
+          "maxStat": 21
+        }
+      ]
+    },
+    "customStats": {},
+    "conditions": {
+      "conditions": {},
+      "customConditions": {}
+    },
+    "imageUrl": "item/553271100012837612195937.png"
+  },
+  {
+    "dofusID": "927360009900000000000",
+    "name": {
+      "en": "Possessed Hammer",
+      "fr": "Marteau Possédé",
+      "de": "Marteau Possédé",
+      "es": "Marteau Possédé",
+      "it": "Marteau Possédé",
+      "pt": "Martelo Possuído"
+    },
+    "itemType": "Hammer",
+    "level": 200,
+    "setID": null,
+    "stats": [
+      {
+        "stat": "Vitality",
+        "minStat": 351,
+        "maxStat": 300
+      },
+      {
+        "stat": "Intelligence",
+        "minStat": 41,
+        "maxStat": 50
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 41,
+        "maxStat": 60
+      },
+      {
+        "stat": "Power",
+        "minStat": 41,
+        "maxStat": 50
+      },
+      {
+        "stat": "Critical",
+        "minStat": 2,
+        "maxStat": 3
+      },
+      {
+        "stat": "Summons",
+        "minStat": null,
+        "maxStat": 1
+      },
+      {
+        "stat": "Fire Damage",
+        "minStat": 9,
+        "maxStat": 12
+      },
+      {
+        "stat": "Heals",
+        "minStat": 16,
+        "maxStat": 20
+      },
+      {
+        "stat": "Prospecting",
+        "minStat": 7,
+        "maxStat": 10
+      },
+      {
+        "stat": "Initiative",
+        "minStat": null,
+        "maxStat": -300
+      },
+      {
+        "stat": "% Neutral Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "% Fire Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "Dodge",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "Lock",
+        "minStat": null,
+        "maxStat": -6
+      },
+      {
+        "stat": "Critical Resistance",
+        "minStat": 11,
+        "maxStat": 15
+      }
+    ],
+    "weaponStats": {
+      "apCost": 4,
+      "usesPerTurn": 2,
+      "minRange": null,
+      "maxRange": 1,
+      "baseCritChance": 20,
+      "critBonusDamage": 4,
+      "weapon_effects": [
+        {
+          "stat": "Neutral damage",
+          "minStat": 15,
+          "maxStat": 18
+        },
+        {
+          "stat": "HP restored",
+          "minStat": 15,
+          "maxStat": 18
+        },
+        {
+          "stat": "HP restored",
+          "minStat": 15,
+          "maxStat": 18
+        },
+        {
+          "stat": "HP restored",
+          "minStat": 15,
+          "maxStat": 18
+        }
+      ]
+    },
+    "customStats": {},
+    "conditions": {
+      "conditions": {},
+      "customConditions": {}
+    },
+    "imageUrl": "item/927360009900000000000.png"
+  },
+  {
+    "dofusID": "26008",
+    "name": {
+      "en": "Destroyer Cleaver",
+      "fr": "Hachoir de Ravageur",
+      "de": "[!] Hachoir de Ravageur",
+      "es": "[!] Hachoir de Ravageur",
+      "it": "[!] Hachoir de Ravageur",
+      "pt": "[!] Hachoir de Ravageur"
+    },
+    "itemType": "Axe",
+    "level": 200,
+    "setID": "498",
+    "stats": [
+      {
+        "stat": "Vitality",
+        "minStat": 301,
+        "maxStat": 350
+      },
+      {
+        "stat": "Chance",
+        "minStat": 51,
+        "maxStat": 70
+      },
+      {
+        "stat": "Agility",
+        "minStat": 51,
+        "maxStat": 70
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 31,
+        "maxStat": 40
+      },
+      {
+        "stat": "Critical",
+        "minStat": 3,
+        "maxStat": 4
+      },
+      {
+        "stat": "Water Damage",
+        "minStat": 7,
+        "maxStat": 10
+      },
+      {
+        "stat": "Air Damage",
+        "minStat": 7,
+        "maxStat": 10
+      },
+      {
+        "stat": "Dodge",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "MP Parry",
+        "minStat": 7,
+        "maxStat": 10
+      },
+      {
+        "stat": "Pushback Damage",
+        "minStat": 16,
+        "maxStat": 25
+      },
+      {
+        "stat": "% Fire Resistance",
+        "minStat": 4,
+        "maxStat": 5
+      },
+      {
+        "stat": "% Water Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "% Air Resistance",
+        "minStat": 4,
+        "maxStat": 5
+      }
+    ],
+    "weaponStats": {
+      "apCost": 5,
+      "usesPerTurn": 1,
+      "minRange": null,
+      "maxRange": 1,
+      "baseCritChance": 5,
+      "critBonusDamage": 6,
+      "weapon_effects": [
+        {
+          "stat": "Water damage",
+          "minStat": 16,
+          "maxStat": 22
+        },
+        {
+          "stat": "Air damage",
+          "minStat": 16,
+          "maxStat": 22
+        },
+        {
+          "stat": "Water steal",
+          "minStat": 4,
+          "maxStat": 6
+        },
+        {
+          "stat": "Air steal",
+          "minStat": 4,
+          "maxStat": 6
+        }
+      ]
+    },
+    "customStats": {},
+    "conditions": {
+      "conditions": {},
+      "customConditions": {}
+    },
+    "imageUrl": "item/19083.png"
+  },
+  {
+    "dofusID": "26011",
+    "name": {
+      "en": "Chaotic Scythe",
+      "fr": "Faux Chaotique",
+      "de": "[!] Faux Chaotique",
+      "es": "[!] Faux Chaotique",
+      "it": "[!] Faux Chaotique",
+      "pt": "[!] Faux Chaotique"
+    },
+    "itemType": "Scythe",
+    "level": 200,
+    "setID": null,
+    "stats": [
+      {
+        "stat": "Vitality",
+        "minStat": 301,
+        "maxStat": 350
+      },
+      {
+        "stat": "Intelligence",
+        "minStat": 31,
+        "maxStat": 40
+      },
+      {
+        "stat": "Chance",
+        "minStat": 31,
+        "maxStat": 40
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 26,
+        "maxStat": 35
+      },
+      {
+        "stat": "Power",
+        "minStat": 16,
+        "maxStat": 20
+      },
+      {
+        "stat": "MP",
+        "minStat": null,
+        "maxStat": 1
+      },
+      {
+        "stat": "Range",
+        "minStat": null,
+        "maxStat": -1
+      },
+      {
+        "stat": "Fire Damage",
+        "minStat": 14,
+        "maxStat": 18
+      },
+      {
+        "stat": "Water Damage",
+        "minStat": 14,
+        "maxStat": 18
+      },
+      {
+        "stat": "Heals",
+        "minStat": 9,
+        "maxStat": 12
+      },
+      {
+        "stat": "Initiative",
+        "minStat": 201,
+        "maxStat": 300
+      },
+      {
+        "stat": "Lock",
+        "minStat": 9,
+        "maxStat": 12
+      },
+      {
+        "stat": "Critical Damage",
+        "minStat": -15,
+        "maxStat": -15
+      },
+      {
+        "stat": "% Water Resistance",
+        "minStat": 7,
+        "maxStat": 10
+      }
+    ],
+    "weaponStats": {
+      "apCost": 5,
+      "usesPerTurn": 1,
+      "minRange": 1,
+      "maxRange": 2,
+      "baseCritChance": 10,
+      "critBonusDamage": 3,
+      "weapon_effects": [
+        {
+          "stat": "Neutral damage",
+          "minStat": 21,
+          "maxStat": 25
+        },
+        {
+          "stat": "Fire steal",
+          "minStat": 16,
+          "maxStat": 20
+        },
+        {
+          "stat": "Water steal",
+          "minStat": 16,
+          "maxStat": 20
+        }
+      ]
+    },
+    "customStats": {},
+    "conditions": {
+      "conditions": {
+        "and": [
+          {
+            "stat": "AP",
+            "operator": "<",
+            "value": 12
+          }
+        ]
+      },
+      "customConditions": {}
+    },
+    "imageUrl": "item/22009.png"
+  },
+  {
+    "dofusID": "26010",
+    "name": {
+      "en": "Imp Sword",
+      "fr": "Épée Diablotine",
+      "de": "[!] Épée Diablotine",
+      "es": "[!] Épée Diablotine",
+      "it": "[!] Épée Diablotine",
+      "pt": "[!] Épée Diablotine"
+    },
+    "itemType": "Sword",
+    "level": 200,
+    "setID": null,
+    "stats": [
+      {
+        "stat": "Vitality",
+        "minStat": 301,
+        "maxStat": 350
+      },
+      {
+        "stat": "Intelligence",
+        "minStat": 41,
+        "maxStat": 60
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 21,
+        "maxStat": 30
+      },
+      {
+        "stat": "Power",
+        "minStat": 21,
+        "maxStat": 30
+      },
+      {
+        "stat": "Critical",
+        "minStat": 4,
+        "maxStat": 5
+      },
+      {
+        "stat": "Summons",
+        "minStat": null,
+        "maxStat": 1
+      },
+      {
+        "stat": "Fire Damage",
+        "minStat": 11,
+        "maxStat": 15
+      },
+      {
+        "stat": "Heals",
+        "minStat": 11,
+        "maxStat": 15
+      },
+      {
+        "stat": "Lock",
+        "minStat": 7,
+        "maxStat": 10
+      },
+      {
+        "stat": "MP Reduction",
+        "minStat": 4,
+        "maxStat": 7
+      },
+      {
+        "stat": "Critical Damage",
+        "minStat": 9,
+        "maxStat": 12
+      },
+      {
+        "stat": "% Neutral Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "% Fire Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      }
+    ],
+    "weaponStats": {
+      "apCost": 5,
+      "usesPerTurn": 1,
+      "minRange": null,
+      "maxRange": 1,
+      "baseCritChance": 10,
+      "critBonusDamage": 5,
+      "weapon_effects": [
+        {
+          "stat": "Fire damage",
+          "minStat": 45,
+          "maxStat": 50
+        },
+        {
+          "stat": "Fire steal",
+          "minStat": 4,
+          "maxStat": 5
+        },
+        {
+          "stat": "MP",
+          "minStat": null,
+          "maxStat": -1
+        }
+      ]
+    },
+    "customStats": {},
+    "conditions": {
+      "conditions": {},
+      "customConditions": {}
+    },
+    "imageUrl": "item/6753.png"
+  },
+  {
+    "dofusID": "26009",
+    "name": {
+      "en": "Seraphic Scythe",
+      "fr": "Faux Séraphine",
+      "de": "[!] Faux Séraphine",
+      "es": "[!] Faux Séraphine",
+      "it": "[!] Faux Séraphine",
+      "pt": "[!] Faux Séraphine"
+    },
+    "itemType": "Scythe",
+    "level": 200,
+    "setID": null,
+    "stats": [
+      {
+        "stat": "Vitality",
+        "minStat": 301,
+        "maxStat": 350
+      },
+      {
+        "stat": "Chance",
+        "minStat": 41,
+        "maxStat": 60
+      },
+      {
+        "stat": "Wisdom",
+        "minStat": 21,
+        "maxStat": 30
+      },
+      {
+        "stat": "Power",
+        "minStat": 21,
+        "maxStat": 30
+      },
+      {
+        "stat": "Critical",
+        "minStat": 4,
+        "maxStat": 5
+      },
+      {
+        "stat": "Summons",
+        "minStat": null,
+        "maxStat": 1
+      },
+      {
+        "stat": "Water Damage",
+        "minStat": 11,
+        "maxStat": 15
+      },
+      {
+        "stat": "Heals",
+        "minStat": 11,
+        "maxStat": 15
+      },
+      {
+        "stat": "Lock",
+        "minStat": 7,
+        "maxStat": 10
+      },
+      {
+        "stat": "AP Reduction",
+        "minStat": 4,
+        "maxStat": 7
+      },
+      {
+        "stat": "Critical Damage",
+        "minStat": 9,
+        "maxStat": 12
+      },
+      {
+        "stat": "% Neutral Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      },
+      {
+        "stat": "% Water Resistance",
+        "minStat": 5,
+        "maxStat": 7
+      }
+    ],
+    "weaponStats": {
+      "apCost": 5,
+      "usesPerTurn": 1,
+      "minRange": 1,
+      "maxRange": 2,
+      "baseCritChance": 10,
+      "critBonusDamage": 5,
+      "weapon_effects": [
+        {
+          "stat": "Water damage",
+          "minStat": 38,
+          "maxStat": 45
+        },
+        {
+          "stat": "Water steal",
+          "minStat": 4,
+          "maxStat": 5
+        },
+        {
+          "stat": "AP",
+          "minStat": null,
+          "maxStat": -1
+        }
+      ]
+    },
+    "customStats": {},
+    "conditions": {
+      "conditions": {},
+      "customConditions": {}
+    },
+    "imageUrl": "item/22008.png"
   }
 ]

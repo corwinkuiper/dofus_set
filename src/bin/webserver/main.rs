@@ -51,7 +51,7 @@ fn item_list(items: &[usize]) -> Vec<OptimiseResponseItem> {
         .iter()
         .map(|x| &items::ITEMS[*x])
         .map(|x| OptimiseResponseItem {
-            dofus_id: x.dofus_id,
+            dofus_id: x.internal_id,
             characteristics: x.stats.to_vec(),
             name: x.name.clone(),
             item_type: x.item_type.clone(),
@@ -121,7 +121,7 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
             .set()
             .map(|item| {
                 item.map(|item| OptimiseResponseItem {
-                    dofus_id: item.dofus_id,
+                    dofus_id: item.internal_id,
                     characteristics: item.stats.to_vec(),
                     name: item.name.clone(),
                     item_type: item.item_type.clone(),

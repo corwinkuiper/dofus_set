@@ -48,32 +48,6 @@ pub struct State {
     set: [Option<usize>; 16],
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn new_state_invalid_id() {
-        let mut set = [None; 16];
-        set[0] = Some(21474836);
-
-        assert_eq!(
-            State::new_from_initial_equipment(set).unwrap_err(),
-            "Dofus ID does not exist"
-        );
-    }
-
-    #[test]
-    fn new_state_wrong_slot() {
-        let mut set = [None; 16];
-        set[0] = Some(8231); // red piwi cape in hat slot
-
-        assert_eq!(
-            State::new_from_initial_equipment(set).unwrap_err(),
-            "Equipment in wrong slot"
-        );
-    }
-}
-
 impl State {
     fn new_from_initial_equipment(equipment: [Option<i32>; 16]) -> Result<State, &'static str> {
         let mut set = [None; 16];
@@ -109,7 +83,7 @@ impl State {
     }
 
     pub fn sets(&self) -> impl std::iter::Iterator<Item = SetBonus> {
-        let mut sets = FxHashMap::<i64, i32>::default(); // map of set ids to number of items in that set
+        let mut sets = FxHashMap::<usize, i32>::default(); // map of set ids to number of items in that set
 
         for item in self.items() {
             if let Some(set_id) = item.set_id {
@@ -118,7 +92,7 @@ impl State {
         }
 
         sets.into_iter().filter_map(|(set, number_of_items)| {
-            let set = &items::SETS[&set];
+            let set = &items::SETS.1[set];
 
             set.bonuses.get(&number_of_items).map(|bonus| SetBonus {
                 name: set.name.clone(),
@@ -290,7 +264,7 @@ impl<'a> Optimiser<'a> {
                 item_type_to_item_list(index)
                     .iter()
                     .filter(|&x| items::ITEMS[*x].level <= config.max_level)
-                    .filter(|&x| !config.ban_list.contains(&items::ITEMS[*x].dofus_id))
+                    .filter(|&x| !config.ban_list.contains(&items::ITEMS[*x].internal_id))
                     .copied()
                     .collect::<Vec<usize>>()
             })

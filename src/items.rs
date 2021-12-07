@@ -6,12 +6,12 @@ use serde::Deserialize;
 use std::convert::TryInto;
 
 pub struct Item {
-    pub dofus_id: i32,
+    pub internal_id: i32,
     pub name: String,
     pub item_type: String,
     pub stats: stats::Characteristic,
     pub level: i32,
-    pub set_id: Option<i64>,
+    pub set_id: Option<usize>,
     pub restriction: Box<dyn stats::Restriction + Sync>,
     pub image_url: Option<String>,
 }
@@ -38,8 +38,6 @@ struct DofusLabItemStats {
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct DofusLabItem {
-    #[serde(deserialize_with = "number_deserialize")]
-    dofusID: i32,
     name: DofusLabItemName,
     itemType: String,
     setID: Option<String>,
@@ -47,17 +45,6 @@ struct DofusLabItem {
     level: i32,
     conditions: Option<DofusLabConditions>,
     imageUrl: Option<String>,
-}
-
-fn number_deserialize<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<i32, D::Error> {
-    Ok(match serde_json::Value::deserialize(deserializer)? {
-        serde_json::Value::String(s) => s.parse().map_err(serde::de::Error::custom)?,
-        serde_json::Value::Number(s) => {
-            s.as_i64()
-                .ok_or_else(|| serde::de::Error::custom("Invalid number"))? as i32
-        }
-        _ => return Err(serde::de::Error::custom("Wrong type, expected number")),
-    })
 }
 
 #[derive(Deserialize)]
@@ -116,11 +103,12 @@ fn parse_restriction(
     }
 }
 
-fn parse_items(data: &[u8], id_offset: i32) -> Vec<Item> {
+fn parse_items(data: &[u8], id_offset: i32, set_mappings: &FxHashMap<String, usize>) -> Vec<Item> {
     let data: Vec<DofusLabItem> = serde_json::from_slice(data).unwrap();
 
     data.iter()
-        .map(|item| {
+        .enumerate()
+        .map(|(idx, item)| {
             let mut stats = stats::new_characteristics();
             if let Some(item_stats) = item.stats.as_ref() {
                 for stat in item_stats {
@@ -136,12 +124,16 @@ fn parse_items(data: &[u8], id_offset: i32) -> Vec<Item> {
                 .unwrap_or_else(|| Box::new(stats::NullRestriction {}));
 
             Item {
-                dofus_id: item.dofusID + id_offset,
+                internal_id: idx as i32 + id_offset,
                 name: item.name.en.clone(),
                 item_type: item.itemType.clone(),
                 stats,
                 level: item.level,
-                set_id: item.setID.as_ref().map(|id| id.parse().ok()).flatten(),
+                set_id: item
+                    .setID
+                    .as_ref()
+                    .map(|id| set_mappings.get(id).copied())
+                    .flatten(),
                 restriction,
                 image_url: item.imageUrl.clone(),
             }
@@ -167,11 +159,15 @@ struct DofusLabSet {
     bonuses: FxHashMap<String, Vec<DofusLabSetStat>>,
 }
 
-pub fn parse_sets(data: &[u8]) -> FxHashMap<i64, Set> {
+pub fn parse_sets(data: &[u8]) -> (FxHashMap<String, usize>, Vec<Set>) {
     let data: Vec<DofusLabSet> = serde_json::from_slice(data).unwrap();
 
-    data.iter()
-        .map(|set| {
+    let mut dofus_id_to_internal_id_mapping = FxHashMap::default();
+
+    let sets: Vec<Set> = data
+        .iter()
+        .enumerate()
+        .map(|(idx, set)| {
             let bonuses: FxHashMap<_, _> = set
                 .bonuses
                 .iter()
@@ -189,38 +185,20 @@ pub fn parse_sets(data: &[u8]) -> FxHashMap<i64, Set> {
                 })
                 .collect();
 
-            (
-                set.id.parse().unwrap(),
-                Set {
-                    name: set.name.en.to_owned(),
-                    bonuses,
-                },
-            )
+            dofus_id_to_internal_id_mapping.insert(set.id.clone(), idx);
+
+            Set {
+                name: set.name.en.to_owned(),
+                bonuses,
+            }
         })
-        .collect()
-}
+        .collect();
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn find_item_by_dofus_id() {
-        let index = ITEMS.len() / 3;
-        let id = ITEMS[index].dofus_id;
-        assert_eq!(dofus_id_to_index(id), Some(index));
-    }
-
-    #[test]
-    fn dofus_id_name_check() {
-        let id = 8818;
-        let name = "Mopy King Sovereign Cape";
-        assert_eq!(dofus_id_to_item(id).unwrap().name, name);
-    }
+    (dofus_id_to_internal_id_mapping, sets)
 }
 
 pub fn dofus_id_to_index(dofus_id: i32) -> Option<usize> {
-    ITEMS.binary_search_by(|x| x.dofus_id.cmp(&dofus_id)).ok()
+    Some(dofus_id as usize)
 }
 
 pub fn dofus_id_to_item(dofus_id: i32) -> Option<&'static Item> {
@@ -239,27 +217,37 @@ fn item_filter(
 }
 
 lazy_static! {
+    pub static ref SETS: (FxHashMap<String, usize>, Vec<Set>) =
+        parse_sets(include_bytes!("../data/sets.json"));
     pub static ref ITEMS: Vec<Item> = {
         let mut items = Vec::new();
-        items.append(&mut parse_items(include_bytes!("../data/items.json"), 0));
+        items.append(&mut parse_items(
+            include_bytes!("../data/items.json"),
+            items.len() as i32,
+            &SETS.0,
+        ));
         items.append(&mut parse_items(
             include_bytes!("../data/weapons.json"),
-            1_000_000,
+            items.len() as i32,
+            &SETS.0,
         ));
         items.append(&mut parse_items(
             include_bytes!("../data/mounts.json"),
-            2_000_000,
+            items.len() as i32,
+            &SETS.0,
         ));
         items.append(&mut parse_items(
             include_bytes!("../data/pets.json"),
-            3_000_000,
+            items.len() as i32,
+            &SETS.0,
         ));
         items.append(&mut parse_items(
             include_bytes!("../data/rhineetles.json"),
-            4_000_000,
+            items.len() as i32,
+            &SETS.0,
         ));
 
-        items.sort_by(|a, b| a.dofus_id.cmp(&b.dofus_id));
+        items.sort_by(|a, b| a.internal_id.cmp(&b.internal_id));
         items
     };
     pub static ref MOUNTS: Vec<usize> =
@@ -291,5 +279,4 @@ lazy_static! {
     pub static ref SHIELDS: Vec<usize> = item_filter(&ITEMS, &["Shield"]).collect();
     pub static ref DOFUS: Vec<usize> =
         item_filter(&ITEMS, &["Dofus", "Trophy", "Prysmaradite"]).collect();
-    pub static ref SETS: FxHashMap<i64, Set> = parse_sets(include_bytes!("../data/sets.json"));
 }

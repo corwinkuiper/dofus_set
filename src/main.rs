@@ -28,8 +28,7 @@ fn main() {
         multi_element: false,
     };
 
-    let mut initial_set: [Option<i32>; 16] = [None; 16];
-    initial_set[0] = Some(8243);
+    let initial_set: [Option<i32>; 16] = [None; 16];
 
     let optimiser = Optimiser::new(&config, initial_set).unwrap();
 
