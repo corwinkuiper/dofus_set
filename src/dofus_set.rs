@@ -3,7 +3,6 @@ use std::ops::Index;
 use crate::anneal;
 use crate::config;
 use crate::items;
-use crate::items::Item;
 use crate::items::ItemIndex;
 use crate::items::ItemType;
 use crate::items::Items;

@@ -30,7 +30,6 @@ struct DofusLabItemName {
 #[derive(Deserialize, Debug)]
 struct DofusLabItemStats {
     stat: String,
-    minStat: Option<i32>,
     maxStat: i32,
 }
 
