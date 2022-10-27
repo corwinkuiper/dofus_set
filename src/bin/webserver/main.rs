@@ -9,7 +9,7 @@ use std::error::Error;
 
 use std::fs::File;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct OptimiseRequest {
     weights: Vec<f64>,
     max_level: i32,
@@ -21,14 +21,14 @@ struct OptimiseRequest {
     multi_element: bool,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct OptimiseResponseSetBonus {
     name: String,
     number_of_items: i32,
     characteristics: Vec<i32>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct OptimiseResponseItem {
     dofus_id: ItemIndex,
     characteristics: Vec<i32>,
@@ -38,7 +38,7 @@ struct OptimiseResponseItem {
     image_url: Option<String>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct OptimiseResponse {
     overall_characteristics: Vec<i32>,
     items: Vec<Option<OptimiseResponseItem>>,
@@ -72,7 +72,7 @@ fn get_item_list_index(slot: usize, items: &Items) -> Option<Vec<OptimiseRespons
 
 // POST /optimise
 fn create_optimised_set(
-    config: OptimiseRequest,
+    config: &OptimiseRequest,
     items: &Items,
 ) -> Result<OptimiseResponse, OptimiseError> {
     if config.weights.len() != 51 {
@@ -151,9 +151,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     rouille::start_server(format!("0.0.0.0:{}", port), move |request| {
         let log_ok =
-            |req: &rouille::Request, _resp: &rouille::Response, elap: std::time::Duration| {
+            |req: &rouille::Request, resp: &rouille::Response, elap: std::time::Duration| {
                 log::info!(
-                    "{} {} - {}s",
+                    "{} {} {} - {}s",
+                    resp.status_code,
                     req.method(),
                     req.raw_url(),
                     elap.as_secs_f64()
@@ -169,9 +170,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 },
                 (POST) (/api/optimise) => {
                     let query = rouille::try_or_400!(rouille::input::json_input(request));
-                    match &create_optimised_set(query, &items) {
+                    match &create_optimised_set(&query, &items) {
                         Ok(result) => rouille::Response::json(result),
-                        Err(error) => rouille::Response::text(format!("{}", error)).with_status_code(400)
+                        Err(error) => {
+                            log::error!("Error optimising with: {}. Given query: {:?}", error, &query);
+                            rouille::Response::text(format!("{}", error)).with_status_code(400)
+                        }
                     }
                 },
                 (GET) (/) => {
