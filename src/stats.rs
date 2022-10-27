@@ -1,10 +1,9 @@
-use lazy_static::lazy_static;
-use std::convert::TryInto;
+use std::{convert::TryInto, fmt::Debug};
 
 pub type StatValue = i32;
 pub type Characteristic = [StatValue; 51];
 
-pub trait Restriction {
+pub trait Restriction: Debug {
     fn accepts(
         &self,
         characteristics: &Characteristic,
@@ -13,14 +12,16 @@ pub trait Restriction {
     ) -> bool;
 }
 
+#[derive(Debug)]
 pub enum BooleanOperator {
     And,
     Or,
 }
 
+#[derive(Debug)]
 pub struct RestrictionSet {
     pub operator: BooleanOperator,
-    pub restrictions: Vec<Box<dyn Restriction + Sync>>,
+    pub restrictions: Vec<Box<dyn Restriction + Sync + Send>>,
 }
 
 impl Restriction for RestrictionSet {
@@ -43,11 +44,13 @@ impl Restriction for RestrictionSet {
     }
 }
 
+#[derive(Debug)]
 pub enum Operator {
     GreaterThan,
     LessThan,
 }
 
+#[derive(Debug)]
 pub struct RestrictionLeaf {
     pub operator: Operator,
     pub stat: Stat,
@@ -71,6 +74,7 @@ impl Restriction for RestrictionLeaf {
     }
 }
 
+#[derive(Debug)]
 pub struct SetBonusRestriction {
     pub operator: Operator,
     pub value: i32,
@@ -85,6 +89,7 @@ impl Restriction for SetBonusRestriction {
     }
 }
 
+#[derive(Debug)]
 pub struct NullRestriction;
 
 impl Restriction for NullRestriction {
@@ -103,66 +108,62 @@ pub fn characteristic_add(stats: &mut Characteristic, stat: &Characteristic) {
     }
 }
 
-lazy_static! {
-    static ref STAT_NAMES: Vec<&'static str> = vec![
-        "AP",
-        "MP",
-        "Range",
-        "Vitality",
-        "Agility",
-        "Chance",
-        "Strength",
-        "Intelligence",
-        "Power",
-        "Critical",
-        "Wisdom",
-        "AP Reduction",
-        "AP Parry",
-        "MP Reduction",
-        "MP Parry",
-        "Heals",
-        "Lock",
-        "Dodge",
-        "Initiative",
-        "Summons",
-        "Prospecting",
-        "pods",
-        "Damage",
-        "Critical Damage",
-        "Neutral Damage",
-        "Earth Damage",
-        "Fire Damage",
-        "Water Damage",
-        "Air Damage",
-        "Reflect",
-        "Trap Damage",
-        "Power (traps)",
-        "Pushback Damage",
-        "% Spell Damage",
-        "% Weapon Damage",
-        "% Ranged Damage",
-        "% Melee Damage",
-        "Neutral Resistance",
-        "% Neutral Resistance",
-        "Earth Resistance",
-        "% Earth Resistance",
-        "Fire Resistance",
-        "% Fire Resistance",
-        "Water Resistance",
-        "% Water Resistance",
-        "Air Resistance",
-        "% Air Resistance",
-        "Critical Resistance",
-        "Pushback Resistance",
-        "% Ranged Resistance",
-        "% Melee Resistance",
-    ];
-    static ref STAT_NAMES_LOWERCASE: Vec<String> =
-        STAT_NAMES.iter().map(|x| x.to_ascii_lowercase()).collect();
-}
+const STAT_NAMES: &[&str] = &[
+    "AP",
+    "MP",
+    "Range",
+    "Vitality",
+    "Agility",
+    "Chance",
+    "Strength",
+    "Intelligence",
+    "Power",
+    "Critical",
+    "Wisdom",
+    "AP Reduction",
+    "AP Parry",
+    "MP Reduction",
+    "MP Parry",
+    "Heals",
+    "Lock",
+    "Dodge",
+    "Initiative",
+    "Summons",
+    "Prospecting",
+    "pods",
+    "Damage",
+    "Critical Damage",
+    "Neutral Damage",
+    "Earth Damage",
+    "Fire Damage",
+    "Water Damage",
+    "Air Damage",
+    "Reflect",
+    "Trap Damage",
+    "Power (traps)",
+    "Pushback Damage",
+    "% Spell Damage",
+    "% Weapon Damage",
+    "% Ranged Damage",
+    "% Melee Damage",
+    "Neutral Resistance",
+    "% Neutral Resistance",
+    "Earth Resistance",
+    "% Earth Resistance",
+    "Fire Resistance",
+    "% Fire Resistance",
+    "Water Resistance",
+    "% Water Resistance",
+    "Air Resistance",
+    "% Air Resistance",
+    "Critical Resistance",
+    "Pushback Resistance",
+    "% Ranged Resistance",
+    "% Melee Resistance",
+];
 
 // every possible stat an item could have
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[allow(dead_code)]
 pub enum Stat {
     AP,
@@ -265,7 +266,11 @@ impl std::convert::TryFrom<&str> for Stat {
     type Error = &'static str;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let value = value.to_ascii_lowercase();
-        for (index, stat_name) in STAT_NAMES_LOWERCASE.iter().enumerate() {
+        for (index, stat_name) in STAT_NAMES
+            .iter()
+            .map(|x| x.to_ascii_lowercase())
+            .enumerate()
+        {
             if *stat_name == value {
                 return index.try_into();
             }

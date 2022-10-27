@@ -1,4 +1,4 @@
-FROM rust:alpine as builder
+FROM docker.io/rust:alpine as builder
 
 RUN apk add npm gcc libgcc musl-dev --no-cache
 
@@ -14,9 +14,7 @@ COPY . .
 RUN cargo build --release
 
 
-FROM alpine
-RUN apk add dumb-init --no-cache
+FROM scratch
 COPY --from=builder /dofus_optimiser/target/release/webserver .
 COPY --from=builder /dofus_optimiser/web/build ./web/build
-ENTRYPOINT ["dumb-init", "--"]
 CMD ["./webserver"]

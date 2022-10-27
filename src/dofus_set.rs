@@ -1,40 +1,32 @@
+use std::ops::Index;
+
 use crate::anneal;
 use crate::config;
 use crate::items;
+use crate::items::Item;
+use crate::items::ItemIndex;
+use crate::items::ItemType;
+use crate::items::Items;
+use crate::items::SetIndex;
 use crate::stats;
 
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use rustc_hash::FxHashMap;
+use serde::Serialize;
 
-pub fn item_type_to_item_list<'a>(index: usize) -> &'a [usize] {
+pub fn slot_index_to_item_type(index: usize) -> ItemType {
     match index {
-        0 => &items::HATS,
-        1 => &items::CLOAKS,
-        2 => &items::AMULETS,
-        3 => &items::RINGS,
-        4 => &items::BELTS,
-        5 => &items::BOOTS,
-        6 => &items::WEAPONS,
-        7 => &items::SHIELDS,
-        8 => &items::DOFUS,
-        9 => &items::MOUNTS,
-        _ => panic!("Index out of range"),
-    }
-}
-
-pub fn slot_index_to_item_type(index: usize) -> usize {
-    match index {
-        0 => 0,
-        1 => 1,
-        2 => 2,
-        3..=4 => 3,
-        5 => 4,
-        6 => 5,
-        7 => 6,
-        8 => 7,
-        9..=14 => 8,
-        15 => 9,
+        0 => ItemType::Hat,
+        1 => ItemType::Cloak,
+        2 => ItemType::Amulet,
+        3..=4 => ItemType::Ring,
+        5 => ItemType::Belt,
+        6 => ItemType::Boot,
+        7 => ItemType::Weapon,
+        8 => ItemType::Shield,
+        9..=14 => ItemType::Dofus,
+        15 => ItemType::Mount,
         _ => panic!("Index out of range"),
     }
 }
@@ -45,24 +37,24 @@ const MAX_RANGE: i32 = 6;
 
 #[derive(Clone, Debug, Default)]
 pub struct State {
-    set: [Option<usize>; 16],
+    set: [Option<ItemIndex>; 16],
 }
 
 impl State {
-    fn new_from_initial_equipment(equipment: [Option<i32>; 16]) -> Result<State, &'static str> {
+    fn new_from_initial_equipment(
+        equipment: [Option<ItemIndex>; 16],
+        items: &Items,
+    ) -> Result<State, OptimiseError> {
         let mut set = [None; 16];
         for (index, equipment) in equipment.iter().enumerate() {
             if let Some(equipment) = equipment {
-                if let Some(item_index) = items::dofus_id_to_index(*equipment) {
-                    if item_type_to_item_list(slot_index_to_item_type(index)).contains(&item_index)
-                    {
-                        set[index] = Some(item_index);
-                    } else {
-                        return Err("Equipment in wrong slot");
-                    }
-                } else {
-                    return Err("Dofus ID does not exist");
+                if !items[slot_index_to_item_type(index)].contains(equipment) {
+                    return Err(OptimiseError::InvalidItem {
+                        item: items[*equipment].name.clone(),
+                        attempted_slot: slot_index_to_item_type(index),
+                    });
                 }
+                set[index] = Some(*equipment);
             }
         }
         Ok(State { set })
@@ -76,23 +68,21 @@ pub struct SetBonus {
 }
 
 impl State {
-    pub fn set(&self) -> impl std::iter::Iterator<Item = Option<&items::Item>> {
-        self.set
-            .iter()
-            .map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
+    pub fn set(&'_ self) -> impl std::iter::Iterator<Item = Option<ItemIndex>> + '_ {
+        self.set.iter().copied()
     }
 
-    pub fn sets(&self) -> impl std::iter::Iterator<Item = SetBonus> {
-        let mut sets = FxHashMap::<usize, i32>::default(); // map of set ids to number of items in that set
+    pub fn sets<'a>(&self, items: &'a Items) -> impl std::iter::Iterator<Item = SetBonus> + 'a {
+        let mut sets = FxHashMap::<SetIndex, i32>::default(); // map of set ids to number of items in that set
 
-        for item in self.items() {
+        for item in self.items(items) {
             if let Some(set_id) = item.set_id {
                 sets.entry(set_id).and_modify(|i| *i += 1).or_insert(1);
             }
         }
 
-        sets.into_iter().filter_map(|(set, number_of_items)| {
-            let set = &items::SETS.1[set];
+        sets.into_iter().filter_map(move |(set, number_of_items)| {
+            let set = &items[set];
 
             set.bonuses.get(&number_of_items).map(|bonus| SetBonus {
                 name: set.name.clone(),
@@ -102,15 +92,15 @@ impl State {
         })
     }
 
-    fn valid(&self, config: &config::Config, leniency: i32) -> bool {
+    fn valid(&self, config: &config::Config, items: &Items, leniency: i32) -> bool {
         let mut total_set_bonuses = 0;
-        for set_bonus in self.sets() {
+        for set_bonus in self.sets(items) {
             total_set_bonuses += set_bonus.number_of_items - 1;
         }
 
-        let stats = self.stats(config);
+        let stats = self.stats(config, items);
 
-        for item in self.items() {
+        for item in self.items(items) {
             if item.level > config.max_level {
                 return false;
             }
@@ -124,7 +114,7 @@ impl State {
         }
 
         let dofus = &self.set[9..=14];
-        let mut unique = std::collections::BTreeSet::new();
+        let mut unique = rustc_hash::FxHashSet::default();
         if !dofus
             .iter()
             .filter_map(|x| x.as_ref())
@@ -136,8 +126,8 @@ impl State {
         // forbid two rings from the same set
         let rings = &self.set[3..=4];
         if rings[0].is_some() && rings[1].is_some() {
-            let ring0_set = items::ITEMS[rings[0].unwrap()].set_id;
-            let ring1_set = items::ITEMS[rings[1].unwrap()].set_id;
+            let ring0_set = items[rings[0].unwrap()].set_id;
+            let ring1_set = items[rings[1].unwrap()].set_id;
             if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
                 if ring0_set == ring1_set {
                     return false;
@@ -148,8 +138,8 @@ impl State {
         true
     }
 
-    pub fn energy(&self, config: &config::Config) -> f64 {
-        let stats = self.stats(config);
+    pub fn energy(&self, config: &config::Config, items: &Items) -> f64 {
+        let stats = self.stats(config, items);
         // need to take the negative due to being a minimiser
         let energy_non_element = stats
             .iter()
@@ -185,20 +175,20 @@ impl State {
         -energy_non_element - energy_element
     }
 
-    fn items(&self) -> impl std::iter::Iterator<Item = &items::Item> {
+    fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &items::Item> + 'a {
         self.set
             .iter()
-            .filter_map(|item_id| item_id.map(|item_id| &items::ITEMS[item_id]))
+            .filter_map(move |item_id| item_id.map(|item_id| &items[item_id]))
     }
 
-    pub fn stats(&self, config: &config::Config) -> stats::Characteristic {
+    pub fn stats(&self, config: &config::Config, items: &Items) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
 
-        for item in self.items() {
+        for item in self.items(items) {
             stats::characteristic_add(&mut stat, &item.stats);
         }
 
-        for set_bonus in self.sets() {
+        for set_bonus in self.sets(items) {
             stats::characteristic_add(&mut stat, &set_bonus.bonus);
         }
 
@@ -242,33 +232,47 @@ fn level_initial_ap(level: i32) -> i32 {
 
 pub struct Optimiser<'a> {
     config: &'a config::Config,
+    items: &'a items::Items,
     initial_state: State,
-    item_list: Vec<Vec<usize>>,
+    item_list: AllowedItemCache,
     temperature_initial: f64,
     temperature_time_constant: f64,
     temperature_quench: f64,
 }
 
+struct AllowedItemCache {
+    items: [Vec<ItemIndex>; 10],
+}
+
+impl Index<ItemType> for AllowedItemCache {
+    type Output = [ItemIndex];
+
+    fn index(&self, index: ItemType) -> &Self::Output {
+        &self.items[index as usize]
+    }
+}
+
 impl<'a> Optimiser<'a> {
     pub fn new(
         config: &'a config::Config,
-        initial_set: [Option<i32>; 16],
-    ) -> Result<Optimiser<'a>, &'static str> {
-        let initial_state: State = State::new_from_initial_equipment(initial_set)?;
-        if !initial_state.valid(config, 1000) {
-            return Err("Initial state is not valid");
+        initial_set: [Option<ItemIndex>; 16],
+        items: &'a Items,
+    ) -> Result<Optimiser<'a>, OptimiseError> {
+        let initial_state: State = State::new_from_initial_equipment(initial_set, items)?;
+        if !initial_state.valid(config, items, 1000) {
+            return Err(OptimiseError::InvalidState);
         }
 
-        let item_list: Vec<Vec<usize>> = (0..10)
-            .map(|index| {
-                item_type_to_item_list(index)
-                    .iter()
-                    .filter(|&x| items::ITEMS[*x].level <= config.max_level)
-                    .filter(|&x| !config.ban_list.contains(&items::ITEMS[*x].internal_id))
-                    .copied()
-                    .collect::<Vec<usize>>()
-            })
-            .collect();
+        let mut item_list: [Vec<ItemIndex>; 10] = Default::default();
+
+        for (idx, item_list) in item_list.iter_mut().enumerate() {
+            *item_list = items[ItemType::from(idx)]
+                .iter()
+                .filter(|&x| items[*x].level <= config.max_level)
+                .filter(|&x| !config.ban_list.contains(x))
+                .copied()
+                .collect();
+        }
 
         let temperature_initial = 1000.;
         let temperature_quench = 5.;
@@ -277,32 +281,48 @@ impl<'a> Optimiser<'a> {
         Ok(Optimiser {
             config,
             initial_state,
-            item_list,
+            item_list: AllowedItemCache { items: item_list },
             temperature_initial,
             temperature_time_constant,
             temperature_quench,
+            items,
         })
     }
 
-    pub fn optimise(self) -> State {
+    pub fn optimise(self) -> Result<State, OptimiseError> {
         if !self
             .config
             .changable
             .iter()
             .any(|&x| !self.item_list[slot_index_to_item_type(x)].is_empty())
         {
-            return self.initial_state;
+            return Ok(self.initial_state);
         }
         anneal::Anneal::optimise(&self, self.initial_state.clone(), 1_000_000)
     }
 }
 
+#[derive(Debug, thiserror::Error, Serialize)]
+pub enum OptimiseError {
+    #[error("could not find neighbour after {0} attempts")]
+    ExceededMaxAttempts(usize),
+    #[error("item {item} could not fit in slot {attempted_slot:?}")]
+    InvalidItem {
+        item: String,
+        attempted_slot: ItemType,
+    },
+    #[error("the given state is not valid even with leniency")]
+    InvalidState,
+}
+
 impl<'a> anneal::Anneal<State> for Optimiser<'a> {
+    type Error = OptimiseError;
+
     fn random(&self) -> f64 {
         rand::thread_rng().gen_range(0.0, 1.0)
     }
 
-    fn neighbour(&self, state: &State, temperature: f64) -> State {
+    fn neighbour(&self, state: &State, temperature: f64) -> Result<State, OptimiseError> {
         let mut attempts = 0;
         let mut rng = rand::thread_rng();
         loop {
@@ -318,18 +338,18 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
             };
 
             new_state.set[item_slot] = Some(item);
-            if new_state.valid(self.config, temperature as i32) {
-                return new_state;
+            if new_state.valid(self.config, self.items, temperature as i32) {
+                return Ok(new_state);
             }
             attempts += 1;
             if attempts > 1000 {
-                panic!("Exceeded max number of attempts at finding a valid item");
+                return Err(OptimiseError::ExceededMaxAttempts(1000));
             }
         }
     }
 
     fn energy(&self, state: &State) -> f64 {
-        state.energy(self.config)
+        state.energy(self.config, self.items)
     }
 
     fn temperature(&self, iteration: f64, _energy: f64) -> f64 {

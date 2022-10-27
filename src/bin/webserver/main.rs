@@ -1,21 +1,20 @@
 #![deny(clippy::all)]
 use ::dofus_set::config;
 use ::dofus_set::dofus_set;
-use ::dofus_set::items;
+use ::dofus_set::dofus_set::OptimiseError;
+use ::dofus_set::items::ItemIndex;
+use ::dofus_set::items::Items;
 use serde::{Deserialize, Serialize};
-use simple_logger::SimpleLogger;
-use std::convert::Infallible;
-use warp::http::header::{HeaderMap, HeaderValue};
-use warp::Filter;
+use std::error::Error;
 
-use std::time::Instant;
+use std::fs::File;
 
 #[derive(Deserialize)]
 struct OptimiseRequest {
     weights: Vec<f64>,
     max_level: i32,
-    fixed_items: Vec<Option<i32>>,
-    banned_items: Vec<i32>,
+    fixed_items: Vec<Option<ItemIndex>>,
+    banned_items: Vec<ItemIndex>,
     exo_ap: bool,
     exo_mp: bool,
     exo_range: bool,
@@ -31,7 +30,7 @@ struct OptimiseResponseSetBonus {
 
 #[derive(Serialize)]
 struct OptimiseResponseItem {
-    dofus_id: i32,
+    dofus_id: ItemIndex,
     characteristics: Vec<i32>,
     name: String,
     item_type: String,
@@ -46,12 +45,11 @@ struct OptimiseResponse {
     set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
 
-fn item_list(items: &[usize]) -> Vec<OptimiseResponseItem> {
-    items
-        .iter()
-        .map(|x| &items::ITEMS[*x])
-        .map(|x| OptimiseResponseItem {
-            dofus_id: x.internal_id,
+fn item_list(list: &[ItemIndex], items: &Items) -> Vec<OptimiseResponseItem> {
+    list.iter()
+        .map(|x| (x, &items[*x]))
+        .map(|(id, x)| OptimiseResponseItem {
+            dofus_id: *id,
             characteristics: x.stats.to_vec(),
             name: x.name.clone(),
             item_type: x.item_type.clone(),
@@ -62,19 +60,23 @@ fn item_list(items: &[usize]) -> Vec<OptimiseResponseItem> {
 }
 
 // GET /item/slot/<slot>
-fn get_item_list_index(slot: usize) -> Option<Vec<OptimiseResponseItem>> {
+fn get_item_list_index(slot: usize, items: &Items) -> Option<Vec<OptimiseResponseItem>> {
     if slot >= 16 {
         return None;
     }
-    Some(item_list(dofus_set::item_type_to_item_list(
-        dofus_set::slot_index_to_item_type(slot),
-    )))
+
+    let item_type = dofus_set::slot_index_to_item_type(slot);
+
+    Some(item_list(&items[item_type], items))
 }
 
 // POST /optimise
-fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
+fn create_optimised_set(
+    config: OptimiseRequest,
+    items: &Items,
+) -> Result<OptimiseResponse, OptimiseError> {
     if config.weights.len() != 51 {
-        return None;
+        return Err(OptimiseError::InvalidState);
     }
 
     let mut weights = [0.0f64; 51];
@@ -102,12 +104,12 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
         multi_element: config.multi_element,
     };
 
-    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items).unwrap();
+    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items, items)?;
 
-    let final_state = optimiser.optimise();
+    let final_state = optimiser.optimise()?;
 
     let set_bonuses = final_state
-        .sets()
+        .sets(items)
         .map(|set| OptimiseResponseSetBonus {
             name: set.name.clone(),
             number_of_items: set.number_of_items,
@@ -115,18 +117,21 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
         })
         .collect();
 
-    Some(OptimiseResponse {
-        overall_characteristics: final_state.stats(&dofus_set_config).to_vec(),
+    Ok(OptimiseResponse {
+        overall_characteristics: final_state.stats(&dofus_set_config, items).to_vec(),
         items: final_state
             .set()
-            .map(|item| {
-                item.map(|item| OptimiseResponseItem {
-                    dofus_id: item.internal_id,
-                    characteristics: item.stats.to_vec(),
-                    name: item.name.clone(),
-                    item_type: item.item_type.clone(),
-                    level: item.level,
-                    image_url: item.image_url.clone(),
+            .map(|idx| {
+                idx.map(|idx| {
+                    let item = &items[idx];
+                    OptimiseResponseItem {
+                        dofus_id: idx,
+                        characteristics: item.stats.to_vec(),
+                        name: item.name.clone(),
+                        item_type: item.item_type.clone(),
+                        level: item.level,
+                        image_url: item.image_url.clone(),
+                    }
                 })
             })
             .collect(),
@@ -134,65 +139,48 @@ fn create_optimised_set(config: OptimiseRequest) -> Option<OptimiseResponse> {
     })
 }
 
-async fn create_optimised_set_async(
-    semaphore: std::sync::Arc<tokio::sync::Semaphore>,
-    config: OptimiseRequest,
-) -> Result<impl warp::Reply, Infallible> {
-    let _permit = semaphore.acquire().await.unwrap();
-    let optimal = tokio::task::spawn_blocking(|| {
-        let now = Instant::now();
-        let optimum = create_optimised_set(config);
-        log::info!(
-            "Took {}ms to complete optimisation",
-            now.elapsed().as_millis()
-        );
-        optimum
-    })
-    .await
-    .unwrap();
-    Ok(warp::reply::json(&optimal))
-}
+fn main() -> Result<(), Box<dyn Error>> {
+    simple_logger::SimpleLogger::new().env().init().unwrap();
 
-#[tokio::main]
-async fn main() {
-    SimpleLogger::new()
-        .with_level(log::LevelFilter::Info)
-        .init()
-        .unwrap();
+    let items = Items::new();
 
-    let port = std::env::var("PORT")
+    let port: String = std::env::var("PORT")
         .unwrap_or_else(|_| "8000".to_string())
         .parse()
         .unwrap();
-    let address = [0, 0, 0, 0];
 
-    let optimiser_semaphore = std::sync::Arc::new(tokio::sync::Semaphore::new(num_cpus::get()));
-
-    let optimise = warp::post()
-        .and(warp::path("optimise"))
-        .and(warp::any().map(move || optimiser_semaphore.clone()))
-        .and(warp::body::json())
-        .and_then(create_optimised_set_async);
-    let optimise_options = warp::options()
-        .and(warp::path("optimise"))
-        .map(|| Ok(warp::http::StatusCode::NO_CONTENT));
-    let item = warp::get()
-        .and(warp::path!("item" / "slot" / usize))
-        .map(|slot: usize| Ok(warp::reply::json(&get_item_list_index(slot))));
-
-    let mut access_control_headers = HeaderMap::new();
-    access_control_headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
-    access_control_headers.insert(
-        "Access-Control-Allow-Headers",
-        HeaderValue::from_static("Content-Type"),
-    );
-
-    let static_files = warp::fs::dir("web/build");
-    let api = warp::path("api")
-        .and(optimise_options.or(optimise).or(item))
-        .with(warp::reply::with::headers(access_control_headers));
-
-    let routes = warp::any().and(api.or(static_files));
-
-    warp::serve(routes).run((address, port)).await;
+    rouille::start_server(format!("0.0.0.0:{}", port), move |request| {
+        let log_ok =
+            |req: &rouille::Request, _resp: &rouille::Response, elap: std::time::Duration| {
+                log::info!(
+                    "{} {} - {}s",
+                    req.method(),
+                    req.raw_url(),
+                    elap.as_secs_f64()
+                );
+            };
+        let log_err = |req: &rouille::Request, _elap: std::time::Duration| {
+            log::error!("Handler panicked: {} {}", req.method(), req.raw_url());
+        };
+        rouille::log_custom(request, log_ok, log_err, || {
+            rouille::router!(request,
+                (GET) (/api/item/slot/{id: usize}) => {
+                    rouille::Response::json(&get_item_list_index(id, &items))
+                },
+                (POST) (/api/optimise) => {
+                    let query = rouille::try_or_400!(rouille::input::json_input(request));
+                    match &create_optimised_set(query, &items) {
+                        Ok(result) => rouille::Response::json(result),
+                        Err(error) => rouille::Response::text(format!("{}", error)).with_status_code(400)
+                    }
+                },
+                (GET) (/) => {
+                    rouille::Response::from_file(rouille::extension_to_mime("html"), File::open("./web/build/index.html").unwrap())
+                },
+                _ => {
+                    rouille::match_assets(request, "./web/build")
+                }
+            )
+        })
+    });
 }

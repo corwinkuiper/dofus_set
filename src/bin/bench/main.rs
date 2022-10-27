@@ -2,9 +2,13 @@
 
 use ::dofus_set::config;
 use ::dofus_set::dofus_set::Optimiser;
+use ::dofus_set::items::Items;
 use ::dofus_set::stats::Stat;
+use dofus_set::items::ItemIndex;
 
 fn main() {
+    let items = Items::new();
+
     let mut weights = [0.0; 51];
     weights[Stat::Power as usize] = 1.0;
     weights[Stat::Strength as usize] = 1.0;
@@ -24,13 +28,13 @@ fn main() {
         multi_element: false,
     };
 
-    let mut initial_set: [Option<i32>; 16] = [None; 16];
-    initial_set[0] = Some(8243);
+    let mut initial_set: [Option<_>; 16] = [None; 16];
+    initial_set[0] = Some(ItemIndex::new_from_id(2019));
 
     for _ in 0..10 {
-        let optimiser = Optimiser::new(&config, initial_set).unwrap();
+        let optimiser = Optimiser::new(&config, initial_set, &items).unwrap();
 
-        let final_state = optimiser.optimise();
-        println!("Set Energy: {}", -final_state.energy(&config));
+        let final_state = optimiser.optimise().unwrap();
+        println!("Set Energy: {}", -final_state.energy(&config, &items));
     }
 }
