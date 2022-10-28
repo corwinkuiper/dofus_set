@@ -9,7 +9,7 @@ app = "dofusoptimiser"
 
   [services.concurrency]
     type = "requests"
-    hard_limit = 10
+    hard_limit = 100
     soft_limit = 5
 
   [[services.ports]]
