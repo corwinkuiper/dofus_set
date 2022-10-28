@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 use std::error::Error;
 
 use std::fs::File;
+use std::sync::Condvar;
+use std::sync::Mutex;
 
 #[derive(Deserialize, Debug)]
 struct OptimiseRequest {
@@ -149,6 +151,27 @@ fn main() -> Result<(), Box<dyn Error>> {
         .parse()
         .unwrap();
 
+    let avail = match std::thread::available_parallelism() {
+        Ok(avail) => {
+            let a = (avail.get() - 1).max(1);
+            log::info!(
+                "Parallelism available is {}, therefore limiting concurrent optimisations to {}",
+                avail.get(),
+                a
+            );
+            a
+        }
+        Err(e) => {
+            log::error!(
+                "Could not get available parallelism: {}. Will limit to a single thread",
+                e
+            );
+            1
+        }
+    };
+
+    let sem = Semaphore::new(avail);
+
     rouille::start_server(format!("0.0.0.0:{}", port), move |request| {
         let log_ok =
             |req: &rouille::Request, resp: &rouille::Response, elap: std::time::Duration| {
@@ -170,7 +193,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                 },
                 (POST) (/api/optimise) => {
                     let query = rouille::try_or_400!(rouille::input::json_input(request));
-                    match &create_optimised_set(&query, &items) {
+                    let optimise = sem.execute(|| {
+                        let now = std::time::Instant::now();
+                        let opt = create_optimised_set(&query, &items);
+                        let elapsed = now.elapsed();
+                        log::info!("Optimisation took {}ms", elapsed.as_millis());
+                        opt
+                    });
+                    match &optimise {
                         Ok(result) => rouille::Response::json(result),
                         Err(error) => {
                             log::error!("Error optimising with: {}. Given query: {:?}", error, &query);
@@ -187,4 +217,38 @@ fn main() -> Result<(), Box<dyn Error>> {
             )
         })
     });
+}
+
+struct Semaphore {
+    mutex: Mutex<usize>,
+    cond: Condvar,
+}
+
+impl Semaphore {
+    fn new(max_count: usize) -> Self {
+        Semaphore {
+            mutex: Mutex::new(max_count),
+            cond: Condvar::new(),
+        }
+    }
+
+    fn execute<F, R>(&self, f: F) -> R
+    where
+        F: Fn() -> R,
+    {
+        {
+            let mut inner = self.mutex.lock().unwrap();
+            while *inner == 0 {
+                inner = self.cond.wait(inner).unwrap();
+            }
+            *inner -= 1;
+        }
+
+        let r = f();
+
+        *self.mutex.lock().unwrap() += 1;
+
+        self.cond.notify_one();
+        r
+    }
 }
