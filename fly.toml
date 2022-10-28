@@ -8,17 +8,15 @@ app = "dofusoptimiser"
   protocol = "tcp"
 
   [services.concurrency]
-    hard_limit = 100
-    soft_limit = 20
+    type = "requests"
+    hard_limit = 10
+    soft_limit = 5
 
   [[services.ports]]
     handlers = ["http"]
     port = "80"
+    force_https = true
 
   [[services.ports]]
     handlers = ["tls", "http"]
     port = "443"
-
-  [[services.tcp_checks]]
-    interval = 10000
-    timeout = 2000
