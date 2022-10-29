@@ -42,6 +42,7 @@ struct OptimiseResponseItem {
 
 #[derive(Serialize, Debug)]
 struct OptimiseResponse {
+    energy: f64,
     overall_characteristics: Vec<i32>,
     items: Vec<Option<OptimiseResponseItem>>,
     set_bonuses: Vec<OptimiseResponseSetBonus>,
@@ -120,6 +121,7 @@ fn create_optimised_set(
         .collect();
 
     Ok(OptimiseResponse {
+        energy: -final_state.energy(&dofus_set_config, items),
         overall_characteristics: final_state.stats(&dofus_set_config, items).to_vec(),
         items: final_state
             .set()
@@ -197,7 +199,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         let now = std::time::Instant::now();
                         let opt = create_optimised_set(&query, &items);
                         let elapsed = now.elapsed();
-                        log::info!("Optimisation took {}ms", elapsed.as_millis());
+                        log::info!("Optimisation took {}ms and got an energy of {:?}", elapsed.as_millis(), opt.as_ref().map(|o| o.energy).ok());
                         opt
                     });
                     match &optimise {
