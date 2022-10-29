@@ -7,6 +7,8 @@ WORKDIR /dofus_optimiser
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
 
+ENV RUSTFLAGS="-Ctarget-cpu=native"
+
 RUN cargo build --release
 RUN rm src -rf
 
