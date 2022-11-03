@@ -2,7 +2,9 @@ use std::ops::Index;
 
 use crate::anneal;
 use crate::config;
+use crate::config::Config;
 use crate::items;
+use crate::items::Item;
 use crate::items::ItemIndex;
 use crate::items::ItemType;
 use crate::items::Items;
@@ -34,9 +36,10 @@ const MAX_AP: i32 = 12;
 const MAX_MP: i32 = 6;
 const MAX_RANGE: i32 = 6;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct State {
     set: [Option<ItemIndex>; 16],
+    cached_totals: stats::Characteristic,
 }
 
 impl State {
@@ -56,7 +59,16 @@ impl State {
                 set[index] = Some(*equipment);
             }
         }
-        Ok(State { set })
+
+        let state = State {
+            set,
+            cached_totals: stats::new_characteristics(),
+        };
+        let totals = state.item_stat_from_nothing(items);
+        Ok(State {
+            set,
+            cached_totals: totals,
+        })
     }
 }
 
@@ -180,12 +192,26 @@ impl State {
             .filter_map(move |item_id| item_id.map(|item_id| &items[item_id]))
     }
 
-    pub fn stats(&self, config: &config::Config, items: &Items) -> stats::Characteristic {
+    fn item_stat_from_nothing(&self, items: &Items) -> stats::Characteristic {
         let mut stat = stats::new_characteristics();
 
         for item in self.items(items) {
             stats::characteristic_add(&mut stat, &item.stats);
         }
+
+        stat
+    }
+
+    fn remove_item(&mut self, item: &Item) {
+        stats::characteristic_sub(&mut self.cached_totals, &item.stats);
+    }
+
+    fn add_item(&mut self, item: &Item) {
+        stats::characteristic_add(&mut self.cached_totals, &item.stats);
+    }
+
+    pub fn stats(&self, config: &config::Config, items: &Items) -> stats::Characteristic {
+        let mut stat = self.cached_totals;
 
         for set_bonus in self.sets(items) {
             stats::characteristic_add(&mut stat, &set_bonus.bonus);
@@ -335,6 +361,11 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
                 let item_index = item_type[rng.gen_range(0, item_type.len())];
                 break (item_slot, item_index);
             };
+
+            if let Some(old_item) = new_state.set[item_slot] {
+                new_state.remove_item(&self.items[old_item]);
+            }
+            new_state.add_item(&self.items[item]);
 
             new_state.set[item_slot] = Some(item);
             if new_state.valid(self.config, self.items, temperature as i32) {

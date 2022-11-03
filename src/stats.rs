@@ -108,6 +108,12 @@ pub fn characteristic_add(stats: &mut Characteristic, stat: &Characteristic) {
     }
 }
 
+pub fn characteristic_sub(stats: &mut Characteristic, stat: &Characteristic) {
+    for i in 0..stats.len() {
+        stats[i] -= stat[i];
+    }
+}
+
 const STAT_NAMES: &[&str] = &[
     "AP",
     "MP",
