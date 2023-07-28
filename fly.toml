@@ -1,22 +1,29 @@
-# fly.toml file generated for dofusoptimiser on 2020-10-07T16:05:10+01:00
+# fly.toml app configuration file generated for dofusoptimiser on 2023-07-28T17:04:17+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
 app = "dofusoptimiser"
-
+primary_region = "fra"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
 
 [[services]]
-  internal_port = 8000
   protocol = "tcp"
+  internal_port = 8000
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
 
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
   [services.concurrency]
     type = "requests"
     hard_limit = 100
     soft_limit = 5
-
-  [[services.ports]]
-    handlers = ["http"]
-    port = "80"
-    force_https = true
-
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = "443"
