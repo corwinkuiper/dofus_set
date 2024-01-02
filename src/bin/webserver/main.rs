@@ -180,7 +180,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let sem = Semaphore::new(avail);
 
-    rouille::start_server(format!("0.0.0.0:{}", port), move |request| {
+    let address = "0.0.0.0";
+
+    tracing::info!(address, port, "Starting server");
+
+    rouille::start_server(format!("{address}:{port}"), move |request| {
         let _span = tracing::span!(tracing::Level::TRACE, "handling_request").entered();
         let log_ok =
             |req: &rouille::Request, resp: &rouille::Response, elap: std::time::Duration| {
