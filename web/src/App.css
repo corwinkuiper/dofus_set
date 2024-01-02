@@ -58,7 +58,8 @@ input {
     background-color: orange;
 }
 
-.itembox-pin.itembox-pin-active, .itembox-search.itembox-search-active {
+.itembox-pin.itembox-pin-active,
+.itembox-search.itembox-search-active {
     background-color: rgb(255, 65, 65);
 }
 
@@ -67,21 +68,21 @@ input {
 }
 
 .itembox-ban {
-    mask: url('/bin.svg') no-repeat center;
+    mask: url('./bin.svg') no-repeat center;
 }
 
 .itembox-unban {
-    mask: url('/bin.svg') no-repeat center;
+    mask: url('./bin.svg') no-repeat center;
 }
 
 .itembox-pin {
     background-color: black;
-    mask: url('/pin.svg') no-repeat center;
+    mask: url('./pin.svg') no-repeat center;
 }
 
 .itembox-search {
     background-color: black;
-    mask: url('/search.svg') no-repeat center;
+    mask: url('./search.svg') no-repeat center;
 }
 
 .itembox .itembox-options {

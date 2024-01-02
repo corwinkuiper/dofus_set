@@ -1,11 +1,11 @@
 import { Item } from '../Item'
-import Fuse from 'fuse.js'
+import Fuse, { IFuseOptions } from 'fuse.js'
 
 export class SearchApi {
     private readonly apiEndpoint: string
     private readonly items: { [slot: number]: Fuse<Item> } = {}
 
-    private static fuseOptions: Fuse.IFuseOptions<Item> = {
+    private static fuseOptions: IFuseOptions<Item> = {
         keys: [
             'name'
         ]
