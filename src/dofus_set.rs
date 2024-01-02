@@ -302,7 +302,7 @@ impl<'a> Optimiser<'a> {
         let temperature_initial = 1000.;
         let temperature_quench = 5.;
         let temperature_time_constant =
-            (0.01 / temperature_initial as f64).ln() / 0.95_f64.powf(temperature_quench);
+            (0.01f64 / temperature_initial).ln() / 0.95_f64.powf(temperature_quench);
         Ok(Optimiser {
             config,
             initial_state,

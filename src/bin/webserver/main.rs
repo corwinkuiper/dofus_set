@@ -144,8 +144,14 @@ fn create_optimised_set(
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    simple_logger::SimpleLogger::new().env().init().unwrap();
+    let subscriber = tracing_subscriber::FmtSubscriber::builder()
+        // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
+        // will be written to stdout.
+        .with_max_level(tracing::Level::TRACE)
+        // completes the builder.
+        .finish();
 
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let items = Items::new();
 
     let port: String = std::env::var("PORT")
@@ -156,7 +162,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let avail = match std::thread::available_parallelism() {
         Ok(avail) => {
             let a = (avail.get() - 1).max(1);
-            log::info!(
+            tracing::info!(
                 "Parallelism available is {}, therefore limiting concurrent optimisations to {}",
                 avail.get(),
                 a
@@ -164,7 +170,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             a
         }
         Err(e) => {
-            log::error!(
+            tracing::error!(
                 "Could not get available parallelism: {}. Will limit to a single thread",
                 e
             );
@@ -175,18 +181,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     let sem = Semaphore::new(avail);
 
     rouille::start_server(format!("0.0.0.0:{}", port), move |request| {
+        let _span = tracing::span!(tracing::Level::TRACE, "handling_request").entered();
         let log_ok =
             |req: &rouille::Request, resp: &rouille::Response, elap: std::time::Duration| {
-                log::info!(
-                    "{} {} {} - {}s",
-                    resp.status_code,
-                    req.method(),
-                    req.raw_url(),
-                    elap.as_secs_f64()
+                tracing::info!(
+                    status = resp.status_code,
+                    method = req.method(),
+                    url = req.raw_url(),
+                    elapsed = elap.as_secs_f64(),
+                    "Request successful"
                 );
             };
         let log_err = |req: &rouille::Request, _elap: std::time::Duration| {
-            log::error!("Handler panicked: {} {}", req.method(), req.raw_url());
+            tracing::error!(
+                method = req.method(),
+                url = req.raw_url(),
+                "Handler panicked"
+            );
         };
         rouille::log_custom(request, log_ok, log_err, || {
             rouille::router!(request,
@@ -199,13 +210,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                         let now = std::time::Instant::now();
                         let opt = create_optimised_set(&query, &items);
                         let elapsed = now.elapsed();
-                        log::info!("Optimisation took {}ms and got an energy of {:?}", elapsed.as_millis(), opt.as_ref().map(|o| o.energy).ok());
+                        tracing::info!(elapsed = elapsed.as_secs_f64(), energy = opt.as_ref().map(|o| o.energy).ok(), "Optimisation completed");
                         opt
                     });
+
+
                     match &optimise {
                         Ok(result) => rouille::Response::json(result),
                         Err(error) => {
-                            log::error!("Error optimising with: {}. Given query: {:?}", error, &query);
+                            tracing::error!(error = ?error, query = ?query, "Optimisation failed");
                             rouille::Response::text(format!("{}", error)).with_status_code(400)
                         }
                     }

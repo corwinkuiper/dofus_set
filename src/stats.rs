@@ -239,35 +239,6 @@ impl std::convert::TryFrom<usize> for Stat {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::convert::TryFrom;
-    #[test]
-    fn stat_try_from() {
-        assert_eq!(1_usize.try_into(), Ok(Stat::MP));
-    }
-
-    #[test]
-    #[should_panic]
-    fn stat_try_from_overflow() {
-        Stat::try_from(60_usize).unwrap();
-    }
-
-    #[test]
-    fn stat_convert_from_str() {
-        assert_eq!("Vitality".try_into(), Ok(Stat::Vitality));
-        assert_eq!("Agility".try_into(), Ok(Stat::Agility));
-        assert_eq!("AgIlITY".try_into(), Ok(Stat::Agility));
-    }
-
-    #[test]
-    fn stat_convert_to_str() {
-        assert_eq!(Stat::Vitality.to_string(), "Vitality");
-        assert_eq!(Stat::ResistanceAirFixed.to_string(), "Air Resistance");
-    }
-}
-
 impl std::convert::TryFrom<&str> for Stat {
     type Error = &'static str;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -303,3 +274,32 @@ pub const STAT_ELEMENT: [usize; 4] = [
     Stat::Strength as usize,
     Stat::Intelligence as usize,
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::convert::TryFrom;
+    #[test]
+    fn stat_try_from() {
+        assert_eq!(1_usize.try_into(), Ok(Stat::MP));
+    }
+
+    #[test]
+    #[should_panic]
+    fn stat_try_from_overflow() {
+        Stat::try_from(60_usize).unwrap();
+    }
+
+    #[test]
+    fn stat_convert_from_str() {
+        assert_eq!("Vitality".try_into(), Ok(Stat::Vitality));
+        assert_eq!("Agility".try_into(), Ok(Stat::Agility));
+        assert_eq!("AgIlITY".try_into(), Ok(Stat::Agility));
+    }
+
+    #[test]
+    fn stat_convert_to_str() {
+        assert_eq!(Stat::Vitality.to_string(), "Vitality");
+        assert_eq!(Stat::ResistanceAirFixed.to_string(), "Air Resistance");
+    }
+}

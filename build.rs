@@ -1,17 +1,30 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 use walkdir::WalkDir;
 
 const WEB_DIRECTORY: &str = "web";
 
 fn main() -> Result<(), Box<dyn std::error::Error + Sync + Send>> {
-    Command::new("npm")
+    let ci = Command::new("npm")
         .current_dir(WEB_DIRECTORY)
-        .args(&["ci"])
+        .args(["ci"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
         .output()?;
-    Command::new("npm")
+
+    if !ci.status.success() {
+        return Err("could not get packages for website".into());
+    }
+
+    let build = Command::new("npm")
         .current_dir(WEB_DIRECTORY)
-        .args(&["run", "build"])
+        .args(["run", "build"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
         .output()?;
+
+    if !build.status.success() {
+        return Err("could not build website".into());
+    }
 
     for entry in WalkDir::new(WEB_DIRECTORY)
         .into_iter()
