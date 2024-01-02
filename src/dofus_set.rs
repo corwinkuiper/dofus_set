@@ -2,7 +2,6 @@ use std::ops::Index;
 
 use crate::anneal;
 use crate::config;
-use crate::config::Config;
 use crate::items;
 use crate::items::Item;
 use crate::items::ItemIndex;
