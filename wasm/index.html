@@ -6,10 +6,13 @@
     <p>Energy: <span id="benchmark_energy"></span></p>
 
     <script type="module">
-      import init, { benchmark } from "./pkg/wasm.js";
+      import init, { benchmark, setup } from "./pkg/wasm.js";
 
       async function main() {
         await init();
+
+        // parse items
+        setup();
 
         const t0 = performance.now();
         const energy = benchmark();

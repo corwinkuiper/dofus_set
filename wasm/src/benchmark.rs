@@ -4,9 +4,7 @@ use dofus_set::items::ItemIndex;
 use dofus_set::items::Items;
 use dofus_set::stats::Stat;
 
-pub fn bench() -> f64 {
-    let items = Items::new();
-
+pub fn bench(items: &Items) -> f64 {
     let mut weights = [0.0; 51];
     weights[Stat::Power as usize] = 1.0;
     weights[Stat::Strength as usize] = 1.0;
@@ -29,10 +27,10 @@ pub fn bench() -> f64 {
     let mut initial_set: [Option<_>; 16] = [None; 16];
     initial_set[0] = Some(ItemIndex::new_from_id(2019));
 
-    let optimiser = Optimiser::new(&config, initial_set, &items).unwrap();
+    let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
 
     let final_state = optimiser.optimise().unwrap();
-    let sets = final_state.sets(&items);
+    let sets = final_state.sets(items);
 
     -final_state.energy(&config, &sets)
 }
