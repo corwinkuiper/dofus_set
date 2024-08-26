@@ -113,6 +113,7 @@ fn create_optimised_set(
 
     let set_bonuses = final_state
         .sets(items)
+        .iter()
         .map(|set| OptimiseResponseSetBonus {
             name: set.name.to_owned(),
             number_of_items: set.number_of_items,

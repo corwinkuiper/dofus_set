@@ -11,7 +11,6 @@ use crate::items::SetIndex;
 use crate::stats;
 use crate::stats::Characteristic;
 
-use linear_map::LinearMap;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use serde::Serialize;
@@ -78,17 +77,28 @@ pub struct SetBonus<'a> {
     pub number_of_items: i32,
 }
 
+const MAX_SETS: usize = 12;
+
 impl State {
     pub fn set(&'_ self) -> impl std::iter::Iterator<Item = Option<ItemIndex>> + '_ {
         self.set.iter().copied()
     }
 
-    pub fn sets<'a>(&self, items: &'a Items) -> impl std::iter::Iterator<Item = SetBonus<'a>> + 'a {
-        let mut sets_linear_map: LinearMap<SetIndex, i32> = LinearMap::with_capacity(8);
+    pub fn sets<'a>(&self, items: &'a Items) -> heapless::Vec<SetBonus<'a>, MAX_SETS> {
+        let mut sets_linear_map: heapless::Vec<(SetIndex, i32), MAX_SETS> = heapless::Vec::new();
 
         for item in self.items(items) {
             if let Some(set_id) = item.set_id {
-                *sets_linear_map.entry(set_id).or_insert(0) += 1;
+                if let Some((_, count)) = sets_linear_map
+                    .iter_mut()
+                    .find(|(set_index, _)| *set_index == set_id)
+                {
+                    *count += 1;
+                } else {
+                    sets_linear_map
+                        .push((set_id, 1))
+                        .expect("Too many different sets");
+                }
             }
         }
 
@@ -97,9 +107,7 @@ impl State {
             .filter_map(move |(set, number_of_items)| {
                 let set = &items[set];
 
-                set.bonuses
-                    .get(number_of_items as usize)
-                    .unwrap()
+                set.bonuses[number_of_items as usize]
                     .as_ref()
                     .map(|bonus| SetBonus {
                         name: &set.name,
@@ -107,6 +115,7 @@ impl State {
                         number_of_items,
                     })
             })
+            .collect()
     }
 
     fn valid(&self, config: &config::Config, items: &Items, leniency: i32) -> bool {
