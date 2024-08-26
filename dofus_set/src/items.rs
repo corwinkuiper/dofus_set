@@ -1,4 +1,4 @@
-use crate::stats::Characteristic;
+use crate::stats::{Characteristic, Stat, StatConversionError};
 
 use super::stats;
 
@@ -93,11 +93,15 @@ fn parse_restriction(
                 operator,
             })
         } else {
-            Box::new(stats::RestrictionLeaf {
-                value: (stat.value),
-                operator,
-                stat: stat.stat.as_str().try_into().unwrap(),
-            })
+            match Stat::try_from(stat.stat.as_str()) {
+                Ok(s) => Box::new(stats::RestrictionLeaf {
+                    value: stat.value,
+                    operator,
+                    stat: s,
+                }),
+                Err(StatConversionError::IntentionallyIgnored) => Box::new(stats::NullRestriction),
+                _ => panic!("Unsupported stat {}", stat.stat),
+            }
         }
     }
 }

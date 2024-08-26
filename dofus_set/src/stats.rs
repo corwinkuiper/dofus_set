@@ -4,6 +4,7 @@ use std::{
 };
 
 use serde::Serialize;
+use thiserror::Error;
 
 #[derive(Clone, Debug)]
 pub struct Characteristic([i32; 51]);
@@ -257,8 +258,16 @@ pub enum Stat {
     ResistanceMelee,
 }
 
+#[derive(Error, Debug, PartialEq, Eq)]
+pub enum StatConversionError {
+    #[error("This is intentionally not used as a stat")]
+    IntentionallyIgnored,
+    #[error("This is a new stat that we don't recognise")]
+    Unknown,
+}
+
 impl std::convert::TryFrom<&str> for Stat {
-    type Error = &'static str;
+    type Error = StatConversionError;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let value = value.to_ascii_lowercase();
         for (index, stat_name) in STAT_NAMES
@@ -271,7 +280,11 @@ impl std::convert::TryFrom<&str> for Stat {
             }
         }
 
-        Err("Cannot find stat type")
+        Err(match value.as_str() {
+            "alignment_level" | "kamas" => StatConversionError::IntentionallyIgnored,
+
+            _ => StatConversionError::Unknown,
+        })
     }
 }
 
