@@ -111,8 +111,9 @@ fn create_optimised_set(
 
     let final_state = optimiser.optimise()?;
 
-    let set_bonuses = final_state
-        .sets(items)
+    let sets = final_state.sets(items);
+
+    let set_bonuses = sets
         .iter()
         .map(|set| OptimiseResponseSetBonus {
             name: set.name.to_owned(),
@@ -122,8 +123,8 @@ fn create_optimised_set(
         .collect();
 
     Ok(OptimiseResponse {
-        energy: -final_state.energy(&dofus_set_config, items),
-        overall_characteristics: final_state.stats(&dofus_set_config, items).clone(),
+        energy: -final_state.energy(&dofus_set_config, &sets),
+        overall_characteristics: final_state.stats(&dofus_set_config, &sets).clone(),
         items: final_state
             .set()
             .map(|idx| {

@@ -35,7 +35,8 @@ fn main() {
         let optimiser = Optimiser::new(&config, initial_set, &items).unwrap();
 
         let final_state = optimiser.optimise().unwrap();
-        println!("Set Energy: {}", -final_state.energy(&config, &items));
+        let sets = final_state.sets(&items);
+        println!("Set Energy: {}", -final_state.energy(&config, &sets));
     }
 }
 

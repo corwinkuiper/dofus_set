@@ -35,7 +35,8 @@ fn main() {
 
     let final_state = optimiser.optimise().unwrap();
     print_state(&final_state, &config, &items);
-    println!("Set Energy: {}", -final_state.energy(&config, &items));
+    let sets = final_state.sets(&items);
+    println!("Set Energy: {}", -final_state.energy(&config, &sets));
 }
 
 pub fn print_state(state: &State, config: &config::Config, items: &Items) {
@@ -53,7 +54,8 @@ pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     }
     println!("Stats");
     println!("-----------------------------");
-    print_stats(&state.stats(config, items));
+    let sets = state.sets(items);
+    print_stats(&state.stats(config, &sets));
     println!("\nSet bonuses");
     println!("-----------------------------");
     for set_bonus in state.sets(items) {

@@ -120,11 +120,13 @@ impl State {
 
     fn valid(&self, config: &config::Config, items: &Items, leniency: i32) -> bool {
         let mut total_set_bonuses = 0;
-        for set_bonus in self.sets(items) {
+        let sets = self.sets(items);
+
+        for set_bonus in &sets {
             total_set_bonuses += set_bonus.number_of_items - 1;
         }
 
-        let stats = self.stats(config, items);
+        let stats = self.stats(config, &sets);
 
         for item in self.items(items) {
             if item.level > config.max_level {
@@ -165,8 +167,12 @@ impl State {
         true
     }
 
-    pub fn energy(&self, config: &config::Config, items: &Items) -> f64 {
-        let stats = self.stats(config, items);
+    pub fn energy(
+        &self,
+        config: &config::Config,
+        sets: &heapless::Vec<SetBonus<'_>, MAX_SETS>,
+    ) -> f64 {
+        let stats = self.stats(config, sets);
         // need to take the negative due to being a minimiser
         let energy_non_element = stats
             .iter()
@@ -232,10 +238,14 @@ impl State {
         self.cached_totals += &item.stats;
     }
 
-    pub fn stats(&self, config: &config::Config, items: &Items) -> Characteristic {
+    pub fn stats(
+        &self,
+        config: &config::Config,
+        sets: &heapless::Vec<SetBonus<'_>, MAX_SETS>,
+    ) -> Characteristic {
         let mut stat = self.cached_totals.clone();
 
-        for set_bonus in self.sets(items) {
+        for set_bonus in sets {
             stat += set_bonus.bonus;
         }
 
@@ -397,7 +407,8 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     }
 
     fn energy(&self, state: &State) -> f64 {
-        state.energy(self.config, self.items)
+        let sets = state.sets(self.items);
+        state.energy(self.config, &sets)
     }
 
     fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
