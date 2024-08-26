@@ -1,6 +1,5 @@
 use dofus_set::config;
 use dofus_set::dofus_set::Optimiser;
-use dofus_set::items::ItemIndex;
 use dofus_set::items::Items;
 use dofus_set::stats::Stat;
 
@@ -24,8 +23,7 @@ pub fn bench(items: &Items) -> f64 {
         multi_element: false,
     };
 
-    let mut initial_set: [Option<_>; 16] = [None; 16];
-    initial_set[0] = Some(ItemIndex::new_from_id(2019));
+    let initial_set: [Option<_>; 16] = [None; 16];
 
     let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
 
