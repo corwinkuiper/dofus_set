@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Dofus optimiser wasm benchmark</h1>
+    <p>Time: <span id="benchmark_time"></span></p>
+    <p>Energy: <span id="benchmark_energy"></span></p>
+
+    <script type="module">
+      import init, { benchmark } from "./pkg/wasm.js";
+
+      async function main() {
+        await init();
+
+        const t0 = performance.now();
+        const energy = benchmark();
+        const t1 = performance.now();
+
+        const elapsed = t1 - t0;
+
+        benchmark_time.innerText = `${elapsed / 1000}s`;
+        benchmark_energy.innerText = energy;
+      }
+
+      main();
+    </script>
+  </body>
+</html>
