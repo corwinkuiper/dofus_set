@@ -4,6 +4,7 @@ use ::dofus_set::dofus_set;
 use ::dofus_set::dofus_set::OptimiseError;
 use ::dofus_set::items::ItemIndex;
 use ::dofus_set::items::Items;
+use ::dofus_set::stats::Characteristic;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -27,13 +28,13 @@ struct OptimiseRequest {
 struct OptimiseResponseSetBonus {
     name: String,
     number_of_items: i32,
-    characteristics: Vec<i32>,
+    characteristics: Characteristic,
 }
 
 #[derive(Serialize, Debug)]
 struct OptimiseResponseItem {
     dofus_id: ItemIndex,
-    characteristics: Vec<i32>,
+    characteristics: Characteristic,
     name: String,
     item_type: String,
     level: i32,
@@ -43,7 +44,7 @@ struct OptimiseResponseItem {
 #[derive(Serialize, Debug)]
 struct OptimiseResponse {
     energy: f64,
-    overall_characteristics: Vec<i32>,
+    overall_characteristics: Characteristic,
     items: Vec<Option<OptimiseResponseItem>>,
     set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
@@ -53,7 +54,7 @@ fn item_list(list: &[ItemIndex], items: &Items) -> Vec<OptimiseResponseItem> {
         .map(|x| (x, &items[*x]))
         .map(|(id, x)| OptimiseResponseItem {
             dofus_id: *id,
-            characteristics: x.stats.to_vec(),
+            characteristics: x.stats.clone(),
             name: x.name.clone(),
             item_type: x.item_type.clone(),
             level: x.level,
@@ -114,15 +115,15 @@ fn create_optimised_set(
     let set_bonuses = final_state
         .sets(items)
         .map(|set| OptimiseResponseSetBonus {
-            name: set.name.clone(),
+            name: set.name.to_owned(),
             number_of_items: set.number_of_items,
-            characteristics: set.bonus.to_vec(),
+            characteristics: set.bonus.clone(),
         })
         .collect();
 
     Ok(OptimiseResponse {
         energy: -final_state.energy(&dofus_set_config, items),
-        overall_characteristics: final_state.stats(&dofus_set_config, items).to_vec(),
+        overall_characteristics: final_state.stats(&dofus_set_config, items).clone(),
         items: final_state
             .set()
             .map(|idx| {
@@ -130,7 +131,7 @@ fn create_optimised_set(
                     let item = &items[idx];
                     OptimiseResponseItem {
                         dofus_id: idx,
-                        characteristics: item.stats.to_vec(),
+                        characteristics: item.stats.clone(),
                         name: item.name.clone(),
                         item_type: item.item_type.clone(),
                         level: item.level,

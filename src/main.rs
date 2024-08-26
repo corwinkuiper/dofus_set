@@ -7,8 +7,6 @@ use ::dofus_set::stats;
 use ::dofus_set::stats::Stat;
 use dofus_set::items::Items;
 
-use std::convert::TryInto;
-
 fn main() {
     let items = Items::new();
 
@@ -60,13 +58,13 @@ pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     println!("-----------------------------");
     for set_bonus in state.sets(items) {
         println!("{} - {} items", set_bonus.name, set_bonus.number_of_items);
-        print_stats(&set_bonus.bonus);
+        print_stats(set_bonus.bonus);
     }
 }
 
 fn print_stats(stat: &stats::Characteristic) {
     for (characteristic, value) in stat.iter().enumerate() {
-        let stat: Stat = characteristic.try_into().unwrap();
+        let stat = Stat::from_repr(characteristic).unwrap();
         if *value != 0 {
             println!("\t{}: {}", stat, value);
         }

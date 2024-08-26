@@ -1,8 +1,9 @@
+use crate::stats::Characteristic;
+
 use super::stats;
 
-use rustc_hash::FxHashMap;
 use serde::{Deserialize, Serialize};
-use std::{convert::TryInto, ops::Index};
+use std::{collections::HashMap, convert::TryInto, ops::Index};
 
 #[derive(Debug)]
 pub struct Item {
@@ -93,7 +94,7 @@ fn parse_restriction(
             })
         } else {
             Box::new(stats::RestrictionLeaf {
-                value: stat.value,
+                value: (stat.value),
                 operator,
                 stat: stat.stat.as_str().try_into().unwrap(),
             })
@@ -101,7 +102,7 @@ fn parse_restriction(
     }
 }
 
-fn parse_items(data: &[&[u8]], set_mappings: &FxHashMap<String, SetIndex>) -> Vec<Item> {
+fn parse_items(data: &[&[u8]], set_mappings: &HashMap<String, SetIndex>) -> Vec<Item> {
     let data: Vec<DofusLabItem> = data
         .iter()
         .flat_map(|data| serde_json::from_slice::<Vec<DofusLabItem>>(data).unwrap())
@@ -109,11 +110,11 @@ fn parse_items(data: &[&[u8]], set_mappings: &FxHashMap<String, SetIndex>) -> Ve
 
     data.iter()
         .map(|item| {
-            let mut stats = stats::new_characteristics();
+            let mut stats = Characteristic::new();
             if let Some(item_stats) = item.stats.as_ref() {
                 for stat in item_stats {
                     let characteristic: stats::Stat = stat.stat.as_str().try_into().unwrap();
-                    stats[characteristic as usize] = stat.maxStat;
+                    stats[characteristic] = stat.maxStat;
                 }
             }
 
@@ -142,7 +143,7 @@ fn parse_items(data: &[&[u8]], set_mappings: &FxHashMap<String, SetIndex>) -> Ve
 #[derive(Debug)]
 pub struct Set {
     pub name: String,
-    pub bonuses: FxHashMap<i32, stats::Characteristic>,
+    pub bonuses: Vec<stats::Characteristic>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -155,34 +156,41 @@ struct DofusLabSetStat {
 struct DofusLabSet {
     name: DofusLabItemName,
     id: String,
-    bonuses: FxHashMap<String, Vec<DofusLabSetStat>>,
+    bonuses: HashMap<String, Vec<DofusLabSetStat>>,
 }
 
-fn parse_sets(data: &[u8]) -> (FxHashMap<String, SetIndex>, Vec<Set>) {
+fn parse_sets(data: &[u8]) -> (HashMap<String, SetIndex>, Vec<Set>) {
     let data: Vec<DofusLabSet> = serde_json::from_slice(data).unwrap();
 
-    let mut dofus_id_to_internal_id_mapping = FxHashMap::default();
+    let mut dofus_id_to_internal_id_mapping = HashMap::default();
 
     let sets: Vec<Set> = data
         .iter()
         .enumerate()
         .map(|(idx, set)| {
-            let bonuses: FxHashMap<_, _> = set
+            let item_count_to_bonus: Vec<(usize, _)> = set
                 .bonuses
                 .iter()
                 .map(|(number_of_items, bonus)| {
-                    let mut stats = stats::new_characteristics();
+                    let mut stats = Characteristic::new();
                     for stat in bonus {
                         if let (Some(stat), Some(value)) = (&stat.stat, stat.value) {
                             let characteristic: stats::Stat = stat.as_str().try_into().unwrap();
-                            let characteristic_index = characteristic as usize;
-                            stats[characteristic_index] = value;
+                            stats[characteristic] = value;
                         }
                     }
 
                     (number_of_items.parse().unwrap(), stats)
                 })
                 .collect();
+
+            let mut bonuses = vec![
+                Characteristic::new();
+                item_count_to_bonus.iter().map(|x| x.0).max().unwrap() + 1
+            ];
+            for (idx, bonus) in item_count_to_bonus.into_iter() {
+                bonuses[idx] = bonus;
+            }
 
             dofus_id_to_internal_id_mapping.insert(set.id.clone(), SetIndex(idx));
 
@@ -284,7 +292,7 @@ impl Index<SetIndex> for Items {
 
 impl Items {
     pub fn new() -> Self {
-        let sets: (FxHashMap<String, SetIndex>, Vec<Set>) =
+        let sets: (HashMap<String, SetIndex>, Vec<Set>) =
             parse_sets(include_bytes!("../data/sets.json"));
         let items: Vec<Item> = parse_items(
             &[

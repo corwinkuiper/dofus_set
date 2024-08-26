@@ -9,10 +9,11 @@ use crate::items::ItemType;
 use crate::items::Items;
 use crate::items::SetIndex;
 use crate::stats;
+use crate::stats::Characteristic;
 
+use linear_map::LinearMap;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
-use rustc_hash::FxHashMap;
 use serde::Serialize;
 
 pub fn slot_index_to_item_type(index: usize) -> ItemType {
@@ -61,7 +62,7 @@ impl State {
 
         let state = State {
             set,
-            cached_totals: stats::new_characteristics(),
+            cached_totals: Characteristic::new(),
         };
         let totals = state.item_stat_from_nothing(items);
         Ok(State {
@@ -71,9 +72,9 @@ impl State {
     }
 }
 
-pub struct SetBonus {
-    pub name: String,
-    pub bonus: stats::Characteristic,
+pub struct SetBonus<'a> {
+    pub name: &'a str,
+    pub bonus: &'a Characteristic,
     pub number_of_items: i32,
 }
 
@@ -82,24 +83,28 @@ impl State {
         self.set.iter().copied()
     }
 
-    pub fn sets<'a>(&self, items: &'a Items) -> impl std::iter::Iterator<Item = SetBonus> + 'a {
-        let mut sets = FxHashMap::<SetIndex, i32>::default(); // map of set ids to number of items in that set
+    pub fn sets<'a>(&self, items: &'a Items) -> impl std::iter::Iterator<Item = SetBonus<'a>> + 'a {
+        let mut sets_linear_map: LinearMap<SetIndex, i32> = LinearMap::new();
 
         for item in self.items(items) {
             if let Some(set_id) = item.set_id {
-                sets.entry(set_id).and_modify(|i| *i += 1).or_insert(1);
+                *sets_linear_map.entry(set_id).or_insert(0) += 1;
             }
         }
 
-        sets.into_iter().filter_map(move |(set, number_of_items)| {
-            let set = &items[set];
+        sets_linear_map
+            .into_iter()
+            .filter_map(move |(set, number_of_items)| {
+                let set = &items[set];
 
-            set.bonuses.get(&number_of_items).map(|bonus| SetBonus {
-                name: set.name.clone(),
-                bonus: *bonus,
-                number_of_items,
+                set.bonuses
+                    .get(number_of_items as usize)
+                    .map(|bonus| SetBonus {
+                        name: &set.name,
+                        bonus,
+                        number_of_items,
+                    })
             })
-        })
     }
 
     fn valid(&self, config: &config::Config, items: &Items, leniency: i32) -> bool {
@@ -124,12 +129,15 @@ impl State {
         }
 
         let dofus = &self.set[9..=14];
-        let mut unique = rustc_hash::FxHashSet::default();
-        if !dofus
-            .iter()
-            .filter_map(|x| x.as_ref())
-            .all(move |x| unique.insert(x))
-        {
+        let mut unique = Vec::new();
+        if !dofus.iter().filter_map(|x| x.as_ref()).all(move |x| {
+            if unique.contains(x) {
+                false
+            } else {
+                unique.push(*x);
+                true
+            }
+        }) {
             return false;
         }
 
@@ -165,7 +173,13 @@ impl State {
 
         let element_iter = stats::STAT_ELEMENT
             .iter()
-            .map(|&x| (stats[x], config.weights[x], config.targets[x]))
+            .map(|&x| {
+                (
+                    stats[x],
+                    config.weights[x as usize],
+                    config.targets[x as usize],
+                )
+            })
             .filter(|(_, weight, _)| *weight > 0.)
             .map(|(stat, weight, target)| {
                 let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
@@ -191,56 +205,52 @@ impl State {
             .filter_map(move |item_id| item_id.map(|item_id| &items[item_id]))
     }
 
-    fn item_stat_from_nothing(&self, items: &Items) -> stats::Characteristic {
-        let mut stat = stats::new_characteristics();
+    fn item_stat_from_nothing(&self, items: &Items) -> Characteristic {
+        let mut stat = Characteristic::new();
 
         for item in self.items(items) {
-            stats::characteristic_add(&mut stat, &item.stats);
+            stat += &item.stats;
         }
 
         stat
     }
 
     fn remove_item(&mut self, item: &Item) {
-        stats::characteristic_sub(&mut self.cached_totals, &item.stats);
+        self.cached_totals -= &item.stats;
     }
 
     fn add_item(&mut self, item: &Item) {
-        stats::characteristic_add(&mut self.cached_totals, &item.stats);
+        self.cached_totals += &item.stats;
     }
 
-    pub fn stats(&self, config: &config::Config, items: &Items) -> stats::Characteristic {
-        let mut stat = self.cached_totals;
+    pub fn stats(&self, config: &config::Config, items: &Items) -> Characteristic {
+        let mut stat = self.cached_totals.clone();
 
         for set_bonus in self.sets(items) {
-            stats::characteristic_add(&mut stat, &set_bonus.bonus);
+            stat += set_bonus.bonus;
         }
 
-        stat[stats::Stat::AP as usize] = std::cmp::min(
-            stat[stats::Stat::AP as usize]
-                + level_initial_ap(config.max_level)
-                + config.exo_ap as i32,
+        stat[stats::Stat::AP] = std::cmp::min(
+            stat[stats::Stat::AP] + level_initial_ap(config.max_level) + config.exo_ap as i32,
             MAX_AP,
         );
-        stat[stats::Stat::MP as usize] = std::cmp::min(
-            stat[stats::Stat::MP as usize] + 3 + config.exo_mp as i32,
-            MAX_MP,
-        );
-        stat[stats::Stat::Range as usize] = std::cmp::min(
-            stat[stats::Stat::Range as usize] + config.exo_range as i32,
+        stat[stats::Stat::MP] =
+            std::cmp::min(stat[stats::Stat::MP] + 3 + config.exo_mp as i32, MAX_MP);
+        stat[stats::Stat::Range] = std::cmp::min(
+            stat[stats::Stat::Range] + config.exo_range as i32,
             MAX_RANGE,
         );
 
-        stat[stats::Stat::ResistanceNeutralPercent as usize] =
-            std::cmp::min(stat[stats::Stat::ResistanceNeutralPercent as usize], 50);
-        stat[stats::Stat::ResistanceEarthPercent as usize] =
-            std::cmp::min(stat[stats::Stat::ResistanceEarthPercent as usize], 50);
-        stat[stats::Stat::ResistanceFirePercent as usize] =
-            std::cmp::min(stat[stats::Stat::ResistanceFirePercent as usize], 50);
-        stat[stats::Stat::ResistanceWaterPercent as usize] =
-            std::cmp::min(stat[stats::Stat::ResistanceWaterPercent as usize], 50);
-        stat[stats::Stat::ResistanceAirPercent as usize] =
-            std::cmp::min(stat[stats::Stat::ResistanceAirPercent as usize], 50);
+        stat[stats::Stat::ResistanceNeutralPercent] =
+            std::cmp::min(stat[stats::Stat::ResistanceNeutralPercent], 50);
+        stat[stats::Stat::ResistanceEarthPercent] =
+            std::cmp::min(stat[stats::Stat::ResistanceEarthPercent], 50);
+        stat[stats::Stat::ResistanceFirePercent] =
+            std::cmp::min(stat[stats::Stat::ResistanceFirePercent], 50);
+        stat[stats::Stat::ResistanceWaterPercent] =
+            std::cmp::min(stat[stats::Stat::ResistanceWaterPercent], 50);
+        stat[stats::Stat::ResistanceAirPercent] =
+            std::cmp::min(stat[stats::Stat::ResistanceAirPercent], 50);
 
         stat
     }

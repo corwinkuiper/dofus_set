@@ -1,15 +1,38 @@
-use std::{convert::TryInto, fmt::Debug};
+use std::{
+    fmt::Debug,
+    ops::{AddAssign, Index, IndexMut, SubAssign},
+};
 
-pub type StatValue = i32;
-pub type Characteristic = [StatValue; 51];
+use serde::Serialize;
+
+#[derive(Clone, Debug)]
+pub struct Characteristic([i32; 51]);
+
+impl Serialize for Characteristic {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.0.serialize(serializer)
+    }
+}
+
+impl Index<Stat> for Characteristic {
+    type Output = i32;
+
+    fn index(&self, index: Stat) -> &Self::Output {
+        &self.0[index as usize]
+    }
+}
+
+impl IndexMut<Stat> for Characteristic {
+    fn index_mut(&mut self, index: Stat) -> &mut Self::Output {
+        &mut self.0[index as usize]
+    }
+}
 
 pub trait Restriction: Debug {
-    fn accepts(
-        &self,
-        characteristics: &Characteristic,
-        set_bonus: i32,
-        leniency: StatValue,
-    ) -> bool;
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32, leniency: i32) -> bool;
 }
 
 #[derive(Debug)]
@@ -25,12 +48,7 @@ pub struct RestrictionSet {
 }
 
 impl Restriction for RestrictionSet {
-    fn accepts(
-        &self,
-        characteristics: &Characteristic,
-        set_bonus: i32,
-        leniency: StatValue,
-    ) -> bool {
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32, leniency: i32) -> bool {
         match self.operator {
             BooleanOperator::And => self
                 .restrictions
@@ -54,17 +72,12 @@ pub enum Operator {
 pub struct RestrictionLeaf {
     pub operator: Operator,
     pub stat: Stat,
-    pub value: StatValue,
+    pub value: i32,
 }
 
 impl Restriction for RestrictionLeaf {
-    fn accepts(
-        &self,
-        characteristics: &Characteristic,
-        _set_bonus: i32,
-        leniency: StatValue,
-    ) -> bool {
-        let value = characteristics[self.stat as usize];
+    fn accepts(&self, characteristics: &Characteristic, _set_bonus: i32, leniency: i32) -> bool {
+        let value = characteristics[self.stat];
         let lenient = !(self.stat == Stat::AP || self.stat == Stat::MP);
         let leniency = if lenient { leniency } else { 0 };
         match self.operator {
@@ -98,19 +111,35 @@ impl Restriction for NullRestriction {
     }
 }
 
-pub fn new_characteristics() -> Characteristic {
-    [0; 51]
-}
+impl Characteristic {
+    pub fn new() -> Self {
+        Self([(0); 51])
+    }
 
-pub fn characteristic_add(stats: &mut Characteristic, stat: &Characteristic) {
-    for i in 0..stats.len() {
-        stats[i] += stat[i];
+    pub fn iter(&self) -> core::slice::Iter<'_, i32> {
+        self.0.iter()
     }
 }
 
-pub fn characteristic_sub(stats: &mut Characteristic, stat: &Characteristic) {
-    for i in 0..stats.len() {
-        stats[i] -= stat[i];
+impl Default for Characteristic {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl AddAssign<&Self> for Characteristic {
+    fn add_assign(&mut self, rhs: &Self) {
+        for (a, b) in self.0.iter_mut().zip(rhs.0.iter()) {
+            *a += *b;
+        }
+    }
+}
+
+impl SubAssign<&Self> for Characteristic {
+    fn sub_assign(&mut self, rhs: &Self) {
+        for (a, b) in self.0.iter_mut().zip(rhs.0.iter()) {
+            *a -= *b;
+        }
     }
 }
 
@@ -169,7 +198,7 @@ const STAT_NAMES: &[&str] = &[
 ];
 
 // every possible stat an item could have
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, strum::FromRepr)]
 #[allow(dead_code)]
 pub enum Stat {
     AP,
@@ -228,17 +257,6 @@ pub enum Stat {
     ResistanceMelee,
 }
 
-impl std::convert::TryFrom<usize> for Stat {
-    type Error = &'static str;
-    fn try_from(value: usize) -> Result<Self, Self::Error> {
-        if value > Stat::ResistanceMelee as usize {
-            Err("Cannot convert too large value")
-        } else {
-            Ok(unsafe { std::mem::transmute(value as u8) })
-        }
-    }
-}
-
 impl std::convert::TryFrom<&str> for Stat {
     type Error = &'static str;
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -249,7 +267,7 @@ impl std::convert::TryFrom<&str> for Stat {
             .enumerate()
         {
             if *stat_name == value {
-                return index.try_into();
+                return Ok(Stat::from_repr(index).expect("If in array, value should be in bounds"));
             }
         }
 
@@ -268,27 +286,16 @@ pub fn stat_is_element(n: usize) -> bool {
     n >= Stat::Agility as usize && n <= Stat::Intelligence as usize
 }
 
-pub const STAT_ELEMENT: [usize; 4] = [
-    Stat::Agility as usize,
-    Stat::Chance as usize,
-    Stat::Strength as usize,
-    Stat::Intelligence as usize,
+pub const STAT_ELEMENT: [Stat; 4] = [
+    Stat::Agility,
+    Stat::Chance,
+    Stat::Strength,
+    Stat::Intelligence,
 ];
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::convert::TryFrom;
-    #[test]
-    fn stat_try_from() {
-        assert_eq!(1_usize.try_into(), Ok(Stat::MP));
-    }
-
-    #[test]
-    #[should_panic]
-    fn stat_try_from_overflow() {
-        Stat::try_from(60_usize).unwrap();
-    }
 
     #[test]
     fn stat_convert_from_str() {
