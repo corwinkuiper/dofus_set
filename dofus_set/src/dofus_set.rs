@@ -131,16 +131,14 @@ impl State {
         }
 
         let dofus = &self.set[9..=14];
-        let mut unique = Vec::new();
-        if !dofus.iter().filter_map(|x| x.as_ref()).all(move |x| {
-            if unique.contains(x) {
-                false
-            } else {
-                unique.push(*x);
-                true
+        for (i, singular_dofus) in dofus.iter().enumerate() {
+            if i == dofus.len() || singular_dofus.is_none() {
+                continue;
             }
-        }) {
-            return false;
+
+            if dofus[i + 1..].contains(singular_dofus) {
+                return false;
+            }
         }
 
         // forbid two rings from the same set
