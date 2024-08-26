@@ -12,6 +12,3 @@ dofus_set = { path = "../dofus_set" }
 wasm-bindgen = "0.2"
 console_error_panic_hook = "0.1" 
 getrandom = { version = "0.2", features = ["js"] }
-
-[profile.release]
-opt-level = 3

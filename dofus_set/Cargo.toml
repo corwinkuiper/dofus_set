@@ -14,7 +14,3 @@ thiserror = "1"
 strum = { version = "0.26", features = ["derive"] }
 linear-map = "1.2"
 heapless = "0.8"
-
-
-[profile.dev]
-opt-level = 2
