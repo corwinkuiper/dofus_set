@@ -143,7 +143,7 @@ fn parse_items(data: &[&[u8]], set_mappings: &HashMap<String, SetIndex>) -> Vec<
 #[derive(Debug)]
 pub struct Set {
     pub name: String,
-    pub bonuses: Vec<stats::Characteristic>,
+    pub bonuses: Vec<Option<stats::Characteristic>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -184,12 +184,10 @@ fn parse_sets(data: &[u8]) -> (HashMap<String, SetIndex>, Vec<Set>) {
                 })
                 .collect();
 
-            let mut bonuses = vec![
-                Characteristic::new();
-                item_count_to_bonus.iter().map(|x| x.0).max().unwrap() + 1
-            ];
+            let mut bonuses =
+                vec![None; item_count_to_bonus.iter().map(|x| x.0).max().unwrap() + 1];
             for (idx, bonus) in item_count_to_bonus.into_iter() {
-                bonuses[idx] = bonus;
+                bonuses[idx] = Some(bonus);
             }
 
             dofus_id_to_internal_id_mapping.insert(set.id.clone(), SetIndex(idx));

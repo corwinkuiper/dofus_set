@@ -99,6 +99,8 @@ impl State {
 
                 set.bonuses
                     .get(number_of_items as usize)
+                    .unwrap()
+                    .as_ref()
                     .map(|bonus| SetBonus {
                         name: &set.name,
                         bonus,
