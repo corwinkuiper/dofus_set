@@ -84,7 +84,7 @@ impl State {
     }
 
     pub fn sets<'a>(&self, items: &'a Items) -> impl std::iter::Iterator<Item = SetBonus<'a>> + 'a {
-        let mut sets_linear_map: LinearMap<SetIndex, i32> = LinearMap::new();
+        let mut sets_linear_map: LinearMap<SetIndex, i32> = LinearMap::with_capacity(8);
 
         for item in self.items(items) {
             if let Some(set_id) = item.set_id {
