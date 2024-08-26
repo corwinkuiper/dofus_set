@@ -355,7 +355,7 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
     type Error = OptimiseError;
 
     fn random(&self) -> f64 {
-        rand::thread_rng().gen_range(0.0, 1.0)
+        rand::thread_rng().gen_range(0.0..1.0)
     }
 
     fn neighbour(&self, state: &State, temperature: f64) -> Result<State, OptimiseError> {
@@ -369,7 +369,7 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
                 if item_type.is_empty() {
                     continue;
                 }
-                let item_index = item_type[rng.gen_range(0, item_type.len())];
+                let item_index = item_type[rng.gen_range(0..item_type.len())];
                 break (item_slot, item_index);
             };
 

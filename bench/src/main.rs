@@ -1,10 +1,10 @@
 #![deny(clippy::all)]
 
-use ::dofus_set::config;
-use ::dofus_set::dofus_set::Optimiser;
-use ::dofus_set::items::Items;
-use ::dofus_set::stats::Stat;
+use dofus_set::config;
+use dofus_set::dofus_set::Optimiser;
 use dofus_set::items::ItemIndex;
+use dofus_set::items::Items;
+use dofus_set::stats::Stat;
 
 fn main() {
     let items = Items::new();

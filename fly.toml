@@ -4,26 +4,15 @@
 #
 
 app = "dofusoptimiser"
-primary_region = "fra"
-kill_signal = "SIGINT"
-kill_timeout = "5s"
+primary_region = 'lhr'
 
-[[services]]
-  protocol = "tcp"
+[http_service]
   internal_port = 8000
+  force_https = true
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
+  processes = ['app']
 
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-    force_https = true
-
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-  [services.concurrency]
-    type = "requests"
-    hard_limit = 100
-    soft_limit = 5
+[[vm]]
+  size = 'shared-cpu-1x'

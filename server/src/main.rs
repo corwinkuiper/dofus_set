@@ -1,10 +1,9 @@
 #![deny(clippy::all)]
-use ::dofus_set::config;
-use ::dofus_set::dofus_set;
-use ::dofus_set::dofus_set::OptimiseError;
-use ::dofus_set::items::ItemIndex;
-use ::dofus_set::items::Items;
-use ::dofus_set::stats::Characteristic;
+use dofus_set::config;
+use dofus_set::dofus_set::OptimiseError;
+use dofus_set::items::ItemIndex;
+use dofus_set::items::Items;
+use dofus_set::stats::Characteristic;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -69,7 +68,7 @@ fn get_item_list_index(slot: usize, items: &Items) -> Option<Vec<OptimiseRespons
         return None;
     }
 
-    let item_type = dofus_set::slot_index_to_item_type(slot);
+    let item_type = dofus_set::dofus_set::slot_index_to_item_type(slot);
 
     Some(item_list(&items[item_type], items))
 }
@@ -108,7 +107,7 @@ fn create_optimised_set(
         multi_element: config.multi_element,
     };
 
-    let optimiser = dofus_set::Optimiser::new(&dofus_set_config, fixed_items, items)?;
+    let optimiser = dofus_set::dofus_set::Optimiser::new(&dofus_set_config, fixed_items, items)?;
 
     let final_state = optimiser.optimise()?;
 

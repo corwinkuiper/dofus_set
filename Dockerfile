@@ -1,22 +1,23 @@
-FROM docker.io/rust:alpine as builder
+FROM docker.io/rust:alpine as builder_be
 
-RUN apk add npm gcc libgcc musl-dev --no-cache
-
-RUN USER=root cargo new dofus_optimiser
-WORKDIR /dofus_optimiser
-COPY Cargo.toml Cargo.toml
-COPY Cargo.lock Cargo.lock
+RUN apk add gcc libgcc musl-dev --no-cache
 
 ENV RUSTFLAGS="-Ctarget-cpu=native"
 
-RUN cargo build --release
-RUN rm src -rf
-
+WORKDIR /dofus_optimiser
 COPY . .
-RUN cargo build --release
 
+RUN --mount=type=cache,target=/dofus_optimiser/target \
+    cargo build --release --bin=server && cp target/release/server webserver
+
+FROM docker.io/node:alpine as builder_web
+WORKDIR /dofus_optimiser/web
+
+COPY web .
+RUN --mount=type=cache,target=/dofus_optimiser/web/node_modules \
+    npm install --no-save --prefer-offline --no-audit && npm run build
 
 FROM scratch
-COPY --from=builder /dofus_optimiser/target/release/webserver .
-COPY --from=builder /dofus_optimiser/web/build ./web/build
+COPY --from=builder_be /dofus_optimiser/webserver .
+COPY --from=builder_web /dofus_optimiser/web/build ./web/build
 CMD ["./webserver"]

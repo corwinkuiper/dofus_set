@@ -1,31 +1,8 @@
-[package]
-name = "dofus_set"
-version = "0.1.0"
-authors = ["Corwin Kuiper <corwin@kuiper.dev>"]
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-rand = "0.7"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-thiserror = "1"
-strum = { version = "0.26", features = ["derive"] }
-linear-map = "1.2"
-
-rouille = "3.6"
-
-tracing-serde = "0.1"
-tracing-subscriber = "0.3"
-tracing = "0.1"
-
-[build-dependencies]
-walkdir = "2"
-
-[profile.dev]
-opt-level = 2
+[workspace]
+resolver = "2"
+members = ["bench", "dofus_set", "server"]
 
 [profile.release]
+opt-level = 3
 debug = true
 lto = true
