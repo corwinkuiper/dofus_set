@@ -181,10 +181,11 @@ impl State {
             .enumerate()
             .filter(|(x, _)| !stats::stat_is_element(*x))
             .map(|(_, x)| x)
-            .fold(0.0, |accumulate, ((&stat, &weight), &target)| {
+            .map(|((&stat, &weight), &target)| {
                 let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
-                accumulate + stat as f64 * weight
-            });
+                stat as f64 * weight
+            })
+            .sum::<f64>();
 
         let element_iter = stats::STAT_ELEMENT
             .iter()
