@@ -13,6 +13,7 @@ fn get_items() -> &'static Items {
 #[wasm_bindgen]
 pub fn setup() {
     get_items();
+    console_error_panic_hook::set_once();
 }
 
 #[wasm_bindgen]
