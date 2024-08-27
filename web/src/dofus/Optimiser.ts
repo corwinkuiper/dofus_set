@@ -1,5 +1,6 @@
 import { OptimiseRequest, OptimiseApiResponse } from "./OptimiseApi";
 import { SearchApiResponseItem } from "./SearchApi";
+import { WorkerQuery } from "./Worker";
 
 export class Optimiser {
   private activeJobs: {
@@ -21,12 +22,16 @@ export class Optimiser {
     };
   }
 
+  private sendJob(query: WorkerQuery) {
+    this.worker.postMessage(query);
+  }
+
   async optimise(options: OptimiseRequest): Promise<OptimiseApiResponse> {
     return new Promise((resolve, reject) => {
       const jobId = crypto.randomUUID();
       this.activeJobs[jobId] = { resolve, reject };
       console.log("Job started", jobId);
-      this.worker.postMessage({
+      this.sendJob({
         id: jobId,
         kind: "optimise",
         request: {
@@ -51,7 +56,7 @@ export class Optimiser {
 
       console.log("Job started", jobId);
 
-      this.worker.postMessage({
+      this.sendJob({
         id: jobId,
         kind: "get-slot",
         slot,
