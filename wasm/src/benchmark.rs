@@ -27,7 +27,7 @@ pub fn bench(items: &Items) -> f64 {
 
     let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
 
-    let final_state = optimiser.optimise().unwrap();
+    let final_state = optimiser.optimise(1_000_000).unwrap();
     let sets = final_state.sets(items);
 
     -final_state.energy(&config, items, &sets)

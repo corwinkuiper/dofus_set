@@ -32,7 +32,7 @@ fn main() {
     for _ in 0..10 {
         let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
 
-        let final_state = optimiser.optimise().unwrap();
+        let final_state = optimiser.optimise(1_000_000).unwrap();
         let sets = final_state.sets(items);
         println!("Set Energy: {}", -final_state.energy(&config, items, &sets));
     }

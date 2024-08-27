@@ -111,7 +111,7 @@ fn create_optimised_set(
 
     let optimiser = dofus_set::dofus_set::Optimiser::new(&dofus_set_config, fixed_items, items)?;
 
-    let final_state = optimiser.optimise()?;
+    let final_state = optimiser.optimise(1_000_000)?;
 
     let sets = final_state.sets(items);
 

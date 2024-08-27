@@ -326,7 +326,7 @@ impl<'a> Optimiser<'a> {
         })
     }
 
-    pub fn optimise(self) -> Result<State, OptimiseError> {
+    pub fn optimise(self, iterations: i64) -> Result<State, OptimiseError> {
         if !self
             .config
             .changable
@@ -339,7 +339,7 @@ impl<'a> Optimiser<'a> {
         let sets = self.initial_state.sets(self.items);
         let energy = self.initial_state.energy(self.config, self.items, &sets);
 
-        anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), 1_000_000)
+        anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), iterations)
     }
 }
 
