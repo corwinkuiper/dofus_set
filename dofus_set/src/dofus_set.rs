@@ -107,8 +107,10 @@ impl State {
             .filter_map(move |(set, number_of_items)| {
                 let set = &items[set];
 
-                set.bonuses[number_of_items as usize]
-                    .as_ref()
+                set.bonuses
+                    .get(number_of_items as usize)
+                    .or_else(|| set.bonuses.last())
+                    .and_then(|x| x.as_ref())
                     .map(|bonus| SetBonus {
                         name: &set.name,
                         bonus,
