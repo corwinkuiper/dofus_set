@@ -265,11 +265,23 @@ impl Semaphore {
             *inner -= 1;
         }
 
-        let r = f();
+        struct SemaphoreDrop<'a> {
+            mutex: &'a Mutex<usize>,
+            cond: &'a Condvar,
+        }
 
-        *self.mutex.lock().unwrap() += 1;
+        impl Drop for SemaphoreDrop<'_> {
+            fn drop(&mut self) {
+                *self.mutex.lock().unwrap() += 1;
+                self.cond.notify_one();
+            }
+        }
 
-        self.cond.notify_one();
-        r
+        let _d = SemaphoreDrop {
+            mutex: &self.mutex,
+            cond: &self.cond,
+        };
+
+        f()
     }
 }
