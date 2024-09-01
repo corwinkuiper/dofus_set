@@ -8,6 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 dofus_set = { path = "../dofus_set" }
+dofus_characteristics = { path = "../dofus_characteristics" }
 
 wasm-bindgen = "0.2"
 console_error_panic_hook = "0.1" 

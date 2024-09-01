@@ -8,9 +8,7 @@ use crate::items::ItemIndex;
 use crate::items::ItemType;
 use crate::items::Items;
 use crate::items::SetIndex;
-use crate::stats;
-use crate::stats::Characteristic;
-
+use dofus_characteristics::{stat_is_element, Characteristic, Stat, STAT_ELEMENT};
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use serde::Serialize;
@@ -38,7 +36,7 @@ const MAX_RANGE: i32 = 6;
 #[derive(Clone, Debug)]
 pub struct State {
     set: [Option<ItemIndex>; 16],
-    cached_totals: stats::Characteristic,
+    cached_totals: Characteristic,
 }
 
 impl State {
@@ -181,7 +179,7 @@ impl State {
             .zip(config.weights.iter())
             .zip(config.targets.iter())
             .enumerate()
-            .filter(|(x, _)| !stats::stat_is_element(*x))
+            .filter(|(x, _)| !stat_is_element(*x))
             .map(|(_, x)| x)
             .map(|((&stat, &weight), &target)| {
                 let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
@@ -189,7 +187,7 @@ impl State {
             })
             .sum::<f64>();
 
-        let element_iter = stats::STAT_ELEMENT
+        let element_iter = STAT_ELEMENT
             .iter()
             .map(|&x| {
                 (
@@ -252,27 +250,19 @@ impl State {
             stat += set_bonus.bonus;
         }
 
-        stat[stats::Stat::AP] = std::cmp::min(
-            stat[stats::Stat::AP] + level_initial_ap(config.max_level) + config.exo_ap as i32,
+        stat[Stat::AP] = std::cmp::min(
+            stat[Stat::AP] + level_initial_ap(config.max_level) + config.exo_ap as i32,
             MAX_AP,
         );
-        stat[stats::Stat::MP] =
-            std::cmp::min(stat[stats::Stat::MP] + 3 + config.exo_mp as i32, MAX_MP);
-        stat[stats::Stat::Range] = std::cmp::min(
-            stat[stats::Stat::Range] + config.exo_range as i32,
-            MAX_RANGE,
-        );
+        stat[Stat::MP] = std::cmp::min(stat[Stat::MP] + 3 + config.exo_mp as i32, MAX_MP);
+        stat[Stat::Range] = std::cmp::min(stat[Stat::Range] + config.exo_range as i32, MAX_RANGE);
 
-        stat[stats::Stat::ResistanceNeutralPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceNeutralPercent], 50);
-        stat[stats::Stat::ResistanceEarthPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceEarthPercent], 50);
-        stat[stats::Stat::ResistanceFirePercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceFirePercent], 50);
-        stat[stats::Stat::ResistanceWaterPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceWaterPercent], 50);
-        stat[stats::Stat::ResistanceAirPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceAirPercent], 50);
+        stat[Stat::ResistanceNeutralPercent] =
+            std::cmp::min(stat[Stat::ResistanceNeutralPercent], 50);
+        stat[Stat::ResistanceEarthPercent] = std::cmp::min(stat[Stat::ResistanceEarthPercent], 50);
+        stat[Stat::ResistanceFirePercent] = std::cmp::min(stat[Stat::ResistanceFirePercent], 50);
+        stat[Stat::ResistanceWaterPercent] = std::cmp::min(stat[Stat::ResistanceWaterPercent], 50);
+        stat[Stat::ResistanceAirPercent] = std::cmp::min(stat[Stat::ResistanceAirPercent], 50);
 
         stat
     }

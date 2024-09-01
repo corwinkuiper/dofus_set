@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dofus_characteristics = { path = "../dofus_characteristics" }
 dofus_set = { path = "../dofus_set" }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]

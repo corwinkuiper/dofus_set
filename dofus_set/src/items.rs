@@ -1,6 +1,4 @@
-use crate::stats::{Characteristic, Stat, StatConversionError};
-
-use super::stats;
+use dofus_characteristics::{Characteristic, Stat, StatConversionError};
 
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, convert::TryInto, ops::Index};
@@ -9,10 +7,10 @@ use std::{collections::HashMap, convert::TryInto, ops::Index};
 pub struct Item {
     pub name: String,
     pub item_type: String,
-    pub stats: stats::Characteristic,
+    pub stats: dofus_characteristics::Characteristic,
     pub level: i32,
     pub set_id: Option<SetIndex>,
-    pub restriction: Box<dyn stats::Restriction + Sync + Send>,
+    pub restriction: Box<dyn dofus_characteristics::Restriction + Sync + Send>,
     pub image_url: Option<String>,
 }
 
@@ -55,15 +53,15 @@ struct DofusLabStatRestriction {
 
 fn parse_restriction(
     value: &serde_json::Map<String, serde_json::value::Value>,
-) -> Box<dyn stats::Restriction + Sync + Send> {
+) -> Box<dyn dofus_characteristics::Restriction + Sync + Send> {
     if value.is_empty() {
-        return Box::new(stats::NullRestriction {});
+        return Box::new(dofus_characteristics::NullRestriction {});
     }
 
     if let Some(and_restriction) = value.get("and") {
         let and_restriction = and_restriction.as_array().unwrap();
-        Box::new(stats::RestrictionSet {
-            operator: stats::BooleanOperator::And,
+        Box::new(dofus_characteristics::RestrictionSet {
+            operator: dofus_characteristics::BooleanOperator::And,
             restrictions: and_restriction
                 .iter()
                 .map(|r| parse_restriction(r.as_object().unwrap()))
@@ -71,8 +69,8 @@ fn parse_restriction(
         })
     } else if let Some(or_restriction) = value.get("or") {
         let or_restriction = or_restriction.as_array().unwrap();
-        Box::new(stats::RestrictionSet {
-            operator: stats::BooleanOperator::Or,
+        Box::new(dofus_characteristics::RestrictionSet {
+            operator: dofus_characteristics::BooleanOperator::Or,
             restrictions: or_restriction
                 .iter()
                 .map(|r| parse_restriction(r.as_object().unwrap()))
@@ -82,24 +80,26 @@ fn parse_restriction(
         let stat: DofusLabStatRestriction =
             serde_json::from_value(serde_json::Value::Object(value.clone())).unwrap();
         let operator = match stat.operator.as_str() {
-            "<" => stats::Operator::LessThan,
-            ">" => stats::Operator::GreaterThan,
+            "<" => dofus_characteristics::Operator::LessThan,
+            ">" => dofus_characteristics::Operator::GreaterThan,
             _ => panic!("Bad operator"),
         };
 
         if stat.stat == "SET_BONUS" {
-            Box::new(stats::SetBonusRestriction {
+            Box::new(dofus_characteristics::SetBonusRestriction {
                 value: stat.value,
                 operator,
             })
         } else {
             match Stat::try_from(stat.stat.as_str()) {
-                Ok(s) => Box::new(stats::RestrictionLeaf {
+                Ok(s) => Box::new(dofus_characteristics::RestrictionLeaf {
                     value: stat.value,
                     operator,
                     stat: s,
                 }),
-                Err(StatConversionError::IntentionallyIgnored) => Box::new(stats::NullRestriction),
+                Err(StatConversionError::IntentionallyIgnored) => {
+                    Box::new(dofus_characteristics::NullRestriction)
+                }
                 _ => panic!("Unsupported stat {}", stat.stat),
             }
         }
@@ -117,7 +117,8 @@ fn parse_items(data: &[&[u8]], set_mappings: &HashMap<String, SetIndex>) -> Vec<
             let mut stats = Characteristic::new();
             if let Some(item_stats) = item.stats.as_ref() {
                 for stat in item_stats {
-                    let characteristic: stats::Stat = stat.stat.as_str().try_into().unwrap();
+                    let characteristic: dofus_characteristics::Stat =
+                        stat.stat.as_str().try_into().unwrap();
                     stats[characteristic] = stat.maxStat;
                 }
             }
@@ -126,7 +127,7 @@ fn parse_items(data: &[&[u8]], set_mappings: &HashMap<String, SetIndex>) -> Vec<
                 .conditions
                 .as_ref()
                 .map(|conditions| parse_restriction(&conditions.conditions))
-                .unwrap_or_else(|| Box::new(stats::NullRestriction {}));
+                .unwrap_or_else(|| Box::new(dofus_characteristics::NullRestriction {}));
 
             Item {
                 name: item.name.en.clone(),
@@ -147,7 +148,7 @@ fn parse_items(data: &[&[u8]], set_mappings: &HashMap<String, SetIndex>) -> Vec<
 #[derive(Debug)]
 pub struct Set {
     pub name: String,
-    pub bonuses: Vec<Option<stats::Characteristic>>,
+    pub bonuses: Vec<Option<dofus_characteristics::Characteristic>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -179,7 +180,8 @@ fn parse_sets(data: &[u8]) -> (HashMap<String, SetIndex>, Vec<Set>) {
                     let mut stats = Characteristic::new();
                     for stat in bonus {
                         if let (Some(stat), Some(value)) = (&stat.stat, stat.value) {
-                            let characteristic: stats::Stat = stat.as_str().try_into().unwrap();
+                            let characteristic: dofus_characteristics::Stat =
+                                stat.as_str().try_into().unwrap();
                             stats[characteristic] = value;
                         }
                     }

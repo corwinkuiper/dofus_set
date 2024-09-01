@@ -3,8 +3,7 @@
 use ::dofus_set::config;
 use ::dofus_set::dofus_set::{Optimiser, State};
 use ::dofus_set::items;
-use ::dofus_set::stats;
-use ::dofus_set::stats::Stat;
+use dofus_characteristics::{Characteristic, Stat};
 use dofus_set::items::Items;
 
 fn main() {
@@ -64,7 +63,7 @@ pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     }
 }
 
-fn print_stats(stat: &stats::Characteristic) {
+fn print_stats(stat: &Characteristic) {
     for (characteristic, value) in stat.iter().enumerate() {
         let stat = Stat::from_repr(characteristic).unwrap();
         if *value != 0 {

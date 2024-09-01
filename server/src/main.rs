@@ -1,9 +1,9 @@
 #![deny(clippy::all)]
+use dofus_characteristics::Characteristic;
 use dofus_set::config;
 use dofus_set::dofus_set::OptimiseError;
 use dofus_set::items::ItemIndex;
 use dofus_set::items::Items;
-use dofus_set::stats::Characteristic;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
