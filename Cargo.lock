@@ -61,6 +61,7 @@ name = "bench"
 version = "0.1.0"
 dependencies = [
  "dofus_characteristics",
+ "dofus_items",
  "dofus_set",
  "tikv-jemallocator",
 ]
@@ -195,6 +196,8 @@ dependencies = [
 name = "dofus_characteristics"
 version = "0.1.0"
 dependencies = [
+ "proc-macro2",
+ "quote",
  "serde",
  "strum",
  "thiserror",
@@ -203,12 +206,20 @@ dependencies = [
 [[package]]
 name = "dofus_items"
 version = "0.1.0"
+dependencies = [
+ "dofus_characteristics",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "dofus_set"
 version = "0.1.0"
 dependencies = [
  "dofus_characteristics",
+ "dofus_items",
  "heapless",
  "linear-map",
  "rand",
@@ -686,6 +697,7 @@ name = "server"
 version = "0.1.0"
 dependencies = [
  "dofus_characteristics",
+ "dofus_items",
  "dofus_set",
  "rouille",
  "serde",
@@ -1022,6 +1034,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "dofus_characteristics",
+ "dofus_items",
  "dofus_set",
  "getrandom",
  "wasm-bindgen",

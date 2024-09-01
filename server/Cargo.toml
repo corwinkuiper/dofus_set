@@ -7,6 +7,7 @@ edition = "2021"
 
 dofus_set = {path = "../dofus_set"}
 dofus_characteristics = { path = "../dofus_characteristics" }
+dofus_items = { path = "../dofus_items" }
 
 rouille = "3.6"
 

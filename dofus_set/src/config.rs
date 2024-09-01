@@ -1,4 +1,4 @@
-use crate::items::ItemIndex;
+use dofus_items::ItemIndex;
 
 pub struct Config {
     pub max_level: i32,

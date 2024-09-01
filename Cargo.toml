@@ -5,4 +5,4 @@ members = ["bench", "dofus_characteristics", "dofus_items", "dofus_set", "server
 [profile.release]
 opt-level = 3
 debug = true
-lto = true
+lto = "fat"

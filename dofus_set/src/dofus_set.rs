@@ -2,13 +2,13 @@ use std::ops::Index;
 
 use crate::anneal;
 use crate::config;
-use crate::items;
-use crate::items::Item;
-use crate::items::ItemIndex;
-use crate::items::ItemType;
-use crate::items::Items;
-use crate::items::SetIndex;
+
 use dofus_characteristics::{stat_is_element, Characteristic, Stat, STAT_ELEMENT};
+use dofus_items::Item;
+use dofus_items::ItemIndex;
+use dofus_items::ItemType;
+use dofus_items::Items;
+use dofus_items::SetIndex;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use serde::Serialize;
@@ -49,7 +49,7 @@ impl State {
             if let Some(equipment) = equipment {
                 if !items[slot_index_to_item_type(index)].contains(equipment) {
                     return Err(OptimiseError::InvalidItem {
-                        item: items[*equipment].name.clone(),
+                        item: items[*equipment].name.to_owned(),
                         attempted_slot: slot_index_to_item_type(index),
                     });
                 }
@@ -105,15 +105,11 @@ impl State {
             .filter_map(move |(set, number_of_items)| {
                 let set = &items[set];
 
-                set.bonuses
-                    .get(number_of_items as usize)
-                    .or_else(|| set.bonuses.last())
-                    .and_then(|x| x.as_ref())
-                    .map(|bonus| SetBonus {
-                        name: &set.name,
-                        bonus,
-                        number_of_items,
-                    })
+                set.get(number_of_items as usize).map(|bonus| SetBonus {
+                    name: set.name,
+                    bonus,
+                    number_of_items,
+                })
             })
             .collect()
     }
@@ -215,7 +211,7 @@ impl State {
         -energy_non_element - energy_element
     }
 
-    fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &items::Item> + 'a {
+    fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &Item> + 'a {
         self.set
             .iter()
             .filter_map(move |item_id| item_id.map(|item_id| &items[item_id]))
@@ -278,7 +274,7 @@ fn level_initial_ap(level: i32) -> i32 {
 
 pub struct Optimiser<'a> {
     config: &'a config::Config,
-    items: &'a items::Items,
+    items: &'a Items,
     initial_state: State,
     item_list: AllowedItemCache,
     temperature_initial: f64,

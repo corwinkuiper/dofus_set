@@ -7,3 +7,5 @@ edition = "2021"
 strum = { version = "0.26", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
+quote = "1"
+proc-macro2 = "1"

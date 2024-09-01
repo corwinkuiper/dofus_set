@@ -14,3 +14,4 @@ thiserror = "1"
 linear-map = "1.2"
 heapless = "0.8"
 dofus_characteristics = { path = "../dofus_characteristics" }
+dofus_items = { path = "../dofus_items" }

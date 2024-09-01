@@ -3,11 +3,22 @@ use std::{
     ops::{AddAssign, Index, IndexMut, SubAssign},
 };
 
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens, TokenStreamExt};
 use serde::Serialize;
 use thiserror::Error;
 
 #[derive(Clone, Debug)]
 pub struct Characteristic([i32; 51]);
+
+impl ToTokens for Characteristic {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let values = &self.0;
+        tokens.append_all(quote! {
+            Characteristic::new_from_raw([#(#values),*])
+        })
+    }
+}
 
 impl Serialize for Characteristic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -45,7 +56,7 @@ pub enum BooleanOperator {
 #[derive(Debug)]
 pub struct RestrictionSet {
     pub operator: BooleanOperator,
-    pub restrictions: Vec<Box<dyn Restriction + Sync + Send>>,
+    pub restrictions: &'static [&'static (dyn Restriction + Sync + Send)],
 }
 
 impl Restriction for RestrictionSet {
@@ -119,6 +130,10 @@ impl Characteristic {
 
     pub fn iter(&self) -> core::slice::Iter<'_, i32> {
         self.0.iter()
+    }
+
+    pub const fn new_from_raw(raw: [i32; 51]) -> Self {
+        Self(raw)
     }
 }
 
