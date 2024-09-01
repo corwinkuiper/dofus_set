@@ -98,7 +98,7 @@ pub struct Set {
 
 impl Set {
     pub fn get(&self, number_of_items: usize) -> Option<&Characteristic> {
-        let idx = self.start_at.checked_sub(number_of_items)?;
+        let idx = number_of_items.checked_sub(self.start_at)?;
 
         Some(
             self.bonuses
