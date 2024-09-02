@@ -128,7 +128,7 @@ impl State {
             total_set_bonuses += set_bonus.number_of_items - 1;
         }
 
-        let stats = self.stats(config, &sets);
+        let stats = self.stats(config, sets);
 
         for item in self.items(items) {
             if item.level > config.max_level {
@@ -345,7 +345,7 @@ impl<'a> Optimiser<'a> {
         }
 
         let sets = self.initial_state.sets(self.items);
-        let energy = self.initial_state.energy(&self.config, &sets);
+        let energy = self.initial_state.energy(self.config, &sets);
 
         anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), 1_000_000)
     }
