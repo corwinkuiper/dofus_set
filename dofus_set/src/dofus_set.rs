@@ -74,6 +74,7 @@ pub struct SetBonus<'a> {
     pub bonus: &'a Characteristic,
     pub number_of_items: i32,
 }
+type SetBonusList<'a> = heapless::Vec<SetBonus<'a>, MAX_SETS>;
 
 const MAX_SETS: usize = 12;
 
@@ -82,7 +83,7 @@ impl State {
         self.set.iter().copied()
     }
 
-    pub fn sets<'a>(&self, items: &'a Items) -> heapless::Vec<SetBonus<'a>, MAX_SETS> {
+    pub fn sets<'a>(&self, items: &'a Items) -> SetBonusList<'a> {
         let mut sets_linear_map: heapless::Vec<(SetIndex, i32), MAX_SETS> = heapless::Vec::new();
 
         for item in self.items(items) {
@@ -114,11 +115,16 @@ impl State {
             .collect()
     }
 
-    fn valid(&self, config: &config::Config, items: &Items, leniency: i32) -> bool {
+    fn valid(
+        &self,
+        config: &config::Config,
+        items: &Items,
+        leniency: i32,
+        sets: &SetBonusList,
+    ) -> bool {
         let mut total_set_bonuses = 0;
-        let sets = self.sets(items);
 
-        for set_bonus in &sets {
+        for set_bonus in sets {
             total_set_bonuses += set_bonus.number_of_items - 1;
         }
 
@@ -163,11 +169,7 @@ impl State {
         true
     }
 
-    pub fn energy(
-        &self,
-        config: &config::Config,
-        sets: &heapless::Vec<SetBonus<'_>, MAX_SETS>,
-    ) -> f64 {
+    pub fn energy(&self, config: &config::Config, sets: &SetBonusList) -> f64 {
         let stats = self.stats(config, sets);
         // need to take the negative due to being a minimiser
         let energy_non_element = stats
@@ -301,7 +303,8 @@ impl<'a> Optimiser<'a> {
         items: &'a Items,
     ) -> Result<Optimiser<'a>, OptimiseError> {
         let initial_state: State = State::new_from_initial_equipment(initial_set, items)?;
-        if !initial_state.valid(config, items, 1000) {
+        let sets = initial_state.sets(items);
+        if !initial_state.valid(config, items, 1000, &sets) {
             return Err(OptimiseError::InvalidState);
         }
 
@@ -340,7 +343,11 @@ impl<'a> Optimiser<'a> {
         {
             return Ok(self.initial_state);
         }
-        anneal::Anneal::optimise(&self, self.initial_state.clone(), 1_000_000)
+
+        let sets = self.initial_state.sets(self.items);
+        let energy = self.initial_state.energy(&self.config, &sets);
+
+        anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), 1_000_000)
     }
 }
 
@@ -364,7 +371,7 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
         rand::thread_rng().gen_range(0.0..1.0)
     }
 
-    fn neighbour(&self, state: &State, temperature: f64) -> Result<State, OptimiseError> {
+    fn neighbour(&self, state: &State, temperature: f64) -> Result<(State, f64), OptimiseError> {
         let mut attempts = 0;
         let mut rng = rand::thread_rng();
         loop {
@@ -385,19 +392,17 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
             new_state.add_item(&self.items[item]);
 
             new_state.set[item_slot] = Some(item);
-            if new_state.valid(self.config, self.items, temperature as i32) {
-                return Ok(new_state);
+            let sets = new_state.sets(self.items);
+
+            if new_state.valid(self.config, self.items, temperature as i32, &sets) {
+                let energy = new_state.energy(self.config, &sets);
+                return Ok((new_state, energy));
             }
             attempts += 1;
             if attempts > 1000 {
                 return Err(OptimiseError::ExceededMaxAttempts(1000));
             }
         }
-    }
-
-    fn energy(&self, state: &State) -> f64 {
-        let sets = state.sets(self.items);
-        state.energy(self.config, &sets)
     }
 
     fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
