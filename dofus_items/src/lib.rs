@@ -1,5 +1,7 @@
 use std::ops::Index;
 
+mod data;
+
 use dofus_characteristics::*;
 use serde::{Deserialize, Serialize};
 
@@ -108,10 +110,4 @@ impl Set {
     }
 }
 
-// pub static ITEMS: Items = Items {
-//     items: &[],
-//     sets: &[],
-//     item_types: &[&[], &[], &[], &[], &[], &[], &[], &[], &[], &[]],
-// };
-
-pub static ITEMS: Items = include!(concat!(env!("OUT_DIR"), "/compiled_items.rs"));
+pub static ITEMS: Items = data::ITEMS;
