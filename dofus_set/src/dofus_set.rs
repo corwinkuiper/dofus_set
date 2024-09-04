@@ -2,6 +2,7 @@ use std::ops::Index;
 
 use crate::anneal;
 use crate::config;
+use crate::config::Config;
 
 use dofus_characteristics::{stat_is_element, Characteristic, Stat, STAT_ELEMENT};
 use dofus_items::Item;
@@ -118,32 +119,25 @@ impl State {
             .collect()
     }
 
-    fn valid(
+    /// Violating restrictions reduces the energy of the system such that not violating would be better
+    fn restriction_energy(
         &self,
-        config: &config::Config,
+        config: &Config,
+        stats: &Characteristic,
         items: &Items,
-        leniency: i32,
         sets: &SetBonusList,
-    ) -> bool {
-        let mut total_set_bonuses = 0;
+    ) -> f64 {
+        let mut violation_energy = 0.;
 
-        for set_bonus in sets {
-            total_set_bonuses += set_bonus.number_of_items - 1;
-        }
-
-        let stats = self.stats(config, sets);
+        let total_set_bonuses = sets.iter().map(|x| x.number_of_items - 1).sum();
 
         for item in self.items(items) {
             if item.level > config.max_level {
-                return false;
+                let difference = item.level - config.max_level;
+                violation_energy += difference as f64 * 1000.;
             }
 
-            if !item
-                .restriction
-                .accepts(&stats, total_set_bonuses, leniency)
-            {
-                return false;
-            }
+            violation_energy += item.restriction.accepts(stats, total_set_bonuses) as f64 * 100.;
         }
 
         let dofus = &self.set[9..=14];
@@ -151,9 +145,8 @@ impl State {
             if i == dofus.len() || singular_dofus.get().is_none() {
                 continue;
             }
-
             if dofus[i + 1..].contains(singular_dofus) {
-                return false;
+                violation_energy += 2000.;
             }
         }
 
@@ -164,15 +157,15 @@ impl State {
             let ring1_set = items[ring1].set_id;
             if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
                 if ring0_set == ring1_set {
-                    return false;
+                    violation_energy += 2000.;
                 }
             }
         }
-
-        true
+        
+        violation_energy
     }
 
-    pub fn energy(&self, config: &config::Config, sets: &SetBonusList) -> f64 {
+    pub fn energy(&self, config: &config::Config, items: &Items, sets: &SetBonusList) -> f64 {
         let stats = self.stats(config, sets);
         // need to take the negative due to being a minimiser
         let energy_non_element = stats
@@ -213,7 +206,7 @@ impl State {
             element_iter.sum()
         };
 
-        -energy_non_element - energy_element
+        -energy_non_element - energy_element + self.restriction_energy(config, &stats, items, sets)
     }
 
     fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &Item> + 'a {
@@ -306,10 +299,10 @@ impl<'a> Optimiser<'a> {
         items: &'a Items,
     ) -> Result<Optimiser<'a>, OptimiseError> {
         let initial_state: State = State::new_from_initial_equipment(initial_set, items)?;
-        let sets = initial_state.sets(items);
-        if !initial_state.valid(config, items, 1000, &sets) {
-            return Err(OptimiseError::InvalidState);
-        }
+        // let sets = initial_state.sets(items);
+        // if !initial_state.restriction_energy(config, items, &sets) {
+        //     return Err(OptimiseError::InvalidState);
+        // }
 
         let mut item_list: [Vec<ItemIndex>; 10] = Default::default();
 
@@ -348,7 +341,7 @@ impl<'a> Optimiser<'a> {
         }
 
         let sets = self.initial_state.sets(self.items);
-        let energy = self.initial_state.energy(self.config, &sets);
+        let energy = self.initial_state.energy(self.config, self.items, &sets);
 
         anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), 1_000_000)
     }
@@ -374,38 +367,30 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
         rand::thread_rng().gen_range(0.0..1.0)
     }
 
-    fn neighbour(&self, state: &State, temperature: f64) -> Result<(State, f64), OptimiseError> {
-        let mut attempts = 0;
+    fn neighbour(&self, state: &State) -> Result<(State, f64), OptimiseError> {
         let mut rng = rand::thread_rng();
-        loop {
-            let mut new_state = state.clone();
-            let (item_slot, item) = loop {
-                let item_slot = *self.config.changable.choose(&mut rng).unwrap();
-                let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
-                if item_type.is_empty() {
-                    continue;
-                }
-                let item_index = item_type[rng.gen_range(0..item_type.len())];
-                break (item_slot, item_index);
-            };
 
-            if let Some(old_item) = new_state.set[item_slot].get() {
-                new_state.remove_item(&self.items[old_item]);
+        let mut new_state = state.clone();
+        let (item_slot, item) = loop {
+            let item_slot = *self.config.changable.choose(&mut rng).unwrap();
+            let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
+            if item_type.is_empty() {
+                continue;
             }
-            new_state.add_item(&self.items[item]);
+            let item_index = item_type[rng.gen_range(0..item_type.len())];
+            break (item_slot, item_index);
+        };
 
-            new_state.set[item_slot] = NicheItemIndex::new_from_idx(item);
-            let sets = new_state.sets(self.items);
-
-            if new_state.valid(self.config, self.items, temperature as i32, &sets) {
-                let energy = new_state.energy(self.config, &sets);
-                return Ok((new_state, energy));
-            }
-            attempts += 1;
-            if attempts > 1000 {
-                return Err(OptimiseError::ExceededMaxAttempts(1000));
-            }
+        if let Some(old_item) = new_state.set[item_slot].get() {
+            new_state.remove_item(&self.items[old_item]);
         }
+        new_state.add_item(&self.items[item]);
+
+        new_state.set[item_slot] = NicheItemIndex::new_from_idx(item);
+        let sets = new_state.sets(self.items);
+
+        let energy = new_state.energy(self.config, self.items, &sets);
+        Ok((new_state, energy))
     }
 
     fn temperature(&self, iteration: f64, _energy: f64) -> f64 {

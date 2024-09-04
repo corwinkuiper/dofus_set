@@ -125,7 +125,7 @@ fn create_optimised_set(
         .collect();
 
     Ok(OptimiseResponse {
-        energy: -final_state.energy(&dofus_set_config, &sets),
+        energy: -final_state.energy(&dofus_set_config, items, &sets),
         overall_characteristics: final_state.stats(&dofus_set_config, &sets).clone(),
         items: final_state
             .set()

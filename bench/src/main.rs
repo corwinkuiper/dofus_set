@@ -34,7 +34,7 @@ fn main() {
 
         let final_state = optimiser.optimise().unwrap();
         let sets = final_state.sets(items);
-        println!("Set Energy: {}", -final_state.energy(&config, &sets));
+        println!("Set Energy: {}", -final_state.energy(&config, items, &sets));
     }
 }
 

@@ -44,7 +44,7 @@ impl IndexMut<Stat> for Characteristic {
 }
 
 pub trait Restriction: Debug {
-    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32, leniency: i32) -> bool;
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> i32;
 }
 
 #[derive(Debug)]
@@ -60,16 +60,19 @@ pub struct RestrictionSet {
 }
 
 impl Restriction for RestrictionSet {
-    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32, leniency: i32) -> bool {
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> i32 {
         match self.operator {
             BooleanOperator::And => self
                 .restrictions
                 .iter()
-                .all(|restriction| restriction.accepts(characteristics, set_bonus, leniency)),
+                .map(|restriction| restriction.accepts(characteristics, set_bonus))
+                .sum(),
             BooleanOperator::Or => self
                 .restrictions
                 .iter()
-                .any(|restriction| restriction.accepts(characteristics, set_bonus, leniency)),
+                .map(|restriction| restriction.accepts(characteristics, set_bonus))
+                .max()
+                .unwrap(),
         }
     }
 }
@@ -88,14 +91,17 @@ pub struct RestrictionLeaf {
 }
 
 impl Restriction for RestrictionLeaf {
-    fn accepts(&self, characteristics: &Characteristic, _set_bonus: i32, leniency: i32) -> bool {
+    fn accepts(&self, characteristics: &Characteristic, _set_bonus: i32) -> i32 {
         let value = characteristics[self.stat];
-        let lenient = !(self.stat == Stat::AP || self.stat == Stat::MP);
-        let leniency = if lenient { leniency } else { 0 };
-        match self.operator {
-            Operator::GreaterThan => value + leniency > self.value,
-            Operator::LessThan => value - leniency < self.value,
-        }
+        let extra_strict = self.stat == Stat::AP || self.stat == Stat::MP;
+        let difference = match self.operator {
+            Operator::GreaterThan => (self.value - value).max(0),
+            Operator::LessThan => (value - self.value).max(0),
+        };
+
+        let multiplier = if extra_strict { 100 } else { 1 };
+
+        difference * multiplier
     }
 }
 
@@ -106,11 +112,12 @@ pub struct SetBonusRestriction {
 }
 
 impl Restriction for SetBonusRestriction {
-    fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32, _leniency: i32) -> bool {
-        match self.operator {
-            Operator::GreaterThan => set_bonus > self.value,
-            Operator::LessThan => set_bonus < self.value,
-        }
+    fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32) -> i32 {
+        let difference = match self.operator {
+            Operator::GreaterThan => (self.value - set_bonus).max(0),
+            Operator::LessThan => (set_bonus - self.value).max(0),
+        };
+        difference * 100
     }
 }
 
@@ -118,8 +125,8 @@ impl Restriction for SetBonusRestriction {
 pub struct NullRestriction;
 
 impl Restriction for NullRestriction {
-    fn accepts(&self, _characteristics: &Characteristic, _set_bonus: i32, _leniency: i32) -> bool {
-        true
+    fn accepts(&self, _characteristics: &Characteristic, _set_bonus: i32) -> i32 {
+        0
     }
 }
 
