@@ -8,6 +8,7 @@ use dofus_items::Item;
 use dofus_items::ItemIndex;
 use dofus_items::ItemType;
 use dofus_items::Items;
+use dofus_items::NicheItemIndex;
 use dofus_items::SetIndex;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
@@ -35,7 +36,7 @@ const MAX_RANGE: i32 = 6;
 
 #[derive(Clone, Debug)]
 pub struct State {
-    set: [Option<ItemIndex>; 16],
+    set: [NicheItemIndex; 16],
     cached_totals: Characteristic,
 }
 
@@ -57,13 +58,15 @@ impl State {
             }
         }
 
+        let niche_optimised = set.map(NicheItemIndex::new);
+
         let state = State {
-            set,
+            set: niche_optimised,
             cached_totals: Characteristic::new(),
         };
         let totals = state.item_stat_from_nothing(items);
         Ok(State {
-            set,
+            set: niche_optimised,
             cached_totals: totals,
         })
     }
@@ -80,7 +83,7 @@ const MAX_SETS: usize = 12;
 
 impl State {
     pub fn set(&'_ self) -> impl std::iter::Iterator<Item = Option<ItemIndex>> + '_ {
-        self.set.iter().copied()
+        self.set.iter().map(|x| x.get())
     }
 
     pub fn sets<'a>(&self, items: &'a Items) -> SetBonusList<'a> {
@@ -145,7 +148,7 @@ impl State {
 
         let dofus = &self.set[9..=14];
         for (i, singular_dofus) in dofus.iter().enumerate() {
-            if i == dofus.len() || singular_dofus.is_none() {
+            if i == dofus.len() || singular_dofus.get().is_none() {
                 continue;
             }
 
@@ -156,9 +159,9 @@ impl State {
 
         // forbid two rings from the same set
         let rings = &self.set[3..=4];
-        if rings[0].is_some() && rings[1].is_some() {
-            let ring0_set = items[rings[0].unwrap()].set_id;
-            let ring1_set = items[rings[1].unwrap()].set_id;
+        if let (Some(ring0), Some(ring1)) = (rings[0].get(), rings[1].get()) {
+            let ring0_set = items[ring0].set_id;
+            let ring1_set = items[ring1].set_id;
             if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
                 if ring0_set == ring1_set {
                     return false;
@@ -216,7 +219,7 @@ impl State {
     fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &Item> + 'a {
         self.set
             .iter()
-            .filter_map(move |item_id| item_id.map(|item_id| &items[item_id]))
+            .filter_map(move |item_id| item_id.get().map(|item_id| &items[item_id]))
     }
 
     fn item_stat_from_nothing(&self, items: &Items) -> Characteristic {
@@ -386,12 +389,12 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
                 break (item_slot, item_index);
             };
 
-            if let Some(old_item) = new_state.set[item_slot] {
+            if let Some(old_item) = new_state.set[item_slot].get() {
                 new_state.remove_item(&self.items[old_item]);
             }
             new_state.add_item(&self.items[item]);
 
-            new_state.set[item_slot] = Some(item);
+            new_state.set[item_slot] = NicheItemIndex::new_from_idx(item);
             let sets = new_state.sets(self.items);
 
             if new_state.valid(self.config, self.items, temperature as i32, &sets) {

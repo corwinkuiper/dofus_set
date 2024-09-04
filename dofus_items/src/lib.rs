@@ -44,6 +44,35 @@ impl Index<SetIndex> for Items {
 pub struct ItemIndex(usize);
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+pub struct NicheItemIndex(ItemIndex);
+
+impl NicheItemIndex {
+    #[inline(always)]
+    pub const fn get(self) -> Option<ItemIndex> {
+        if self.0 .0 == usize::MAX {
+            None
+        } else {
+            Some(self.0)
+        }
+    }
+    #[inline(always)]
+
+    pub const fn new_from_idx(idx: ItemIndex) -> Self {
+        NicheItemIndex(idx)
+    }
+
+    #[inline(always)]
+    pub const fn new(idx: Option<ItemIndex>) -> Self {
+        match idx {
+            Some(idx) => Self::new_from_idx(idx),
+            None => Self::NONE,
+        }
+    }
+
+    pub const NONE: Self = Self(ItemIndex(usize::MAX));
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct SetIndex(usize);
 
 impl ItemIndex {
