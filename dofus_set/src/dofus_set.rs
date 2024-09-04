@@ -161,7 +161,7 @@ impl State {
                 }
             }
         }
-        
+
         violation_energy
     }
 
@@ -299,10 +299,6 @@ impl<'a> Optimiser<'a> {
         items: &'a Items,
     ) -> Result<Optimiser<'a>, OptimiseError> {
         let initial_state: State = State::new_from_initial_equipment(initial_set, items)?;
-        // let sets = initial_state.sets(items);
-        // if !initial_state.restriction_energy(config, items, &sets) {
-        //     return Err(OptimiseError::InvalidState);
-        // }
 
         let mut item_list: [Vec<ItemIndex>; 10] = Default::default();
 
@@ -393,7 +389,7 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
         Ok((new_state, energy))
     }
 
-    fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
+    fn temperature(&self, iteration: f64) -> f64 {
         self.temperature_initial
             * std::f64::consts::E
                 .powf(self.temperature_time_constant * iteration.powf(self.temperature_quench))
