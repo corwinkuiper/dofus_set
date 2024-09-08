@@ -1,12 +1,12 @@
 #![deny(clippy::all)]
 
+use dofus_characteristics::Stat;
+use dofus_items::ITEMS;
 use dofus_set::config;
 use dofus_set::dofus_set::Optimiser;
-use dofus_set::items::Items;
-use dofus_set::stats::Stat;
 
 fn main() {
-    let items = Items::new();
+    let items = &ITEMS;
 
     let mut weights = [0.0; 51];
     weights[Stat::Power as usize] = 1.0;
@@ -30,11 +30,11 @@ fn main() {
     let initial_set: [Option<_>; 16] = [None; 16];
 
     for _ in 0..10 {
-        let optimiser = Optimiser::new(&config, initial_set, &items).unwrap();
+        let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
 
         let final_state = optimiser.optimise().unwrap();
-        let sets = final_state.sets(&items);
-        println!("Set Energy: {}", -final_state.energy(&config, &sets));
+        let sets = final_state.sets(items);
+        println!("Set Energy: {}", -final_state.energy(&config, items, &sets));
     }
 }
 

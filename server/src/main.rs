@@ -1,9 +1,11 @@
 #![deny(clippy::all)]
+use dofus_characteristics::Characteristic;
+use dofus_items::ItemIndex;
+use dofus_items::Items;
+use dofus_items::ITEMS;
 use dofus_set::config;
 use dofus_set::dofus_set::OptimiseError;
-use dofus_set::items::ItemIndex;
-use dofus_set::items::Items;
-use dofus_set::stats::Characteristic;
+
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -25,7 +27,7 @@ struct OptimiseRequest {
 
 #[derive(Serialize, Debug)]
 struct OptimiseResponseSetBonus {
-    name: String,
+    name: &'static str,
     number_of_items: i32,
     characteristics: Characteristic,
 }
@@ -34,10 +36,10 @@ struct OptimiseResponseSetBonus {
 struct OptimiseResponseItem {
     dofus_id: ItemIndex,
     characteristics: Characteristic,
-    name: String,
-    item_type: String,
+    name: &'static str,
+    item_type: &'static str,
     level: i32,
-    image_url: Option<String>,
+    image_url: &'static str,
 }
 
 #[derive(Serialize, Debug)]
@@ -54,10 +56,10 @@ fn item_list(list: &[ItemIndex], items: &Items) -> Vec<OptimiseResponseItem> {
         .map(|(id, x)| OptimiseResponseItem {
             dofus_id: *id,
             characteristics: x.stats.clone(),
-            name: x.name.clone(),
-            item_type: x.item_type.clone(),
+            name: x.name,
+            item_type: x.item_type,
             level: x.level,
-            image_url: x.image_url.clone(),
+            image_url: x.image_url,
         })
         .collect()
 }
@@ -76,7 +78,7 @@ fn get_item_list_index(slot: usize, items: &Items) -> Option<Vec<OptimiseRespons
 // POST /optimise
 fn create_optimised_set(
     config: &OptimiseRequest,
-    items: &Items,
+    items: &'static Items,
 ) -> Result<OptimiseResponse, OptimiseError> {
     if config.weights.len() != 51 {
         return Err(OptimiseError::InvalidState);
@@ -116,14 +118,14 @@ fn create_optimised_set(
     let set_bonuses = sets
         .iter()
         .map(|set| OptimiseResponseSetBonus {
-            name: set.name.to_owned(),
+            name: set.name,
             number_of_items: set.number_of_items,
             characteristics: set.bonus.clone(),
         })
         .collect();
 
     Ok(OptimiseResponse {
-        energy: -final_state.energy(&dofus_set_config, &sets),
+        energy: -final_state.energy(&dofus_set_config, items, &sets),
         overall_characteristics: final_state.stats(&dofus_set_config, &sets).clone(),
         items: final_state
             .set()
@@ -133,10 +135,10 @@ fn create_optimised_set(
                     OptimiseResponseItem {
                         dofus_id: idx,
                         characteristics: item.stats.clone(),
-                        name: item.name.clone(),
-                        item_type: item.item_type.clone(),
+                        name: item.name,
+                        item_type: item.item_type,
                         level: item.level,
-                        image_url: item.image_url.clone(),
+                        image_url: item.image_url,
                     }
                 })
             })
@@ -154,7 +156,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .finish();
 
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
-    let items = Items::new();
+    let items = &ITEMS;
 
     let port: String = std::env::var("PORT")
         .unwrap_or_else(|_| "8000".to_string())
@@ -208,13 +210,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         rouille::log_custom(request, log_ok, log_err, || {
             rouille::router!(request,
                 (GET) (/api/item/slot/{id: usize}) => {
-                    rouille::Response::json(&get_item_list_index(id, &items))
+                    rouille::Response::json(&get_item_list_index(id, items))
                 },
                 (POST) (/api/optimise) => {
                     let query = rouille::try_or_400!(rouille::input::json_input(request));
                     let optimise = sem.execute(|| {
                         let now = std::time::Instant::now();
-                        let opt = create_optimised_set(&query, &items);
+                        let opt = create_optimised_set(&query, items);
                         let elapsed = now.elapsed();
                         tracing::info!(elapsed = elapsed.as_secs_f64(), energy = opt.as_ref().map(|o| o.energy).ok(), "Optimisation completed");
                         opt

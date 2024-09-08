@@ -2,15 +2,15 @@ use std::ops::Index;
 
 use crate::anneal;
 use crate::config;
-use crate::items;
-use crate::items::Item;
-use crate::items::ItemIndex;
-use crate::items::ItemType;
-use crate::items::Items;
-use crate::items::SetIndex;
-use crate::stats;
-use crate::stats::Characteristic;
+use crate::config::Config;
 
+use dofus_characteristics::{stat_is_element, Characteristic, Stat, STAT_ELEMENT};
+use dofus_items::Item;
+use dofus_items::ItemIndex;
+use dofus_items::ItemType;
+use dofus_items::Items;
+use dofus_items::NicheItemIndex;
+use dofus_items::SetIndex;
 use rand::prelude::Rng;
 use rand::seq::SliceRandom;
 use serde::Serialize;
@@ -37,8 +37,8 @@ const MAX_RANGE: i32 = 6;
 
 #[derive(Clone, Debug)]
 pub struct State {
-    set: [Option<ItemIndex>; 16],
-    cached_totals: stats::Characteristic,
+    set: [NicheItemIndex; 16],
+    cached_totals: Characteristic,
 }
 
 impl State {
@@ -51,7 +51,7 @@ impl State {
             if let Some(equipment) = equipment {
                 if !items[slot_index_to_item_type(index)].contains(equipment) {
                     return Err(OptimiseError::InvalidItem {
-                        item: items[*equipment].name.clone(),
+                        item: items[*equipment].name.to_owned(),
                         attempted_slot: slot_index_to_item_type(index),
                     });
                 }
@@ -59,13 +59,15 @@ impl State {
             }
         }
 
+        let niche_optimised = set.map(NicheItemIndex::new);
+
         let state = State {
-            set,
+            set: niche_optimised,
             cached_totals: Characteristic::new(),
         };
         let totals = state.item_stat_from_nothing(items);
         Ok(State {
-            set,
+            set: niche_optimised,
             cached_totals: totals,
         })
     }
@@ -76,15 +78,16 @@ pub struct SetBonus<'a> {
     pub bonus: &'a Characteristic,
     pub number_of_items: i32,
 }
+type SetBonusList<'a> = heapless::Vec<SetBonus<'a>, MAX_SETS>;
 
 const MAX_SETS: usize = 12;
 
 impl State {
     pub fn set(&'_ self) -> impl std::iter::Iterator<Item = Option<ItemIndex>> + '_ {
-        self.set.iter().copied()
+        self.set.iter().map(|x| x.get())
     }
 
-    pub fn sets<'a>(&self, items: &'a Items) -> heapless::Vec<SetBonus<'a>, MAX_SETS> {
+    pub fn sets<'a>(&self, items: &'a Items) -> SetBonusList<'a> {
         let mut sets_linear_map: heapless::Vec<(SetIndex, i32), MAX_SETS> = heapless::Vec::new();
 
         for item in self.items(items) {
@@ -107,73 +110,62 @@ impl State {
             .filter_map(move |(set, number_of_items)| {
                 let set = &items[set];
 
-                set.bonuses
-                    .get(number_of_items as usize)
-                    .or_else(|| set.bonuses.last())
-                    .and_then(|x| x.as_ref())
-                    .map(|bonus| SetBonus {
-                        name: &set.name,
-                        bonus,
-                        number_of_items,
-                    })
+                set.get(number_of_items as usize).map(|bonus| SetBonus {
+                    name: set.name,
+                    bonus,
+                    number_of_items,
+                })
             })
             .collect()
     }
 
-    fn valid(&self, config: &config::Config, items: &Items, leniency: i32) -> bool {
-        let mut total_set_bonuses = 0;
-        let sets = self.sets(items);
+    /// Violating restrictions reduces the energy of the system such that not violating would be better
+    fn restriction_energy(
+        &self,
+        config: &Config,
+        stats: &Characteristic,
+        items: &Items,
+        sets: &SetBonusList,
+    ) -> f64 {
+        let mut violation_energy = 0.;
 
-        for set_bonus in &sets {
-            total_set_bonuses += set_bonus.number_of_items - 1;
-        }
-
-        let stats = self.stats(config, &sets);
+        let total_set_bonuses = sets.iter().map(|x| x.number_of_items - 1).sum();
 
         for item in self.items(items) {
             if item.level > config.max_level {
-                return false;
+                let difference = item.level - config.max_level;
+                violation_energy += difference as f64 * 1000.;
             }
 
-            if !item
-                .restriction
-                .accepts(&stats, total_set_bonuses, leniency)
-            {
-                return false;
-            }
+            violation_energy += item.restriction.accepts(stats, total_set_bonuses) as f64 * 100.;
         }
 
         let dofus = &self.set[9..=14];
         for (i, singular_dofus) in dofus.iter().enumerate() {
-            if i == dofus.len() || singular_dofus.is_none() {
+            if i == dofus.len() || singular_dofus.get().is_none() {
                 continue;
             }
-
             if dofus[i + 1..].contains(singular_dofus) {
-                return false;
+                violation_energy += 2000.;
             }
         }
 
         // forbid two rings from the same set
         let rings = &self.set[3..=4];
-        if rings[0].is_some() && rings[1].is_some() {
-            let ring0_set = items[rings[0].unwrap()].set_id;
-            let ring1_set = items[rings[1].unwrap()].set_id;
+        if let (Some(ring0), Some(ring1)) = (rings[0].get(), rings[1].get()) {
+            let ring0_set = items[ring0].set_id;
+            let ring1_set = items[ring1].set_id;
             if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
                 if ring0_set == ring1_set {
-                    return false;
+                    violation_energy += 2000.;
                 }
             }
         }
 
-        true
+        violation_energy
     }
 
-    pub fn energy(
-        &self,
-        config: &config::Config,
-        sets: &heapless::Vec<SetBonus<'_>, MAX_SETS>,
-    ) -> f64 {
+    pub fn energy(&self, config: &config::Config, items: &Items, sets: &SetBonusList) -> f64 {
         let stats = self.stats(config, sets);
         // need to take the negative due to being a minimiser
         let energy_non_element = stats
@@ -181,7 +173,7 @@ impl State {
             .zip(config.weights.iter())
             .zip(config.targets.iter())
             .enumerate()
-            .filter(|(x, _)| !stats::stat_is_element(*x))
+            .filter(|(x, _)| !stat_is_element(*x))
             .map(|(_, x)| x)
             .map(|((&stat, &weight), &target)| {
                 let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
@@ -189,7 +181,7 @@ impl State {
             })
             .sum::<f64>();
 
-        let element_iter = stats::STAT_ELEMENT
+        let element_iter = STAT_ELEMENT
             .iter()
             .map(|&x| {
                 (
@@ -214,13 +206,13 @@ impl State {
             element_iter.sum()
         };
 
-        -energy_non_element - energy_element
+        -energy_non_element - energy_element + self.restriction_energy(config, &stats, items, sets)
     }
 
-    fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &items::Item> + 'a {
+    fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &Item> + 'a {
         self.set
             .iter()
-            .filter_map(move |item_id| item_id.map(|item_id| &items[item_id]))
+            .filter_map(move |item_id| item_id.get().map(|item_id| &items[item_id]))
     }
 
     fn item_stat_from_nothing(&self, items: &Items) -> Characteristic {
@@ -252,27 +244,19 @@ impl State {
             stat += set_bonus.bonus;
         }
 
-        stat[stats::Stat::AP] = std::cmp::min(
-            stat[stats::Stat::AP] + level_initial_ap(config.max_level) + config.exo_ap as i32,
+        stat[Stat::AP] = std::cmp::min(
+            stat[Stat::AP] + level_initial_ap(config.max_level) + config.exo_ap as i32,
             MAX_AP,
         );
-        stat[stats::Stat::MP] =
-            std::cmp::min(stat[stats::Stat::MP] + 3 + config.exo_mp as i32, MAX_MP);
-        stat[stats::Stat::Range] = std::cmp::min(
-            stat[stats::Stat::Range] + config.exo_range as i32,
-            MAX_RANGE,
-        );
+        stat[Stat::MP] = std::cmp::min(stat[Stat::MP] + 3 + config.exo_mp as i32, MAX_MP);
+        stat[Stat::Range] = std::cmp::min(stat[Stat::Range] + config.exo_range as i32, MAX_RANGE);
 
-        stat[stats::Stat::ResistanceNeutralPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceNeutralPercent], 50);
-        stat[stats::Stat::ResistanceEarthPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceEarthPercent], 50);
-        stat[stats::Stat::ResistanceFirePercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceFirePercent], 50);
-        stat[stats::Stat::ResistanceWaterPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceWaterPercent], 50);
-        stat[stats::Stat::ResistanceAirPercent] =
-            std::cmp::min(stat[stats::Stat::ResistanceAirPercent], 50);
+        stat[Stat::ResistanceNeutralPercent] =
+            std::cmp::min(stat[Stat::ResistanceNeutralPercent], 50);
+        stat[Stat::ResistanceEarthPercent] = std::cmp::min(stat[Stat::ResistanceEarthPercent], 50);
+        stat[Stat::ResistanceFirePercent] = std::cmp::min(stat[Stat::ResistanceFirePercent], 50);
+        stat[Stat::ResistanceWaterPercent] = std::cmp::min(stat[Stat::ResistanceWaterPercent], 50);
+        stat[Stat::ResistanceAirPercent] = std::cmp::min(stat[Stat::ResistanceAirPercent], 50);
 
         stat
     }
@@ -288,7 +272,7 @@ fn level_initial_ap(level: i32) -> i32 {
 
 pub struct Optimiser<'a> {
     config: &'a config::Config,
-    items: &'a items::Items,
+    items: &'a Items,
     initial_state: State,
     item_list: AllowedItemCache,
     temperature_initial: f64,
@@ -315,9 +299,6 @@ impl<'a> Optimiser<'a> {
         items: &'a Items,
     ) -> Result<Optimiser<'a>, OptimiseError> {
         let initial_state: State = State::new_from_initial_equipment(initial_set, items)?;
-        if !initial_state.valid(config, items, 1000) {
-            return Err(OptimiseError::InvalidState);
-        }
 
         let mut item_list: [Vec<ItemIndex>; 10] = Default::default();
 
@@ -354,7 +335,11 @@ impl<'a> Optimiser<'a> {
         {
             return Ok(self.initial_state);
         }
-        anneal::Anneal::optimise(&self, self.initial_state.clone(), 1_000_000)
+
+        let sets = self.initial_state.sets(self.items);
+        let energy = self.initial_state.energy(self.config, self.items, &sets);
+
+        anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), 1_000_000)
     }
 }
 
@@ -378,43 +363,33 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
         rand::thread_rng().gen_range(0.0..1.0)
     }
 
-    fn neighbour(&self, state: &State, temperature: f64) -> Result<State, OptimiseError> {
-        let mut attempts = 0;
+    fn neighbour(&self, state: &State) -> Result<(State, f64), OptimiseError> {
         let mut rng = rand::thread_rng();
-        loop {
-            let mut new_state = state.clone();
-            let (item_slot, item) = loop {
-                let item_slot = *self.config.changable.choose(&mut rng).unwrap();
-                let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
-                if item_type.is_empty() {
-                    continue;
-                }
-                let item_index = item_type[rng.gen_range(0..item_type.len())];
-                break (item_slot, item_index);
-            };
 
-            if let Some(old_item) = new_state.set[item_slot] {
-                new_state.remove_item(&self.items[old_item]);
+        let mut new_state = state.clone();
+        let (item_slot, item) = loop {
+            let item_slot = *self.config.changable.choose(&mut rng).unwrap();
+            let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
+            if item_type.is_empty() {
+                continue;
             }
-            new_state.add_item(&self.items[item]);
+            let item_index = item_type[rng.gen_range(0..item_type.len())];
+            break (item_slot, item_index);
+        };
 
-            new_state.set[item_slot] = Some(item);
-            if new_state.valid(self.config, self.items, temperature as i32) {
-                return Ok(new_state);
-            }
-            attempts += 1;
-            if attempts > 1000 {
-                return Err(OptimiseError::ExceededMaxAttempts(1000));
-            }
+        if let Some(old_item) = new_state.set[item_slot].get() {
+            new_state.remove_item(&self.items[old_item]);
         }
+        new_state.add_item(&self.items[item]);
+
+        new_state.set[item_slot] = NicheItemIndex::new_from_idx(item);
+        let sets = new_state.sets(self.items);
+
+        let energy = new_state.energy(self.config, self.items, &sets);
+        Ok((new_state, energy))
     }
 
-    fn energy(&self, state: &State) -> f64 {
-        let sets = state.sets(self.items);
-        state.energy(self.config, &sets)
-    }
-
-    fn temperature(&self, iteration: f64, _energy: f64) -> f64 {
+    fn temperature(&self, iteration: f64) -> f64 {
         self.temperature_initial
             * std::f64::consts::E
                 .powf(self.temperature_time_constant * iteration.powf(self.temperature_quench))

@@ -2,13 +2,11 @@
 
 use ::dofus_set::config;
 use ::dofus_set::dofus_set::{Optimiser, State};
-use ::dofus_set::items;
-use ::dofus_set::stats;
-use ::dofus_set::stats::Stat;
-use dofus_set::items::Items;
+use dofus_characteristics::{Characteristic, Stat};
+use dofus_items::{Item, Items, ITEMS};
 
 fn main() {
-    let items = Items::new();
+    let items = &ITEMS;
 
     let mut weights = [0.0; 51];
     weights[Stat::Power as usize] = 1.0;
@@ -31,19 +29,19 @@ fn main() {
 
     let initial_set: [Option<_>; 16] = [None; 16];
 
-    let optimiser = Optimiser::new(&config, initial_set, &items).unwrap();
+    let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
 
     let final_state = optimiser.optimise().unwrap();
-    print_state(&final_state, &config, &items);
-    let sets = final_state.sets(&items);
-    println!("Set Energy: {}", -final_state.energy(&config, &sets));
+    print_state(&final_state, &config, items);
+    let sets = final_state.sets(items);
+    println!("Set Energy: {}", -final_state.energy(&config, items, &sets));
 }
 
 pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     let mut last_state_name = "";
 
     for item in state.set().flatten().map(|idx| &items[idx]) {
-        let state_name = &item.item_type;
+        let state_name = item.item_type;
         if state_name != last_state_name {
             println!("{}", state_name);
             println!("-----------------------------");
@@ -64,7 +62,7 @@ pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     }
 }
 
-fn print_stats(stat: &stats::Characteristic) {
+fn print_stats(stat: &Characteristic) {
     for (characteristic, value) in stat.iter().enumerate() {
         let stat = Stat::from_repr(characteristic).unwrap();
         if *value != 0 {
@@ -73,7 +71,7 @@ fn print_stats(stat: &stats::Characteristic) {
     }
 }
 
-fn print_item(item: &items::Item) {
+fn print_item(item: &Item) {
     println!("Name: {}", item.name);
     println!("Level: {}", item.level);
     println!("Stats:");

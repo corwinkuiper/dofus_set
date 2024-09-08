@@ -3,11 +3,22 @@ use std::{
     ops::{AddAssign, Index, IndexMut, SubAssign},
 };
 
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens, TokenStreamExt};
 use serde::Serialize;
 use thiserror::Error;
 
 #[derive(Clone, Debug)]
 pub struct Characteristic([i32; 51]);
+
+impl ToTokens for Characteristic {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let values = &self.0;
+        tokens.append_all(quote! {
+            Characteristic::new_from_raw([#(#values),*])
+        })
+    }
+}
 
 impl Serialize for Characteristic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -33,7 +44,7 @@ impl IndexMut<Stat> for Characteristic {
 }
 
 pub trait Restriction: Debug {
-    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32, leniency: i32) -> bool;
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> i32;
 }
 
 #[derive(Debug)]
@@ -45,20 +56,23 @@ pub enum BooleanOperator {
 #[derive(Debug)]
 pub struct RestrictionSet {
     pub operator: BooleanOperator,
-    pub restrictions: Vec<Box<dyn Restriction + Sync + Send>>,
+    pub restrictions: &'static [&'static (dyn Restriction + Sync + Send)],
 }
 
 impl Restriction for RestrictionSet {
-    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32, leniency: i32) -> bool {
+    fn accepts(&self, characteristics: &Characteristic, set_bonus: i32) -> i32 {
         match self.operator {
             BooleanOperator::And => self
                 .restrictions
                 .iter()
-                .all(|restriction| restriction.accepts(characteristics, set_bonus, leniency)),
+                .map(|restriction| restriction.accepts(characteristics, set_bonus))
+                .sum(),
             BooleanOperator::Or => self
                 .restrictions
                 .iter()
-                .any(|restriction| restriction.accepts(characteristics, set_bonus, leniency)),
+                .map(|restriction| restriction.accepts(characteristics, set_bonus))
+                .max()
+                .unwrap(),
         }
     }
 }
@@ -77,14 +91,17 @@ pub struct RestrictionLeaf {
 }
 
 impl Restriction for RestrictionLeaf {
-    fn accepts(&self, characteristics: &Characteristic, _set_bonus: i32, leniency: i32) -> bool {
+    fn accepts(&self, characteristics: &Characteristic, _set_bonus: i32) -> i32 {
         let value = characteristics[self.stat];
-        let lenient = !(self.stat == Stat::AP || self.stat == Stat::MP);
-        let leniency = if lenient { leniency } else { 0 };
-        match self.operator {
-            Operator::GreaterThan => value + leniency > self.value,
-            Operator::LessThan => value - leniency < self.value,
-        }
+        let extra_strict = self.stat == Stat::AP || self.stat == Stat::MP;
+        let difference = match self.operator {
+            Operator::GreaterThan => (self.value - value).max(0),
+            Operator::LessThan => (value - self.value).max(0),
+        };
+
+        let multiplier = if extra_strict { 100 } else { 1 };
+
+        difference * multiplier
     }
 }
 
@@ -95,11 +112,12 @@ pub struct SetBonusRestriction {
 }
 
 impl Restriction for SetBonusRestriction {
-    fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32, _leniency: i32) -> bool {
-        match self.operator {
-            Operator::GreaterThan => set_bonus > self.value,
-            Operator::LessThan => set_bonus < self.value,
-        }
+    fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32) -> i32 {
+        let difference = match self.operator {
+            Operator::GreaterThan => (self.value - set_bonus).max(0),
+            Operator::LessThan => (set_bonus - self.value).max(0),
+        };
+        difference * 100
     }
 }
 
@@ -107,8 +125,8 @@ impl Restriction for SetBonusRestriction {
 pub struct NullRestriction;
 
 impl Restriction for NullRestriction {
-    fn accepts(&self, _characteristics: &Characteristic, _set_bonus: i32, _leniency: i32) -> bool {
-        true
+    fn accepts(&self, _characteristics: &Characteristic, _set_bonus: i32) -> i32 {
+        0
     }
 }
 
@@ -119,6 +137,10 @@ impl Characteristic {
 
     pub fn iter(&self) -> core::slice::Iter<'_, i32> {
         self.0.iter()
+    }
+
+    pub const fn new_from_raw(raw: [i32; 51]) -> Self {
+        Self(raw)
     }
 }
 

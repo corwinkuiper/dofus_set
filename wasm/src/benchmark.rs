@@ -1,7 +1,7 @@
+use dofus_characteristics::Stat;
+use dofus_items::Items;
 use dofus_set::config;
 use dofus_set::dofus_set::Optimiser;
-use dofus_set::items::Items;
-use dofus_set::stats::Stat;
 
 pub fn bench(items: &Items) -> f64 {
     let mut weights = [0.0; 51];
@@ -30,5 +30,5 @@ pub fn bench(items: &Items) -> f64 {
     let final_state = optimiser.optimise().unwrap();
     let sets = final_state.sets(items);
 
-    -final_state.energy(&config, &sets)
+    -final_state.energy(&config, items, &sets)
 }

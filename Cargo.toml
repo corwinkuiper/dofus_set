@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["bench", "dofus_set", "server", "wasm"]
+members = ["bench", "dofus_characteristics", "dofus_items", "dofus_set", "server", "wasm"]
 
 [profile.release]
 opt-level = 3
 debug = true
-lto = true
+lto = "fat"
