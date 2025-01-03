@@ -1,4 +1,4 @@
-import init, { setup, query, items_in_slot } from "./pkg/wasm";
+import init, { setup, query, items_in_slot } from "@/pkg/wasm";
 
 interface WorkerQueryId {
   id: string;

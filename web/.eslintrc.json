@@ -1,6 +1,15 @@
 {
-    "env": {
-        "es2020": true,
-        "browser": true
-    }
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript"
+  ],
+  "rules": {
+    "func-style": [
+      "error",
+      "declaration",
+      {
+        "allowArrowFunctions": false
+      }
+    ]
+  }
 }

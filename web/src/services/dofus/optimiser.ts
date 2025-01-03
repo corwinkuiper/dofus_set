@@ -1,6 +1,46 @@
-import { OptimiseRequest, OptimiseApiResponse } from "./OptimiseApi";
-import { SearchApiResponseItem } from "./SearchApi";
-import { WorkerQuery } from "./Worker";
+import { WorkerQuery } from "./worker";
+
+interface OptimiseApiResponse {
+  overall_characteristics: number[];
+  items: (OptimiseApiResponseItem | null)[];
+  set_bonuses: OptimiseApiResponseSetBonus[];
+}
+
+interface OptimiseApiResponseItem {
+  characteristics: number[];
+  name: string;
+  item_type: string;
+  level: number;
+  image_url?: string;
+  dofus_id: number;
+}
+
+interface OptimiseApiResponseSetBonus {
+  name: string;
+  number_of_items: number;
+  characteristics: number[];
+}
+
+interface OptimiseRequest {
+  weights: number[];
+  maxLevel: number;
+  fixedItems: (number | undefined)[];
+  bannedItems: number[];
+  apExo: boolean;
+  mpExo: boolean;
+  rangeExo: boolean;
+  multiElement: boolean;
+  iterations: number;
+}
+
+interface SearchApiResponseItem {
+  characteristics: number[];
+  name: string;
+  item_type: string;
+  level: number;
+  image_url?: string;
+  dofus_id: number;
+}
 
 export class Optimiser {
   private activeJobs: {
