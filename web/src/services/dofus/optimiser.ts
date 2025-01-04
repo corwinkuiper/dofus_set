@@ -27,7 +27,8 @@ export interface OptimiseApiResponseSetBonus {
 export interface OptimiseRequest {
   weights: number[];
   maxLevel: number;
-  fixedItems: (number | undefined)[];
+  initialItems: (number | undefined)[];
+  fixedItems: number[];
   bannedItems: number[];
   apExo: boolean;
   mpExo: boolean;

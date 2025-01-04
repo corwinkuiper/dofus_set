@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 pub struct OptimiseRequest {
     weights: Vec<f64>,
     max_level: i32,
-    fixed_items: Vec<Option<ItemIndex>>,
+    initial_items: Vec<Option<ItemIndex>>,
+    fixed_items: Vec<usize>,
     banned_items: Vec<ItemIndex>,
     ap_exo: bool,
     mp_exo: bool,
@@ -80,21 +81,15 @@ pub fn create_optimised_set(
     let mut weights: [f64; 51] = [0.0f64; 51];
     weights[..51].clone_from_slice(&config.weights[..51]);
 
-    let mut fixed_items = [None; 16];
-    fixed_items[..16].clone_from_slice(&config.fixed_items[..16]);
+    let changable = (0..16)
+        .filter(|x| !config.fixed_items.contains(x))
+        .collect();
 
     let dofus_set_config = Config {
         max_level: config.max_level,
         weights,
         targets: [None; 51],
-        changable: fixed_items
-            .iter()
-            .enumerate()
-            .filter_map(|(index, item)| match item {
-                None => Some(index),
-                _ => None,
-            })
-            .collect(),
+        changable,
         ban_list: config.banned_items.clone(),
         exo_ap: config.ap_exo,
         exo_mp: config.mp_exo,
@@ -102,7 +97,13 @@ pub fn create_optimised_set(
         multi_element: config.multi_element,
     };
 
-    let optimiser = dofus_set::dofus_set::Optimiser::new(&dofus_set_config, fixed_items, items)?;
+    let optimiser = dofus_set::dofus_set::Optimiser::new(
+        &dofus_set_config,
+        config.initial_items.clone().try_into().expect(
+            "should be able to make 16 length initial items from provided initial items list",
+        ),
+        items,
+    )?;
 
     let final_state = optimiser.optimise(config.iterations)?;
 

@@ -1,6 +1,10 @@
 "use client";
 
-import { OptimiseApiResponse, Optimiser } from "@/services/dofus/optimiser";
+import {
+  OptimiseApiResponse,
+  Optimiser,
+  OptimiseRequest,
+} from "@/services/dofus/optimiser";
 import { useState } from "react";
 import { StatWeightInput } from "./stat-weight-input";
 import { styled } from "styled-components";
@@ -21,28 +25,39 @@ const Stack = styled.div`
 
 const OptimiseButton = styled.button``;
 
+export type OptimisationConfig = Omit<OptimiseRequest, "iterations">;
+function emptyOptimisationConfig(): OptimisationConfig {
+  return {
+    weights: new Array(51).fill(0),
+    maxLevel: 149,
+    initialItems: new Array(16).fill(undefined),
+    fixedItems: [],
+    bannedItems: [],
+    apExo: false,
+    mpExo: false,
+    rangeExo: false,
+    multiElement: false,
+  };
+}
+
 export function Optimise() {
   const [currentOptimal, setCurrentOptimal] =
     useState<OptimiseApiResponse | null>(null);
   const [runningOptimisation, setRunningOptimisation] =
     useState<AbortController | null>(null);
-  const [weights, setWeights] = useState(new Array(51).fill(0));
+  const [config, setConfig] = useState(emptyOptimisationConfig());
 
-  async function triggerOptimisation(iterations: number, weights: number[]) {
+  async function triggerOptimisation(
+    iterations: number,
+    config: OptimisationConfig
+  ) {
     const abort = new AbortController();
     setRunningOptimisation(abort);
 
     const optimiseRequests = [];
     const freeWorkers = optimiser.freeWorkerCount() || 1;
     const request = {
-      weights,
-      maxLevel: 149,
-      fixedItems: new Array(16).fill(null),
-      bannedItems: [],
-      apExo: false,
-      mpExo: false,
-      rangeExo: false,
-      multiElement: false,
+      ...config,
       iterations,
     };
     while (optimiseRequests.length < freeWorkers)
@@ -72,10 +87,11 @@ export function Optimise() {
     <Container>
       <Stack>
         <StatWeightInput
-          weights={weights}
+          weights={config.weights}
           setWeights={(weights) => {
-            setWeights(weights);
-            triggerOptimisation(1000, weights);
+            const newConfig = { ...config, weights };
+            setConfig(newConfig);
+            triggerOptimisation(10000, newConfig);
           }}
         />
         {runningOptimisation && (
@@ -86,7 +102,7 @@ export function Optimise() {
           </OptimiseButton>
         )}
         {!!runningOptimisation || (
-          <OptimiseButton onClick={() => triggerOptimisation(1000000, weights)}>
+          <OptimiseButton onClick={() => triggerOptimisation(1000000, config)}>
             Optimise
           </OptimiseButton>
         )}
