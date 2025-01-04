@@ -91,7 +91,7 @@ export function Optimise() {
           setWeights={(weights) => {
             const newConfig = { ...config, weights };
             setConfig(newConfig);
-            triggerOptimisation(10000, newConfig);
+            triggerOptimisation(100000, newConfig);
           }}
         />
         {runningOptimisation && (
