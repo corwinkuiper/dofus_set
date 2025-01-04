@@ -5,11 +5,13 @@ import { css, styled } from "styled-components";
 import { SetDisplay } from "./set-display";
 import { OverallStats } from "./overall-stats";
 import {
+  maxLevelState,
   useCancelOptimisation,
   useDispatchOptimise,
   useOptimisationResult,
 } from "@/state/state";
 import { ExosInputs } from "./exos";
+import { useAtom } from "jotai";
 
 const Container = styled.div`
   display: flex;
@@ -46,12 +48,35 @@ function OptimiseButton() {
   );
 }
 
+const ConfigHeader = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+function LevelInput() {
+  const [level, setLevel] = useAtom(maxLevelState);
+
+  return (
+    <label>
+      <span>Max level: </span>
+      <input
+        type="number"
+        value={level}
+        onChange={(evt) => setLevel(Number(evt.target.value))}
+      />
+    </label>
+  );
+}
+
 export function Optimise() {
   const optimal = useOptimisationResult();
 
   return (
     <Container>
       <Stack>
+        <ConfigHeader>
+          <LevelInput />
+        </ConfigHeader>
         <StatWeightInput />
         <ExosInputs />
         <OptimiseButton />
