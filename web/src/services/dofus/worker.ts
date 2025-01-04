@@ -19,7 +19,7 @@ export type WorkerQuery = WorkerQueryId &
   (WorkerQueryGetSlot | WorkerQueryOptimise);
 
 const initialised = (async () => {
-  await init();
+  await init({});
   setup();
 })();
 

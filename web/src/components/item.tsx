@@ -9,7 +9,9 @@ import bin from "@/assets/bin.svg";
 import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
 
 const ItemActions = styled.div``;
-const ItemName = styled.span``;
+const ItemName = styled.span`
+  font-size: 0.8rem;
+`;
 const ItemImage = styled.img`
   width: 50px;
   height: 50px;

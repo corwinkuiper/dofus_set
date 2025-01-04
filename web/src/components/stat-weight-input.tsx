@@ -1,7 +1,7 @@
 "use client";
 
 import { StatNames } from "@/services/dofus/stats";
-import { simpleWeightState, useRecoilImmerState } from "@/state/state";
+import { simpleWeightState, useImmerAtom } from "@/state/state";
 import styled from "styled-components";
 import { useImmer } from "use-immer";
 
@@ -28,7 +28,7 @@ const Stack = styled.div`
 const AddWeightButton = styled.button``;
 
 export function StatWeightInput() {
-  const [weights, updateWeights] = useRecoilImmerState(simpleWeightState);
+  const [weights, updateWeights] = useImmerAtom(simpleWeightState);
   const [enabledWeights, updateEnabledWeights] = useImmer<number[]>([0]);
 
   const remainingStatNames = StatNames.map(

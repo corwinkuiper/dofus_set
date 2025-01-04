@@ -69,6 +69,7 @@ export class Optimiser {
   }
 
   private createWorker() {
+    console.log("Creating worker");
     const worker = new Worker(new URL("./worker", import.meta.url));
     worker.onmessage = (message) => {
       const id = message.data.id;
@@ -85,6 +86,7 @@ export class Optimiser {
     };
     worker.onerror = () => {
       worker.terminate();
+      console.log("Worker failed");
       this.createWorker();
       this.freeWorkers = this.freeWorkers.filter((x) => x !== worker);
     };

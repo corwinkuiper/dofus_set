@@ -1,6 +1,3 @@
-import { atom, selector, useRecoilValue, useSetRecoilState } from "recoil";
-
-import { RecoilState, useRecoilState } from "recoil";
 import { produce, Draft } from "immer";
 import { useCallback } from "react";
 import {
@@ -8,11 +5,12 @@ import {
   Optimiser,
   OptimiseRequest,
 } from "@/services/dofus/optimiser";
+import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
-export const useRecoilImmerState = <T>(atom: RecoilState<T>) => {
-  const [state, setState] = useRecoilState(atom);
+export const useImmerAtom = <T>(atom: PrimitiveAtom<T>) => {
+  const [state, setState] = useAtom(atom);
 
   return [
     state,
@@ -29,56 +27,37 @@ export const useRecoilImmerState = <T>(atom: RecoilState<T>) => {
   ] as const;
 };
 
-export const simpleWeightState = atom({
-  key: "simple-weights",
-  default: new Array(51).fill(0),
-});
+export const simpleWeightState = atom<number[]>(new Array(51).fill(0));
 
-export const maxLevelState = atom({
-  key: "max-level",
-  default: 149,
-});
+export const maxLevelState = atom(149);
 
-export const bannedItemsState = atom({
-  key: "banned-items",
-  default: [],
-});
+export const bannedItemsState = atom([]);
 
 export type OptimisationConfig = Omit<OptimiseRequest, "iterations">;
 
-export const optimisationConfig = selector<OptimisationConfig>({
-  key: "optimisation-configuration",
-  get: ({ get }) => {
-    return {
-      weights: get(simpleWeightState),
-      maxLevel: get(maxLevelState),
-      bannedItems: get(bannedItemsState),
-      initialItems:
-        get(optimialResponseState)?.items.map((x) => x?.dofusId) ??
-        new Array(16).fill(undefined),
-      fixedItems: [],
-      apExo: false,
-      mpExo: false,
-      rangeExo: false,
-      multiElement: false,
-    };
-  },
+export const optimisationConfig = atom<OptimisationConfig>((get) => {
+  return {
+    weights: get(simpleWeightState),
+    maxLevel: get(maxLevelState),
+    bannedItems: get(bannedItemsState),
+    initialItems:
+      get(optimialResponseState)?.items.map((x) => x?.dofusId) ??
+      new Array(16).fill(undefined),
+    fixedItems: [],
+    apExo: false,
+    mpExo: false,
+    rangeExo: false,
+    multiElement: false,
+  };
 });
 
-export const runningOptimisationState = atom<AbortController | null>({
-  key: "running-optimisation",
-  default: null,
-});
-
-export const optimialResponseState = atom<OptimiseApiResponse | null>({
-  key: "optimisation-result",
-  default: null,
-});
+export const runningOptimisationState = atom<AbortController | null>(null);
+export const optimialResponseState = atom<OptimiseApiResponse | null>(null);
 
 const optimiser = new Optimiser();
 
 export function useCancelOptimisation() {
-  const [running, setRunning] = useRecoilState(runningOptimisationState);
+  const [running, setRunning] = useAtom(runningOptimisationState);
 
   const callback = useCallback(
     (reason: string) => {
@@ -92,13 +71,13 @@ export function useCancelOptimisation() {
 }
 
 export function useOptimisationResult() {
-  return useRecoilValue(optimialResponseState);
+  return useAtomValue(optimialResponseState);
 }
 
 export function useDispatchOptimise() {
-  const setRunningOptimisation = useSetRecoilState(runningOptimisationState);
-  const config = useRecoilValue(optimisationConfig);
-  const setOptimiseResponse = useSetRecoilState(optimialResponseState);
+  const setRunningOptimisation = useSetAtom(runningOptimisationState);
+  const config = useAtomValue(optimisationConfig);
+  const setOptimiseResponse = useSetAtom(optimialResponseState);
 
   return useCallback(
     async function triggerOptimisation(iterations: number) {

@@ -13,6 +13,7 @@ import {
 const Container = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 `;
 
 const Stack = styled.div`
