@@ -209,7 +209,10 @@ impl State {
         -energy_non_element - energy_element + self.restriction_energy(config, &stats, items, sets)
     }
 
-    fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &Item> + 'a {
+    fn items<'a>(
+        &'a self,
+        items: &'a Items,
+    ) -> impl std::iter::Iterator<Item = &'a Item> + use<'a> {
         self.set
             .iter()
             .filter_map(move |item_id| item_id.get().map(|item_id| &items[item_id]))
@@ -356,7 +359,7 @@ pub enum OptimiseError {
     InvalidState,
 }
 
-impl<'a> anneal::Anneal<State> for Optimiser<'a> {
+impl anneal::Anneal<State> for Optimiser<'_> {
     type Error = OptimiseError;
 
     fn random(&self) -> f64 {
