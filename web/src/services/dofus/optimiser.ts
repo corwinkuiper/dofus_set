@@ -82,8 +82,13 @@ export class Optimiser {
       }
       delete this.activeJobs[id];
 
-      this.freeWorkers.push(worker);
-      this.allocateJob();
+      if (this.workerCount > this.desiredWorkerCount) {
+        worker.terminate();
+        this.workerCount -= 1;
+      } else {
+        this.freeWorkers.push(worker);
+        this.allocateJob();
+      }
     };
     worker.onerror = () => {
       worker.terminate();
