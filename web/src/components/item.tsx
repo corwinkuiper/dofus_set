@@ -1,34 +1,40 @@
 "use client";
 
-import { Item } from "@/services/dofus/item";
 import Image from "next/image";
 import { createContext, ReactNode, useContext } from "react";
 import styled from "styled-components";
 import pin from "@/assets/pin.svg";
 import search from "@/assets/search.svg";
 import bin from "@/assets/bin.svg";
+import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
 
 const ItemActions = styled.div``;
 const ItemName = styled.span``;
-const ItemImage = styled(Image)``;
+const ItemImage = styled.img`
+  width: 50px;
+  height: 50px;
+`;
 
 const ItemBox = styled.div`
   display: flex;
+  border-radius: 4px;
+  background-color: lightgray;
+  margin: 8px;
 `;
 
 const ActionImage = styled(Image)``;
 
 interface ItemProps {
-  item: Item;
+  item: OptimiseApiResponseItem;
   actions?: ReactNode;
 }
 
 interface ActionProps {
-  action: (item: Item) => void;
+  action: (item: OptimiseApiResponseItem) => void;
 }
 
-const ItemContext = createContext<Item | null>(null);
-function useItem(): Item {
+const ItemContext = createContext<OptimiseApiResponseItem | null>(null);
+function useItem(): OptimiseApiResponseItem {
   const item = useContext(ItemContext);
   if (!item) throw Error("Action should be used in item display");
 
@@ -52,14 +58,22 @@ export function ActionDelete({ action }: ActionProps) {
   );
 }
 
+function makeUrl(imageUrl: string): string {
+  return `https://d2iuiayak06k8j.cloudfront.net/${imageUrl}`;
+}
+
 export function ItemDisplay({ item, actions }: ItemProps) {
   return (
     <ItemContext.Provider value={item}>
       <ItemBox>
-        <ItemImage src={item.imageUrl} alt="" aria-hidden="true" />
+        <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
         <ItemName>{item.name}</ItemName>
         <ItemActions>{actions}</ItemActions>
       </ItemBox>
     </ItemContext.Provider>
   );
+}
+
+export function EmptyItemDisplay() {
+  return <ItemBox />;
 }

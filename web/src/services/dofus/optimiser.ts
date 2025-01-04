@@ -1,27 +1,30 @@
+"use client";
+
 import { WorkerQuery } from "./worker";
 
-interface OptimiseApiResponse {
-  overall_characteristics: number[];
+export interface OptimiseApiResponse {
+  energy: number;
+  overallCharacteristics: number[];
   items: (OptimiseApiResponseItem | null)[];
-  set_bonuses: OptimiseApiResponseSetBonus[];
+  setBonuses: OptimiseApiResponseSetBonus[];
 }
 
-interface OptimiseApiResponseItem {
+export interface OptimiseApiResponseItem {
   characteristics: number[];
   name: string;
-  item_type: string;
+  itemType: string;
   level: number;
-  image_url?: string;
-  dofus_id: number;
+  imageUrl: string;
+  dofusId: number;
 }
 
-interface OptimiseApiResponseSetBonus {
+export interface OptimiseApiResponseSetBonus {
   name: string;
-  number_of_items: number;
+  numberOfItems: number;
   characteristics: number[];
 }
 
-interface OptimiseRequest {
+export interface OptimiseRequest {
   weights: number[];
   maxLevel: number;
   fixedItems: (number | undefined)[];
@@ -33,24 +36,40 @@ interface OptimiseRequest {
   iterations: number;
 }
 
-interface SearchApiResponseItem {
+export interface SearchApiResponseItem {
   characteristics: number[];
   name: string;
-  item_type: string;
+  itemType: string;
   level: number;
-  image_url?: string;
-  dofus_id: number;
+  imageUrl?: string;
+  dofusId: number;
+}
+
+interface QueuedJob {
+  query: WorkerQuery;
+  resolve: (data: unknown) => void;
+  reject: (data: unknown) => void;
+  abort: AbortSignal;
 }
 
 export class Optimiser {
   private activeJobs: {
-    [id: string]: { resolve: (data: any) => void; reject: (data: any) => void };
+    [id: string]: {
+      resolve: (data: unknown) => void;
+      reject: (data: unknown) => void;
+    };
   } = {};
-  private worker: Worker;
+  private jobQueue: QueuedJob[] = [];
+  private freeWorkers: Worker[] = [];
 
   constructor() {
-    this.worker = new Worker(new URL("./Worker", import.meta.url));
-    this.worker.onmessage = (message) => {
+    const threads = navigator.hardwareConcurrency;
+    while (this.freeWorkerCount() < threads) this.createWorker();
+  }
+
+  private createWorker() {
+    const worker = new Worker(new URL("./worker", import.meta.url));
+    worker.onmessage = (message) => {
       const id = message.data.id;
       console.log("Job resolved", id, message.data.response);
       if (message.data.success) {
@@ -59,48 +78,106 @@ export class Optimiser {
         this.activeJobs[id].reject(message.data.response);
       }
       delete this.activeJobs[id];
+
+      this.freeWorkers.push(worker);
+      this.allocateJob();
     };
+    worker.onerror = () => {
+      worker.terminate();
+      this.createWorker();
+      this.freeWorkers = this.freeWorkers.filter((x) => x !== worker);
+    };
+
+    this.freeWorkers.push(worker);
   }
 
-  private sendJob(query: WorkerQuery) {
-    this.worker.postMessage(query);
+  private allocateJob() {
+    console.log(this);
+    if (this.jobQueue.length > 0 && this.freeWorkers.length > 0) {
+      const job = this.jobQueue.pop()!; // just checked it is not empty
+      if (job.abort.aborted) {
+        // retry
+        this.allocateJob();
+        return;
+      }
+      const worker = this.freeWorkers.pop()!; // just checked it is not empty
+      const abortListener = () => {
+        worker.terminate();
+        this.createWorker();
+        job.reject({ message: "aborted" });
+      };
+
+      job.abort.addEventListener("abort", abortListener);
+
+      const wrapRemoveListener = (f: (data: unknown) => void) => {
+        return (data: unknown) => {
+          job.abort.removeEventListener("abort", abortListener);
+          f(data);
+        };
+      };
+
+      this.activeJobs[job.query.id] = {
+        resolve: wrapRemoveListener(job.resolve),
+        reject: wrapRemoveListener(job.reject),
+      };
+      console.log("Job sent to worker");
+      worker.postMessage(job.query);
+    }
   }
 
-  async optimise(options: OptimiseRequest): Promise<OptimiseApiResponse> {
+  private queueJob(
+    query: WorkerQuery,
+    resolve: (data: unknown) => void,
+    reject: (data: unknown) => void,
+    abort: AbortSignal
+  ) {
+    console.log("Job added to queue");
+    this.jobQueue.push({ query, resolve, reject, abort });
+    this.allocateJob();
+  }
+
+  freeWorkerCount() {
+    return this.freeWorkers.length;
+  }
+
+  queuedJobCount() {
+    return this.jobQueue.length;
+  }
+
+  async optimise(
+    options: OptimiseRequest,
+    extra?: { abort?: AbortSignal }
+  ): Promise<OptimiseApiResponse> {
     return new Promise((resolve, reject) => {
+      ``;
       const jobId = crypto.randomUUID();
-      this.activeJobs[jobId] = { resolve, reject };
-      console.log("Job started", jobId);
-      this.sendJob({
-        id: jobId,
-        kind: "optimise",
-        request: {
-          weights: options.weights,
-          max_level: options.maxLevel,
-          fixed_items: options.fixedItems,
-          banned_items: options.bannedItems,
-          exo_ap: options.apExo,
-          exo_mp: options.mpExo,
-          exo_range: options.rangeExo,
-          multi_element: options.multiElement,
-          iterations: options.iterations,
+
+      this.queueJob(
+        {
+          id: jobId,
+          kind: "optimise",
+          request: options,
         },
-      });
+        (data: unknown) => resolve(data as OptimiseApiResponse),
+        reject,
+        extra?.abort ?? new AbortController().signal
+      );
     });
   }
 
   async get_items_in_slot(slot: number): Promise<SearchApiResponseItem[]> {
     return new Promise((resolve, reject) => {
       const jobId = crypto.randomUUID();
-      this.activeJobs[jobId] = { resolve, reject };
-
-      console.log("Job started", jobId);
-
-      this.sendJob({
-        id: jobId,
-        kind: "get-slot",
-        slot,
-      });
+      this.queueJob(
+        {
+          id: jobId,
+          kind: "get-slot",
+          slot,
+        },
+        (data) => resolve(data as SearchApiResponseItem[]),
+        reject,
+        new AbortController().signal
+      );
     });
   }
 }

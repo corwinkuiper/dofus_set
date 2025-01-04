@@ -2,14 +2,5 @@
   "extends": [
     "next/core-web-vitals",
     "next/typescript"
-  ],
-  "rules": {
-    "func-style": [
-      "error",
-      "declaration",
-      {
-        "allowArrowFunctions": false
-      }
-    ]
-  }
+  ]
 }

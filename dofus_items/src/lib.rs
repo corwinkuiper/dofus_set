@@ -55,8 +55,8 @@ impl NicheItemIndex {
             Some(self.0)
         }
     }
-    #[inline(always)]
 
+    #[inline(always)]
     pub const fn new_from_idx(idx: ItemIndex) -> Self {
         NicheItemIndex(idx)
     }

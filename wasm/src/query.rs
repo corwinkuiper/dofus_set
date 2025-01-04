@@ -4,19 +4,21 @@ use dofus_set::{config::Config, dofus_set::OptimiseError};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct OptimiseRequest {
     weights: Vec<f64>,
     max_level: i32,
     fixed_items: Vec<Option<ItemIndex>>,
     banned_items: Vec<ItemIndex>,
-    exo_ap: bool,
-    exo_mp: bool,
-    exo_range: bool,
+    ap_exo: bool,
+    mp_exo: bool,
+    range_exo: bool,
     multi_element: bool,
     iterations: i64,
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct OptimiseResponseSetBonus {
     name: &'static str,
     number_of_items: i32,
@@ -24,6 +26,7 @@ struct OptimiseResponseSetBonus {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct OptimiseResponseItem {
     dofus_id: ItemIndex,
     characteristics: Characteristic,
@@ -34,6 +37,7 @@ pub struct OptimiseResponseItem {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct OptimiseResponse {
     energy: f64,
     overall_characteristics: Characteristic,
@@ -92,9 +96,9 @@ pub fn create_optimised_set(
             })
             .collect(),
         ban_list: config.banned_items.clone(),
-        exo_ap: config.exo_ap,
-        exo_mp: config.exo_mp,
-        exo_range: config.exo_range,
+        exo_ap: config.ap_exo,
+        exo_mp: config.mp_exo,
+        exo_range: config.range_exo,
         multi_element: config.multi_element,
     };
 

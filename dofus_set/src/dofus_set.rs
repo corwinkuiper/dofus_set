@@ -146,7 +146,7 @@ impl State {
                 continue;
             }
             if dofus[i + 1..].contains(singular_dofus) {
-                violation_energy += 2000.;
+                violation_energy += 1_000.;
             }
         }
 
@@ -157,7 +157,7 @@ impl State {
             let ring1_set = items[ring1].set_id;
             if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
                 if ring0_set == ring1_set {
-                    violation_energy += 2000.;
+                    violation_energy += 1_000.;
                 }
             }
         }

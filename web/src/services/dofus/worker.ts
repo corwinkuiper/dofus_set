@@ -1,24 +1,13 @@
 import init, { setup, query, items_in_slot } from "@/pkg/wasm";
+import { OptimiseRequest } from "./optimiser";
 
 interface WorkerQueryId {
   id: string;
 }
 
-interface OptimiseApiRequest {
-  weights: number[];
-  max_level: number;
-  fixed_items: (number | undefined)[];
-  banned_items: number[];
-  exo_ap: boolean;
-  exo_mp: boolean;
-  exo_range: boolean;
-  multi_element: boolean;
-  iterations: number;
-}
-
 interface WorkerQueryOptimise {
   kind: "optimise";
-  request: OptimiseApiRequest;
+  request: OptimiseRequest;
 }
 
 interface WorkerQueryGetSlot {
