@@ -62,10 +62,11 @@ export class Optimiser {
   } = {};
   private jobQueue: QueuedJob[] = [];
   private freeWorkers: Worker[] = [];
+  private workerCount: number = 0;
+  private desiredWorkerCount: number;
 
   constructor() {
-    const threads = navigator.hardwareConcurrency;
-    while (this.freeWorkerCount() < threads) this.createWorker();
+    this.desiredWorkerCount = navigator.hardwareConcurrency;
   }
 
   private createWorker() {
@@ -92,10 +93,15 @@ export class Optimiser {
     };
 
     this.freeWorkers.push(worker);
+    this.workerCount += 1;
+  }
+
+  private balanceWorkers() {
+    while (this.workerCount < this.desiredWorkerCount) this.createWorker();
   }
 
   private allocateJob() {
-    console.log(this);
+    this.balanceWorkers();
     if (this.jobQueue.length > 0 && this.freeWorkers.length > 0) {
       const job = this.jobQueue.pop()!; // just checked it is not empty
       if (job.abort.aborted) {
@@ -123,7 +129,6 @@ export class Optimiser {
         resolve: wrapRemoveListener(job.resolve),
         reject: wrapRemoveListener(job.reject),
       };
-      console.log("Job sent to worker");
       worker.postMessage(job.query);
     }
   }
@@ -134,7 +139,6 @@ export class Optimiser {
     reject: (data: unknown) => void,
     abort: AbortSignal
   ) {
-    console.log("Job added to queue");
     this.jobQueue.push({ query, resolve, reject, abort });
     this.allocateJob();
   }
