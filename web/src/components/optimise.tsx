@@ -14,12 +14,12 @@ import { ExosInputs } from "./exos";
 const Container = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 `;
 
 const Stack = styled.div<{ $grow?: boolean }>`
   display: flex;
   flex-direction: column;
-
   ${(props) =>
     props.$grow &&
     css`
