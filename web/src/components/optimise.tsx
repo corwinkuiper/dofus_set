@@ -1,17 +1,14 @@
 "use client";
 
-import {
-  OptimiseApiResponse,
-  Optimiser,
-  OptimiseRequest,
-} from "@/services/dofus/optimiser";
-import { useState } from "react";
 import { StatWeightInput } from "./stat-weight-input";
 import { styled } from "styled-components";
 import { SetDisplay } from "./set-display";
 import { OverallStats } from "./overall-stats";
-
-const optimiser = new Optimiser();
+import {
+  useCancelOptimisation,
+  useDispatchOptimise,
+  useOptimisationResult,
+} from "@/state/state";
 
 const Container = styled.div`
   display: flex;
@@ -25,95 +22,28 @@ const Stack = styled.div`
 
 const OptimiseButton = styled.button``;
 
-export type OptimisationConfig = Omit<OptimiseRequest, "iterations">;
-function emptyOptimisationConfig(): OptimisationConfig {
-  return {
-    weights: new Array(51).fill(0),
-    maxLevel: 149,
-    initialItems: new Array(16).fill(undefined),
-    fixedItems: [],
-    bannedItems: [],
-    apExo: false,
-    mpExo: false,
-    rangeExo: false,
-    multiElement: false,
-  };
-}
-
 export function Optimise() {
-  const [currentOptimal, setCurrentOptimal] =
-    useState<OptimiseApiResponse | null>(null);
-  const [runningOptimisation, setRunningOptimisation] =
-    useState<AbortController | null>(null);
-  const [config, setConfig] = useState(emptyOptimisationConfig());
-
-  async function triggerOptimisation(
-    iterations: number,
-    config: OptimisationConfig
-  ) {
-    const abort = new AbortController();
-    setRunningOptimisation(abort);
-
-    const optimiseRequests = [];
-    const freeWorkers = optimiser.freeWorkerCount() || 1;
-    const request = {
-      ...config,
-      iterations,
-    };
-    while (optimiseRequests.length < freeWorkers)
-      optimiseRequests.push(
-        optimiser.optimise(request, { abort: abort.signal })
-      );
-
-    const settled = await Promise.allSettled(optimiseRequests);
-
-    setRunningOptimisation(null);
-
-    const success = settled.flatMap((x) =>
-      x.status === "fulfilled" ? [x.value] : []
-    );
-    if (success.length === 0) {
-      return;
-    }
-
-    let max = success[0];
-    success.forEach((x) => {
-      if (x.energy > max.energy) max = x;
-    });
-    setCurrentOptimal(max);
-  }
+  const cancel = useCancelOptimisation();
+  const trigger = useDispatchOptimise();
+  const optimal = useOptimisationResult();
 
   return (
     <Container>
       <Stack>
-        <StatWeightInput
-          weights={config.weights}
-          setWeights={(weights) => {
-            const newConfig = { ...config, weights };
-            setConfig(newConfig);
-            triggerOptimisation(100000, newConfig);
-          }}
-        />
-        {runningOptimisation && (
-          <OptimiseButton
-            onClick={() => runningOptimisation.abort("cancelled by user")}
-          >
+        <StatWeightInput />
+        {(cancel && (
+          <OptimiseButton onClick={() => cancel("cancelled by user")}>
             Cancel
           </OptimiseButton>
-        )}
-        {!!runningOptimisation || (
-          <OptimiseButton onClick={() => triggerOptimisation(1000000, config)}>
+        )) || (
+          <OptimiseButton onClick={() => trigger(1000000)}>
             Optimise
           </OptimiseButton>
         )}
       </Stack>
+      <Stack>{optimal && <SetDisplay set={optimal.items} />}</Stack>
       <Stack>
-        {currentOptimal && <SetDisplay set={currentOptimal.items} />}
-      </Stack>
-      <Stack>
-        {currentOptimal && (
-          <OverallStats stats={currentOptimal.overallCharacteristics} />
-        )}
+        {optimal && <OverallStats stats={optimal.overallCharacteristics} />}
       </Stack>
     </Container>
   );

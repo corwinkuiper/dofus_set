@@ -1,13 +1,9 @@
 "use client";
 
 import { StatNames } from "@/services/dofus/stats";
-import { useState } from "react";
+import { simpleWeightState, useRecoilImmerState } from "@/state/state";
 import styled from "styled-components";
-
-interface StatWeightInputProps {
-  weights: number[];
-  setWeights: (weights: number[]) => void;
-}
+import { useImmer } from "use-immer";
 
 const Weights = styled.ul`
   list-style: none;
@@ -31,8 +27,9 @@ const Stack = styled.div`
 
 const AddWeightButton = styled.button``;
 
-export function StatWeightInput({ weights, setWeights }: StatWeightInputProps) {
-  const [enabledWeights, setEnabledWeights] = useState<number[]>([0]);
+export function StatWeightInput() {
+  const [weights, updateWeights] = useRecoilImmerState(simpleWeightState);
+  const [enabledWeights, updateEnabledWeights] = useImmer<number[]>([0]);
 
   const remainingStatNames = StatNames.map(
     (x, idx) => [x, idx] as const
@@ -47,13 +44,14 @@ export function StatWeightInput({ weights, setWeights }: StatWeightInputProps) {
               value={stat}
               onChange={(evt) => {
                 const newStat = Number(evt.target.value);
-                const newEnabledWeights = [...enabledWeights];
-                newEnabledWeights[idx] = newStat;
-                const newWeights = [...weights];
-                newWeights[newStat] = weights[stat];
-                newWeights[stat] = 0;
-                setEnabledWeights(newEnabledWeights);
-                setWeights(newWeights);
+                updateWeights((weights) => {
+                  const current = weights[stat];
+                  weights[stat] = 0;
+                  weights[newStat] = current;
+                });
+                updateEnabledWeights((enabledWeights) => {
+                  enabledWeights[idx] = newStat;
+                });
               }}
             >
               <option value={stat}>{StatNames[stat]}</option>
@@ -67,9 +65,9 @@ export function StatWeightInput({ weights, setWeights }: StatWeightInputProps) {
               type="number"
               value={weights[stat]}
               onChange={(evt) => {
-                const newWeights = [...weights];
-                newWeights[stat] = Number(evt.target.value);
-                setWeights(newWeights);
+                updateWeights((weights) => {
+                  weights[stat] = Number(evt.target.value);
+                });
               }}
             />
           </Weight>
@@ -78,9 +76,9 @@ export function StatWeightInput({ weights, setWeights }: StatWeightInputProps) {
       <AddWeightButton
         disabled={remainingStatNames.length === 0}
         onClick={() => {
-          const newEnabledWeights = [...enabledWeights];
-          newEnabledWeights.push(remainingStatNames[0][1]);
-          setEnabledWeights(newEnabledWeights);
+          updateEnabledWeights((enabledWeights) => {
+            enabledWeights.push(remainingStatNames[0][1]);
+          });
         }}
       >
         Add Weight

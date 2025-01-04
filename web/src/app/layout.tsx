@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globalStyles.css";
 import StyledComponentsRegistry from "./registry";
+import { ClientRecoilRoot } from "./recoil";
 
 export const metadata: Metadata = {
   title: "Dofus Optimiser",
@@ -13,9 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <StyledComponentsRegistry>
-        <body>{children}</body>
-      </StyledComponentsRegistry>
+      <ClientRecoilRoot>
+        <StyledComponentsRegistry>
+          <body>{children}</body>
+        </StyledComponentsRegistry>
+      </ClientRecoilRoot>
     </html>
   );
 }
