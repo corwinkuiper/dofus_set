@@ -1,7 +1,7 @@
 "use client";
 
 import { StatWeightInput } from "./stat-weight-input";
-import { styled } from "styled-components";
+import { css, styled } from "styled-components";
 import { SetDisplay } from "./set-display";
 import { OverallStats } from "./overall-stats";
 import {
@@ -9,40 +9,54 @@ import {
   useDispatchOptimise,
   useOptimisationResult,
 } from "@/state/state";
+import { ExosInputs } from "./exos";
 
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
 `;
 
-const Stack = styled.div`
+const Stack = styled.div<{ $grow?: boolean }>`
   display: flex;
   flex-direction: column;
+
+  ${(props) =>
+    props.$grow &&
+    css`
+      flex-grow: 1;
+    `}
 `;
 
-const OptimiseButton = styled.button``;
+const OptimiseButtonElement = styled.button``;
 
-export function Optimise() {
+function OptimiseButton() {
   const cancel = useCancelOptimisation();
   const trigger = useDispatchOptimise();
+  if (cancel) {
+    return (
+      <OptimiseButtonElement onClick={() => cancel("cancelled by user")}>
+        Cancel
+      </OptimiseButtonElement>
+    );
+  }
+  return (
+    <OptimiseButtonElement onClick={() => trigger(1000000)}>
+      Optimise
+    </OptimiseButtonElement>
+  );
+}
+
+export function Optimise() {
   const optimal = useOptimisationResult();
 
   return (
     <Container>
       <Stack>
         <StatWeightInput />
-        {(cancel && (
-          <OptimiseButton onClick={() => cancel("cancelled by user")}>
-            Cancel
-          </OptimiseButton>
-        )) || (
-          <OptimiseButton onClick={() => trigger(1000000)}>
-            Optimise
-          </OptimiseButton>
-        )}
+        <ExosInputs />
+        <OptimiseButton />
       </Stack>
-      <Stack>{optimal && <SetDisplay set={optimal.items} />}</Stack>
+      <Stack $grow>{optimal && <SetDisplay set={optimal.items} />}</Stack>
       <Stack>
         {optimal && <OverallStats stats={optimal.overallCharacteristics} />}
       </Stack>

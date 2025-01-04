@@ -22,6 +22,7 @@ const ItemBox = styled.div`
   border-radius: 4px;
   background-color: lightgray;
   margin: 8px;
+  padding-right: 8px;
 `;
 
 const ActionImage = styled(Image)``;

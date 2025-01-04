@@ -44,11 +44,15 @@ export const optimisationConfig = atom<OptimisationConfig>((get) => {
       get(optimialResponseState)?.items.map((x) => x?.dofusId) ??
       new Array(16).fill(undefined),
     fixedItems: [],
-    apExo: false,
-    mpExo: false,
-    rangeExo: false,
-    multiElement: false,
+    ...get(exosState),
   };
+});
+
+export const exosState = atom({
+  apExo: false,
+  mpExo: false,
+  rangeExo: false,
+  multiElement: false,
 });
 
 export const runningOptimisationState = atom<AbortController | null>(null);

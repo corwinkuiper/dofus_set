@@ -8,7 +8,8 @@ interface SetDisplayProps {
 
 const SetBox = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(192px, auto));
+  max-width: 100%;
 `;
 
 interface SingleItemOrNullDisplayProps {
