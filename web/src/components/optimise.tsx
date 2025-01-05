@@ -1,6 +1,6 @@
 "use client";
 
-import { StatWeightInput } from "./stat-weight-input";
+import { StatWeightInput } from "./config/stat-weight-input";
 import { css, styled } from "styled-components";
 import { SetDisplay } from "./set-display";
 import { OverallStats } from "./overall-stats";
@@ -10,7 +10,7 @@ import {
   useDispatchOptimise,
   useOptimisationResult,
 } from "@/state/state";
-import { ExosInputs } from "./exos";
+import { ExosInputs } from "./config/exos";
 import { useAtom } from "jotai";
 
 const Container = styled.div`
