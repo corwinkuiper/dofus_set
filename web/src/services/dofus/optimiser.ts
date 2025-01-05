@@ -24,7 +24,7 @@ export interface OptimiseApiResponseSetBonus {
   characteristics: number[];
 }
 
-export interface OptimiseRequest {
+export interface OptimisationConfig {
   weights: number[];
   maxLevel: number;
   initialItems: (number | undefined)[];
@@ -34,8 +34,14 @@ export interface OptimiseRequest {
   mpExo: boolean;
   rangeExo: boolean;
   multiElement: boolean;
-  iterations: number;
 }
+
+export interface OptimisationSettings {
+  iterations: number;
+  initialTemperature: number;
+}
+
+export type OptimisationRequest = OptimisationConfig & OptimisationSettings;
 
 export interface SearchApiResponseItem {
   characteristics: number[];
@@ -157,7 +163,7 @@ export class Optimiser {
   }
 
   async optimise(
-    options: OptimiseRequest,
+    options: OptimisationRequest,
     extra?: { abort?: AbortSignal }
   ): Promise<OptimiseApiResponse> {
     return new Promise((resolve, reject) => {

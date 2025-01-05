@@ -27,9 +27,17 @@ const Stack = styled.div`
 
 const AddWeightButton = styled.button``;
 
+function deriveEnabledWeights(weights: number[]) {
+  const derived = weights.flatMap((c, idx) => (c !== 0 ? [idx] : []));
+  if (derived.length === 0) return [0];
+  return derived;
+}
+
 export function StatWeightInput() {
   const [weights, updateWeights] = useImmerAtom(simpleWeightState);
-  const [enabledWeights, updateEnabledWeights] = useImmer<number[]>([0]);
+  const [enabledWeights, updateEnabledWeights] = useImmer<number[]>(() =>
+    deriveEnabledWeights(weights)
+  );
 
   const remainingStatNames = StatNames.map(
     (x, idx) => [x, idx] as const

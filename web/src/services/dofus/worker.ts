@@ -1,5 +1,5 @@
 import init, { setup, query, items_in_slot } from "@/pkg/wasm";
-import { OptimiseRequest } from "./optimiser";
+import { OptimisationConfig } from "./optimiser";
 
 interface WorkerQueryId {
   id: string;
@@ -7,7 +7,7 @@ interface WorkerQueryId {
 
 interface WorkerQueryOptimise {
   kind: "optimise";
-  request: OptimiseRequest;
+  request: OptimisationConfig;
 }
 
 interface WorkerQueryGetSlot {

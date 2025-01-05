@@ -25,6 +25,7 @@ fn main() {
         exo_mp: false,
         exo_range: false,
         multi_element: false,
+        initial_temperature: 1000.,
     };
 
     let initial_set: [Option<_>; 16] = [None; 16];

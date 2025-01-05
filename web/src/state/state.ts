@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import {
   OptimiseApiResponse,
   Optimiser,
-  OptimiseRequest,
+  OptimisationConfig,
 } from "@/services/dofus/optimiser";
 import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
 
@@ -32,8 +32,6 @@ export const simpleWeightState = atom<number[]>(new Array(51).fill(0));
 export const maxLevelState = atom(149);
 
 export const bannedItemsState = atom([]);
-
-export type OptimisationConfig = Omit<OptimiseRequest, "iterations">;
 
 export const optimisationConfig = atom<OptimisationConfig>((get) => {
   return {
@@ -93,6 +91,7 @@ export function useDispatchOptimise() {
       const request = {
         ...config,
         iterations,
+        initialTemperature: 1000,
       };
       while (optimiseRequests.length < freeWorkers)
         optimiseRequests.push(

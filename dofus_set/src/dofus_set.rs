@@ -314,7 +314,7 @@ impl<'a> Optimiser<'a> {
                 .collect();
         }
 
-        let temperature_initial = 1000.;
+        let temperature_initial = config.initial_temperature;
         let temperature_quench = 5.;
         let temperature_time_constant =
             (0.01f64 / temperature_initial).ln() / 0.95_f64.powf(temperature_quench);

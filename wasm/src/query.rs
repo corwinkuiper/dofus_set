@@ -16,6 +16,7 @@ pub struct OptimiseRequest {
     range_exo: bool,
     multi_element: bool,
     iterations: i64,
+    initial_temperature: f64,
 }
 
 #[derive(Serialize, Debug)]
@@ -95,6 +96,7 @@ pub fn create_optimised_set(
         exo_mp: config.mp_exo,
         exo_range: config.range_exo,
         multi_element: config.multi_element,
+        initial_temperature: config.initial_temperature,
     };
 
     let optimiser = dofus_set::dofus_set::Optimiser::new(
