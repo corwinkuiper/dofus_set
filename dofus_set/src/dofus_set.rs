@@ -181,6 +181,57 @@ impl State {
             })
             .sum::<f64>();
 
+        let difference_energy = config
+            .initial_set
+            .iter()
+            .zip(self.set.iter())
+            .filter(|(a, b)| a != b)
+            .count() as f64
+            * config.changed_item_weight;
+
+        let damage_energy = config
+            .damaging_moves
+            .iter()
+            .map(|x| {
+                let critical = if x.damage.modifyable_crit {
+                    (x.damage.base_crit_ratio + stats[Stat::Critical]).clamp(0, 100) as f64
+                } else {
+                    x.damage.base_crit_ratio as f64
+                };
+                let ratio = critical / 100.;
+                let damage_stats = [
+                    (Stat::Strength, Stat::DamageNeutral),
+                    (Stat::Agility, Stat::DamageAir),
+                    (Stat::Chance, Stat::DamageWater),
+                    (Stat::Strength, Stat::DamageEarth),
+                    (Stat::Intelligence, Stat::DamageFire),
+                ];
+
+                let critical_damage = stats[Stat::DamageCritical];
+                let power = stats[Stat::Power];
+                let damage = stats[Stat::Damage];
+                x.damage
+                    .elemental_damage
+                    .into_iter()
+                    .zip(x.damage.crit_elemental_damage)
+                    .zip(damage_stats)
+                    .map(|((b, c), (stat_power, stat_damage))| {
+                        let stat_power = stats[stat_power];
+                        let average_base_damage = b * (1. - ratio) + c * ratio;
+
+                        if average_base_damage != 0. {
+                            average_base_damage * (1. + ((stat_power + power) as f64) / 100.)
+                                + (damage + stats[stat_damage]) as f64
+                                + ratio * critical_damage as f64
+                        } else {
+                            0.
+                        }
+                    })
+                    .sum::<f64>()
+                    * x.weight
+            })
+            .sum::<f64>();
+
         let element_iter = STAT_ELEMENT
             .iter()
             .map(|&x| {
@@ -206,7 +257,8 @@ impl State {
             element_iter.sum()
         };
 
-        -energy_non_element - energy_element + self.restriction_energy(config, &stats, items, sets)
+        -energy_non_element - energy_element - difference_energy - damage_energy
+            + self.restriction_energy(config, &stats, items, sets)
     }
 
     fn items<'a>(
@@ -298,10 +350,11 @@ impl Index<ItemType> for AllowedItemCache {
 impl<'a> Optimiser<'a> {
     pub fn new(
         config: &'a config::Config,
-        initial_set: [Option<ItemIndex>; 16],
+        initial_temperature: f64,
         items: &'a Items,
     ) -> Result<Optimiser<'a>, OptimiseError> {
-        let initial_state: State = State::new_from_initial_equipment(initial_set, items)?;
+        let initial_state: State =
+            State::new_from_initial_equipment(config.initial_set.map(NicheItemIndex::get), items)?;
 
         let mut item_list: [Vec<ItemIndex>; 10] = Default::default();
 
@@ -314,7 +367,7 @@ impl<'a> Optimiser<'a> {
                 .collect();
         }
 
-        let temperature_initial = config.initial_temperature;
+        let temperature_initial = initial_temperature;
         let temperature_quench = 5.;
         let temperature_time_constant =
             (0.01f64 / temperature_initial).ln() / 0.95_f64.powf(temperature_quench);

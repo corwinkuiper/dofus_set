@@ -121,4 +121,8 @@ export function getStatIconUrl(stat: StatName): string {
   return getStatIconUrlFromIndex(statNameIndexLookup.get(stat)!);
 }
 
+export function statIndex(stat: StatName): number {
+  return statNameIndexLookup.get(stat)!;
+}
+
 export const StatNames: readonly StatName[] = StatNamesConst;

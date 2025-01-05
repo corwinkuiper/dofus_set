@@ -1,5 +1,5 @@
 use dofus_characteristics::Stat;
-use dofus_items::Items;
+use dofus_items::{Items, NicheItemIndex};
 use dofus_set::config;
 use dofus_set::dofus_set::Optimiser;
 
@@ -21,12 +21,12 @@ pub fn bench(items: &Items) -> f64 {
         exo_mp: false,
         exo_range: false,
         multi_element: false,
-        initial_temperature: 1000.,
+        initial_set: [const { NicheItemIndex::new(None) }; 16],
+        changed_item_weight: 0.,
+        damaging_moves: Vec::new(),
     };
 
-    let initial_set: [Option<_>; 16] = [None; 16];
-
-    let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
+    let optimiser = Optimiser::new(&config, 1000., items).unwrap();
 
     let final_state = optimiser.optimise(1_000_000).unwrap();
     let sets = final_state.sets(items);

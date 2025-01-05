@@ -1,6 +1,9 @@
 use dofus_characteristics::Characteristic;
-use dofus_items::{ItemIndex, Items};
-use dofus_set::{config::Config, dofus_set::OptimiseError};
+use dofus_items::{ItemIndex, Items, NicheItemIndex};
+use dofus_set::{
+    config::{Config, DamagingMove, DamagingMovesOptimisation},
+    dofus_set::OptimiseError,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
@@ -15,8 +18,20 @@ pub struct OptimiseRequest {
     mp_exo: bool,
     range_exo: bool,
     multi_element: bool,
+    changed_item_weight: f64,
+    damaging_moves_weights: Vec<DamagingMovesWeight>,
     iterations: i64,
     initial_temperature: f64,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct DamagingMovesWeight {
+    weight: f64,
+    base_damage: [f64; 5],
+    base_crit_damage: [f64; 5],
+    base_crit_percent: i32,
+    crit_modifyable: bool,
 }
 
 #[derive(Serialize, Debug)]
@@ -96,16 +111,34 @@ pub fn create_optimised_set(
         exo_mp: config.mp_exo,
         exo_range: config.range_exo,
         multi_element: config.multi_element,
-        initial_temperature: config.initial_temperature,
+        initial_set: config
+            .initial_items
+            .iter()
+            .copied()
+            .map(NicheItemIndex::new)
+            .collect::<Vec<_>>()
+            .try_into()
+            .expect(
+                "should be able to make 16 length initial items from provided initial items list",
+            ),
+        changed_item_weight: config.changed_item_weight,
+        damaging_moves: config
+            .damaging_moves_weights
+            .iter()
+            .map(|x| DamagingMovesOptimisation {
+                weight: x.weight,
+                damage: DamagingMove {
+                    elemental_damage: x.base_damage,
+                    crit_elemental_damage: x.base_crit_damage,
+                    base_crit_ratio: x.base_crit_percent,
+                    modifyable_crit: x.crit_modifyable,
+                },
+            })
+            .collect(),
     };
 
-    let optimiser = dofus_set::dofus_set::Optimiser::new(
-        &dofus_set_config,
-        config.initial_items.clone().try_into().expect(
-            "should be able to make 16 length initial items from provided initial items list",
-        ),
-        items,
-    )?;
+    let optimiser =
+        dofus_set::dofus_set::Optimiser::new(&dofus_set_config, config.initial_temperature, items)?;
 
     let final_state = optimiser.optimise(config.iterations)?;
 

@@ -34,6 +34,16 @@ export interface OptimisationConfig {
   mpExo: boolean;
   rangeExo: boolean;
   multiElement: boolean;
+  changedItemWeight: number;
+  damagingMovesWeights: OptimisationDamagingMove[];
+}
+
+export interface OptimisationDamagingMove {
+  weight: number;
+  baseDamage: number[];
+  baseCritDamage: number[];
+  baseCritPercent: number;
+  critModifyable: boolean;
 }
 
 export interface OptimisationSettings {

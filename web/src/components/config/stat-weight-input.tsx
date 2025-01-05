@@ -4,6 +4,7 @@ import { StatNames } from "@/services/dofus/stats";
 import { simpleWeightState, useImmerAtom } from "@/state/state";
 import styled from "styled-components";
 import { useImmer } from "use-immer";
+import { Stack } from "../base/stack";
 
 const Weights = styled.ul`
   list-style: none;
@@ -19,11 +20,6 @@ const Weight = styled.li`
 `;
 const WeightStatInput = styled.select``;
 const WeightCountInput = styled.input``;
-
-const Stack = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const AddWeightButton = styled.button``;
 

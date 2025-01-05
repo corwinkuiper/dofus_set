@@ -1,7 +1,7 @@
 #![deny(clippy::all)]
 
 use dofus_characteristics::Stat;
-use dofus_items::ITEMS;
+use dofus_items::{NicheItemIndex, ITEMS};
 use dofus_set::config;
 use dofus_set::dofus_set::Optimiser;
 
@@ -25,13 +25,13 @@ fn main() {
         exo_mp: false,
         exo_range: false,
         multi_element: false,
-        initial_temperature: 1000.,
+        initial_set: [NicheItemIndex::new(None); 16],
+        changed_item_weight: 0.,
+        damaging_moves: Vec::new(),
     };
 
-    let initial_set: [Option<_>; 16] = [None; 16];
-
     for _ in 0..10 {
-        let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
+        let optimiser = Optimiser::new(&config, 1000., items).unwrap();
 
         let final_state = optimiser.optimise(1_000_000).unwrap();
         let sets = final_state.sets(items);

@@ -6,6 +6,7 @@ import {
   OptimisationConfig,
 } from "@/services/dofus/optimiser";
 import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { damagingMovesAtomAtom } from "@/components/config/damagingMove";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
@@ -43,6 +44,8 @@ export const optimisationConfig = atom<OptimisationConfig>((get) => {
       new Array(16).fill(undefined),
     fixedItems: [],
     ...get(exosState),
+    damagingMovesWeights: get(damagingMovesAtomAtom).map((x) => get(x)),
+    changedItemWeight: 0,
   };
 });
 

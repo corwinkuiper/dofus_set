@@ -3,7 +3,7 @@
 use ::dofus_set::config;
 use ::dofus_set::dofus_set::{Optimiser, State};
 use dofus_characteristics::{Characteristic, Stat};
-use dofus_items::{Item, Items, ITEMS};
+use dofus_items::{Item, Items, NicheItemIndex, ITEMS};
 
 fn main() {
     let items = &ITEMS;
@@ -25,12 +25,12 @@ fn main() {
         exo_mp: false,
         exo_range: false,
         multi_element: false,
-        initial_temperature: 1000.,
+        initial_set: [NicheItemIndex::new(None); 16],
+        changed_item_weight: 0.,
+        damaging_moves: Vec::new(),
     };
 
-    let initial_set: [Option<_>; 16] = [None; 16];
-
-    let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
+    let optimiser = Optimiser::new(&config, 1000., items).unwrap();
 
     let final_state = optimiser.optimise(1_000_000).unwrap();
     print_state(&final_state, &config, items);
