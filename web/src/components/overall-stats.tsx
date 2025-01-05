@@ -35,18 +35,17 @@ export function OverallStats({ stats }: OverallStatsProps) {
 
   return (
     <StatsBlock>
-      {stats
-        .filter((x) => x !== 0)
-        .map((count, idx) => {
-          const statName = statNames[idx];
-          return (
-            <Stat key={statName}>
-              <StatIcon src={getStatIconUrl(statName)} />
-              <StatCount>{count}</StatCount>
-              <StatName>{statName}</StatName>
-            </Stat>
-          );
-        })}
+      {stats.flatMap((count, idx) => {
+        if (count === 0) return [];
+        const statName = statNames[idx];
+        return [
+          <Stat key={statName}>
+            <StatIcon src={getStatIconUrl(statName)} />
+            <StatCount>{count}</StatCount>
+            <StatName>{statName}</StatName>
+          </Stat>,
+        ];
+      })}
     </StatsBlock>
   );
 }
