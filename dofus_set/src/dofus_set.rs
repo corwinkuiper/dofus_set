@@ -376,16 +376,23 @@ impl anneal::Anneal<State> for Optimiser<'_> {
             if item_type.is_empty() {
                 continue;
             }
-            let item_index = item_type[rng.gen_range(0..item_type.len())];
-            break (item_slot, item_index);
+            let idx = rng.gen_range(0..item_type.len() + 1);
+            if idx != item_type.len() {
+                let item_index = item_type[idx];
+                break (item_slot, Some(item_index));
+            } else {
+                break (item_slot, None);
+            }
         };
 
         if let Some(old_item) = new_state.set[item_slot].get() {
             new_state.remove_item(&self.items[old_item]);
         }
-        new_state.add_item(&self.items[item]);
+        if let Some(item) = item {
+            new_state.add_item(&self.items[item]);
+        }
 
-        new_state.set[item_slot] = NicheItemIndex::new_from_idx(item);
+        new_state.set[item_slot] = NicheItemIndex::new(item);
         let sets = new_state.sets(self.items);
 
         let energy = new_state.energy(self.config, self.items, &sets);
