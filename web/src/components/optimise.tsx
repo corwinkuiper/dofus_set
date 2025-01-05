@@ -10,6 +10,7 @@ import {
 } from "@/state/state";
 import { Stack } from "./base/stack";
 import { OptimisationConfig } from "./config/config";
+import { ReactNode } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -21,18 +22,31 @@ const OptimiseButtonElement = styled.button``;
 
 function OptimiseButton() {
   const cancel = useCancelOptimisation();
-  const trigger = useDispatchOptimise();
-  if (cancel) {
-    return (
-      <OptimiseButtonElement onClick={() => cancel("cancelled by user")}>
-        Cancel
-      </OptimiseButtonElement>
-    );
-  }
+
   return (
-    <OptimiseButtonElement onClick={() => trigger(1000000)}>
-      Optimise
+    <OptimiseButtonElement>
+      {(cancel && "Cancel") || "Optimise"}
     </OptimiseButtonElement>
+  );
+}
+
+function OptimiseForm({ children }: { children: ReactNode }) {
+  const trigger = useDispatchOptimise();
+  const cancel = useCancelOptimisation();
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (cancel) {
+          cancel("aborted by user");
+        } else {
+          trigger(1000000);
+        }
+      }}
+    >
+      {children}
+    </form>
   );
 }
 
@@ -42,8 +56,10 @@ export function Optimise() {
   return (
     <Container>
       <Stack>
-        <OptimisationConfig />
-        <OptimiseButton />
+        <OptimiseForm>
+          <OptimisationConfig />
+          <OptimiseButton />
+        </OptimiseForm>
       </Stack>
       <Stack $grow>{optimal && <SetDisplay set={optimal.items} />}</Stack>
       <Stack>

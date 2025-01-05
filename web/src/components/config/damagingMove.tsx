@@ -5,11 +5,31 @@ import { atom, PrimitiveAtom, useAtom } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
 import { Stack } from "../base/stack";
-import { bin } from "@/assets/bin.svg";
+import { Button } from "../base/button";
 
-export const damagingMovesAtomAtom = atom<
-  PrimitiveAtom<OptimisationDamagingMove>[]
->([]);
+interface OptimiseDamagingMoveString {
+  weight: string;
+  baseDamage: string[];
+  baseCritDamage: string[];
+  baseCritPercent: string;
+  critModifyable: boolean;
+}
+
+const damagingMovesAtomAtom = atom<PrimitiveAtom<OptimiseDamagingMoveString>[]>(
+  []
+);
+
+export const damagingMoves = atom<OptimisationDamagingMove[]>((get) =>
+  get(damagingMovesAtomAtom)
+    .map(get)
+    .map((x) => ({
+      weight: Number(x.weight),
+      baseDamage: x.baseDamage.map(Number),
+      baseCritDamage: x.baseCritDamage.map(Number),
+      baseCritPercent: Number(x.baseCritPercent),
+      critModifyable: x.critModifyable,
+    }))
+);
 
 const StatIconImg = styled.img`
   height: 15px;
@@ -32,7 +52,7 @@ const ElementDamageGrid = styled.div`
 function DamagingMove({
   move,
 }: {
-  move: PrimitiveAtom<OptimisationDamagingMove>;
+  move: PrimitiveAtom<OptimiseDamagingMoveString>;
 }) {
   const [dMove, updateMove] = useImmerAtom(move);
 
@@ -48,11 +68,14 @@ function DamagingMove({
         <span>Base</span>
         {dMove.baseDamage.map((dmg, idx) => (
           <DamageInput
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*(.[0-9]*)?"
             key={idx}
             value={dmg}
             onChange={(e) =>
               updateMove((dMove) => {
-                dMove.baseDamage[idx] = Number(e.target.value);
+                dMove.baseDamage[idx] = e.target.value;
               })
             }
           />
@@ -60,11 +83,14 @@ function DamagingMove({
         <span>Crit</span>
         {dMove.baseCritDamage.map((dmg, idx) => (
           <DamageInput
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*(.[0-9]*)?"
             key={idx}
             value={dmg}
             onChange={(e) =>
               updateMove((dMove) => {
-                dMove.baseCritDamage[idx] = Number(e.target.value);
+                dMove.baseCritDamage[idx] = e.target.value;
               })
             }
           />
@@ -73,11 +99,13 @@ function DamagingMove({
       <label>
         Crit chance{" "}
         <input
-          type="number"
+          type="text"
+          inputMode="decimal"
+          pattern="[0-9]*(.[0-9]*)?"
           value={dMove.baseCritPercent}
           onChange={(e) =>
             updateMove((dMove) => {
-              dMove.baseCritPercent = Number(e.target.value);
+              dMove.baseCritPercent = e.target.value;
             })
           }
         />
@@ -97,11 +125,13 @@ function DamagingMove({
       <label>
         Damage weight{" "}
         <input
-          type="number"
+          type="text"
+          inputMode="decimal"
+          pattern="[0-9]*(.[0-9]*)?"
           value={dMove.weight}
           onChange={(e) =>
             updateMove((dMove) => {
-              dMove.weight = Number(e.target.value);
+              dMove.weight = e.target.value;
             })
           }
         />
@@ -113,18 +143,18 @@ function DamagingMove({
 export function DamagingMoveInput() {
   const [damagingMoves, setDamagingMoves] = useAtom(damagingMovesAtomAtom);
   const addDamagingMove = useCallback(() => {
-    const newDamagingMove = atom<OptimisationDamagingMove>({
-      weight: 0,
-      baseDamage: [0, 0, 0, 0, 0],
-      baseCritDamage: [0, 0, 0, 0, 0],
-      baseCritPercent: 0,
+    const newDamagingMove = atom<OptimiseDamagingMoveString>({
+      weight: "0",
+      baseDamage: new Array(5).fill("0"),
+      baseCritDamage: new Array(5).fill("0"),
+      baseCritPercent: "0",
       critModifyable: true,
     });
     setDamagingMoves((moves) => [...moves, newDamagingMove]);
   }, [setDamagingMoves]);
 
   const removeDamagingMove = useCallback(
-    (atom: PrimitiveAtom<OptimisationDamagingMove>) => {
+    (atom: PrimitiveAtom<OptimiseDamagingMoveString>) => {
       setDamagingMoves((moves) => moves.filter((x) => x !== atom));
     },
     [setDamagingMoves]
@@ -135,10 +165,10 @@ export function DamagingMoveInput() {
       {damagingMoves.map((x) => (
         <Stack $dir="h" key={x.toString()}>
           <DamagingMove move={x} />
-          <button onClick={() => removeDamagingMove(x)}>Delete</button>
+          <Button onClick={() => removeDamagingMove(x)}>Delete</Button>
         </Stack>
       ))}
-      <button onClick={addDamagingMove}>Add move</button>
+      <Button onClick={addDamagingMove}>Add move</Button>
     </Stack>
   );
 }

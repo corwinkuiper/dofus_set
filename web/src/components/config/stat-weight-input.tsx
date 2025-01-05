@@ -5,6 +5,7 @@ import { simpleWeightState, useImmerAtom } from "@/state/state";
 import styled from "styled-components";
 import { useImmer } from "use-immer";
 import { Stack } from "../base/stack";
+import { Button } from "../base/button";
 
 const Weights = styled.ul`
   list-style: none;
@@ -21,7 +22,7 @@ const Weight = styled.li`
 const WeightStatInput = styled.select``;
 const WeightCountInput = styled.input``;
 
-const AddWeightButton = styled.button``;
+const AddWeightButton = Button;
 
 function deriveEnabledWeights(weights: number[]) {
   const derived = weights.flatMap((c, idx) => (c !== 0 ? [idx] : []));
