@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import { styled } from "styled-components";
 import { Stack } from "../base/stack";
 import { Button } from "../base/button";
+import { InputDecimal } from "../base/input";
 
 interface OptimiseDamagingMoveString {
   weight: string;
@@ -40,7 +41,7 @@ function StatIcon({ stat }: { stat: StatName }) {
   return <StatIconImg alt={stat} src={getStatIconUrl(stat)} />;
 }
 
-const DamageInput = styled.input`
+const DamageInput = styled(InputDecimal)`
   max-width: 32px;
 `;
 
@@ -68,9 +69,6 @@ function DamagingMove({
         <span>Base</span>
         {dMove.baseDamage.map((dmg, idx) => (
           <DamageInput
-            type="text"
-            inputMode="decimal"
-            pattern="[0-9]*(.[0-9]*)?"
             key={idx}
             value={dmg}
             onChange={(e) =>
@@ -83,9 +81,6 @@ function DamagingMove({
         <span>Crit</span>
         {dMove.baseCritDamage.map((dmg, idx) => (
           <DamageInput
-            type="text"
-            inputMode="decimal"
-            pattern="[0-9]*(.[0-9]*)?"
             key={idx}
             value={dmg}
             onChange={(e) =>
@@ -98,10 +93,7 @@ function DamagingMove({
       </ElementDamageGrid>
       <label>
         Crit chance{" "}
-        <input
-          type="text"
-          inputMode="decimal"
-          pattern="[0-9]*(.[0-9]*)?"
+        <InputDecimal
           value={dMove.baseCritPercent}
           onChange={(e) =>
             updateMove((dMove) => {
@@ -124,10 +116,7 @@ function DamagingMove({
       </label>
       <label>
         Damage weight{" "}
-        <input
-          type="text"
-          inputMode="decimal"
-          pattern="[0-9]*(.[0-9]*)?"
+        <InputDecimal
           value={dMove.weight}
           onChange={(e) =>
             updateMove((dMove) => {
