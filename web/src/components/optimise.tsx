@@ -11,6 +11,7 @@ import {
 import { Stack } from "./base/stack";
 import { OptimisationConfig } from "./config/config";
 import { ReactNode } from "react";
+import { Button } from "./base/button";
 
 const Container = styled.div`
   display: flex;
@@ -18,16 +19,10 @@ const Container = styled.div`
   flex-wrap: wrap;
 `;
 
-const OptimiseButtonElement = styled.button``;
-
 function OptimiseButton() {
   const cancel = useCancelOptimisation();
 
-  return (
-    <OptimiseButtonElement>
-      {(cancel && "Cancel") || "Optimise"}
-    </OptimiseButtonElement>
-  );
+  return <Button type="submit">{(cancel && "Cancel") || "Optimise"}</Button>;
 }
 
 function OptimiseForm({ children }: { children: ReactNode }) {
