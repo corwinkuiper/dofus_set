@@ -8,6 +8,7 @@ import {
 } from "@/services/dofus/optimiser";
 import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { damagingMoves } from "@/components/config/damagingMove";
+import { bannedItemsAtom } from "@/components/config/bannedItems";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
@@ -33,7 +34,11 @@ export const simpleWeightState = atom<number[]>(new Array(51).fill(0));
 
 export const maxLevelState = atom(149);
 
-export const bannedItemsState = atom([]);
+export const bannedItemsState = atom((get) => [
+  ...get(bannedItemsAtom)
+    .values()
+    .map((x) => x.dofusId),
+]);
 
 export interface InitialItemState {
   item: OptimiseApiResponseItem;
@@ -140,4 +145,8 @@ export function getItemsInSlot(slot: number) {
 
 export function getSpells() {
   return optimiser.get_spells();
+}
+
+export function getAllItems() {
+  return optimiser.get_all_items();
 }
