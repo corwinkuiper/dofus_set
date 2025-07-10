@@ -140,3 +140,42 @@ impl Set {
 }
 
 pub static ITEMS: Items = data::ITEMS;
+
+#[derive(Serialize)]
+pub struct Class {
+    pub name: &'static str,
+    pub spells: &'static [Spell],
+}
+
+#[derive(Serialize)]
+pub struct Spell {
+    pub name: &'static str,
+    pub description: &'static str,
+    pub image_url: &'static str,
+    pub effects: &'static [Effect],
+}
+
+#[derive(Serialize)]
+pub struct Effect {
+    pub level: i32,
+    pub base_crit: Option<i32>,
+    pub normal: Option<Damage>,
+    pub critical: Option<Damage>,
+}
+
+#[derive(Serialize)]
+pub struct Damage {
+    pub neutral: ElementDamage,
+    pub air: ElementDamage,
+    pub water: ElementDamage,
+    pub earth: ElementDamage,
+    pub fire: ElementDamage,
+}
+
+#[derive(Serialize)]
+pub struct ElementDamage {
+    pub min: i32,
+    pub max: i32,
+}
+
+pub static SPELLS: &[Class] = data::SPELLS;

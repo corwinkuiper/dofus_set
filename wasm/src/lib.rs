@@ -58,3 +58,8 @@ pub fn items_in_slot(slot: usize) -> Result<JsValue, ItemsSlotError> {
 
     Ok(serde_wasm_bindgen::to_value(&response).expect("Known format"))
 }
+
+#[wasm_bindgen]
+pub fn get_spells() -> JsValue {
+    serde_wasm_bindgen::to_value(dofus_items::SPELLS).expect("Known format")
+}

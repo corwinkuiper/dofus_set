@@ -3,7 +3,7 @@ use std::{error::Error, fs::File, io::BufWriter};
 use dofus_characteristics::{Characteristic, Stat, StatConversionError};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
-use serde::Deserialize;
+use serde::{de::Visitor, Deserialize};
 use std::{collections::HashMap, convert::TryInto, io::Write};
 
 #[derive(Deserialize, Debug)]
@@ -13,11 +13,11 @@ struct DofusLabConditions {
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
-struct DofusLabItemName {
+struct DofusLabLocalised {
     en: String,
 }
 
-impl ToTokens for DofusLabItemName {
+impl ToTokens for DofusLabLocalised {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         self.en.to_tokens(tokens)
     }
@@ -33,7 +33,7 @@ struct DofusLabItemStats {
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct DofusLabItem {
-    name: DofusLabItemName,
+    name: DofusLabLocalised,
     itemType: String,
     setID: Option<String>,
     stats: Option<Vec<DofusLabItemStats>>,
@@ -47,6 +47,69 @@ struct DofusLabStatRestriction {
     stat: String,
     operator: String,
     value: i32,
+}
+
+#[derive(Deserialize)]
+struct DofusLabSpellClass {
+    names: DofusLabLocalised,
+    spells: Vec<Vec<DofusLabSpell>>,
+}
+
+#[derive(Deserialize)]
+struct DofusLabEffectElement {
+    stat: String,
+    minStat: i32,
+    maxStat: i32,
+}
+
+#[derive(Deserialize)]
+struct DofusLabEffect {
+    modifyableEffect: Option<Vec<DofusLabEffectElement>>,
+}
+
+struct StringI32Visitor;
+
+impl Visitor<'_> for StringI32Visitor {
+    type Value = i32;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        formatter.write_str("an integer that's a string")
+    }
+
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        value.parse::<i32>().map_err(|x| E::custom(x))
+    }
+}
+
+#[derive(Clone, Copy)]
+struct StringI32(i32);
+
+impl<'de> Deserialize<'de> for StringI32 {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Ok(StringI32(deserializer.deserialize_str(StringI32Visitor)?))
+    }
+}
+
+#[derive(Deserialize)]
+struct DofusLabSpellEffect {
+    level: StringI32,
+    baseCritRate: Option<StringI32>,
+    normalEffects: DofusLabEffect,
+    criticalEffects: DofusLabEffect,
+}
+
+#[derive(Deserialize)]
+struct DofusLabSpell {
+    name: DofusLabLocalised,
+    description: DofusLabLocalised,
+    imageUrl: String,
+    effects: Vec<DofusLabSpellEffect>,
 }
 
 fn parse_restriction(value: &serde_json::Map<String, serde_json::value::Value>) -> TokenStream {
@@ -177,7 +240,7 @@ struct DofusLabSetStat {
 
 #[derive(Debug, Deserialize)]
 struct DofusLabSet {
-    name: DofusLabItemName,
+    name: DofusLabLocalised,
     id: String,
     bonuses: HashMap<String, Vec<DofusLabSetStat>>,
 }
@@ -307,14 +370,141 @@ fn create_items() -> TokenStream {
     }
 }
 
+#[derive(Default)]
+struct Damage {
+    neutral: (i32, i32),
+    air: (i32, i32),
+    water: (i32, i32),
+    earth: (i32, i32),
+    fire: (i32, i32),
+}
+
+impl ToTokens for Damage {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let (n1, n2) = self.neutral;
+        let (a1, a2) = self.air;
+        let (w1, w2) = self.water;
+        let (e1, e2) = self.earth;
+        let (f1, f2) = self.fire;
+
+        quote! { Damage {
+            neutral: ElementDamage {
+                min: #n1,
+                max: #n2,
+            },
+            air: ElementDamage {
+                min: #a1,
+                max: #a2,
+            },
+            water: ElementDamage {
+                min: #w1,
+                max: #w2,
+            },
+            earth: ElementDamage {
+                min: #e1,
+                max: #e2,
+            },
+            fire: ElementDamage {
+                min: #f1,
+                max: #f2,
+            },
+        } }
+        .to_tokens(tokens);
+    }
+}
+
+fn get_effect(effect: &[DofusLabEffectElement]) -> Damage {
+    let mut damage = Damage::default();
+    effect.iter().for_each(|x| {
+        let idx = match x.stat.as_str() {
+            "Neutral damage" => &mut damage.neutral,
+            "Air damage" => &mut damage.air,
+            "Water damage" => &mut damage.water,
+            "Earth damage" => &mut damage.earth,
+            "Fire damage" => &mut damage.fire,
+            _ => return,
+        };
+        *idx = (x.minStat, x.maxStat);
+    });
+
+    damage
+}
+
+fn quote_option<T>(a: Option<T>) -> TokenStream
+where
+    T: ToTokens,
+{
+    match a {
+        Some(a) => quote! {Some(#a)},
+        None => quote! {None},
+    }
+}
+
+fn create_spells() -> TokenStream {
+    let spells: Vec<DofusLabSpellClass> =
+        serde_json::from_slice(include_bytes!("data/spells.json")).unwrap();
+
+    let all = spells.iter().map(|x| {
+        let spells = x.spells.iter().flatten().map(|x| {
+            let name = &x.name;
+            let description = &x.description;
+            let image_url = &x.imageUrl;
+            let effects = x.effects.iter().map(|x| {
+                let base_crit = quote_option(x.baseCritRate.map(|StringI32(x)| x));
+                let level = x.level.0;
+
+                let normal =
+                    quote_option(x.normalEffects.modifyableEffect.as_deref().map(get_effect));
+                let critical = quote_option(
+                    x.criticalEffects
+                        .modifyableEffect
+                        .as_deref()
+                        .map(get_effect),
+                );
+
+                quote! {
+                    Effect {
+                        level: #level,
+                        base_crit: #base_crit,
+                        normal: #normal,
+                        critical: #critical,
+                    }
+                }
+            });
+
+            quote! { Spell {
+                name: #name,
+                description: #description,
+                image_url: #image_url,
+                effects: &[#(#effects),*],
+            }}
+        });
+        let name = &x.names;
+
+        quote! {
+            Class {
+                name: #name,
+                spells: &[#(#spells),*]
+            }
+        }
+    });
+
+    quote! {  &[#(#all),*] }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR environment variable must be specified");
 
     let items = create_items();
+    let spells = create_spells();
 
     let output_file = File::create(format!("{out_dir}/compiled_items.rs"))?;
     let mut writer = BufWriter::new(output_file);
     writeln!(writer, "{}", items)?;
+
+    let output_file = File::create(format!("{out_dir}/compiled_spells.rs"))?;
+    let mut writer = BufWriter::new(output_file);
+    writeln!(writer, "{}", spells)?;
 
     Ok(())
 }
