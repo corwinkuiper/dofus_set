@@ -9,13 +9,13 @@ const StatsBlock = styled.ul`
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto auto 1fr auto auto 1fr;
   gap: 4px;
 `;
 
 const Stat = styled.li`
   display: grid;
-  grid-column: 1 / 4;
+  grid-column: span 3;
   grid-template-columns: subgrid;
   align-items: center;
 `;

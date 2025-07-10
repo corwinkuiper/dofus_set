@@ -1,14 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { createContext, ReactNode, useContext } from "react";
-import styled from "styled-components";
+import { ReactNode } from "react";
+import styled, { css, RuleSet } from "styled-components";
 import pin from "@/assets/pin.svg";
 import search from "@/assets/search.svg";
 import bin from "@/assets/bin.svg";
 import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
 
-const ItemActions = styled.div``;
+const ItemActions = styled.div`
+  margin-left: auto;
+`;
 const ItemName = styled.span`
   font-size: 0.8rem;
 `;
@@ -25,39 +27,63 @@ const ItemBox = styled.div`
   padding-right: 8px;
 `;
 
-const ActionImage = styled(Image)``;
+type Colour = "RED";
+
+const RED_FILTER = css`
+  filter: invert(16%) sepia(80%) saturate(7500%) hue-rotate(359deg)
+    brightness(100%) contrast(116%);
+`;
+
+const COLOUR_LOOKUP: Record<Colour, RuleSet> = {
+  RED: RED_FILTER,
+};
+
+const ActionImage = styled(Image)<{ $colour?: Colour }>`
+  ${(props) => props.$colour && COLOUR_LOOKUP[props.$colour]}
+
+  cursor: pointer;
+`;
 
 interface ItemProps {
-  item: OptimiseApiResponseItem;
+  item?: OptimiseApiResponseItem;
   actions?: ReactNode;
 }
 
 interface ActionProps {
-  action: (item: OptimiseApiResponseItem) => void;
+  action: () => void;
+  active?: boolean;
 }
 
-const ItemContext = createContext<OptimiseApiResponseItem | null>(null);
-function useItem(): OptimiseApiResponseItem {
-  const item = useContext(ItemContext);
-  if (!item) throw Error("Action should be used in item display");
-
-  return item;
-}
-
-export function ActionPin({ action }: ActionProps) {
-  const item = useItem();
-  return <ActionImage src={pin} alt="Pin item" onClick={() => action(item)} />;
-}
-
-export function ActionSearch({ action }: ActionProps) {
-  const item = useItem();
-  return <ActionImage src={search} alt="Search" onClick={() => action(item)} />;
-}
-
-export function ActionDelete({ action }: ActionProps) {
-  const item = useItem();
+export function ActionPin({ action, active }: ActionProps) {
   return (
-    <ActionImage src={bin} alt="Delete item" onClick={() => action(item)} />
+    <ActionImage
+      $colour={active ? "RED" : undefined}
+      src={pin}
+      alt="Pin item"
+      onClick={() => action()}
+    />
+  );
+}
+
+export function ActionSearch({ action, active }: ActionProps) {
+  return (
+    <ActionImage
+      $colour={active ? "RED" : undefined}
+      src={search}
+      alt="Search"
+      onClick={() => action()}
+    />
+  );
+}
+
+export function ActionDelete({ action, active }: ActionProps) {
+  return (
+    <ActionImage
+      $colour={active ? "RED" : undefined}
+      src={bin}
+      alt="Delete item"
+      onClick={() => action()}
+    />
   );
 }
 
@@ -67,13 +93,15 @@ function makeUrl(imageUrl: string): string {
 
 export function ItemDisplay({ item, actions }: ItemProps) {
   return (
-    <ItemContext.Provider value={item}>
-      <ItemBox>
-        <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
-        <ItemName>{item.name}</ItemName>
-        <ItemActions>{actions}</ItemActions>
-      </ItemBox>
-    </ItemContext.Provider>
+    <ItemBox>
+      {item && (
+        <>
+          <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
+          <ItemName>{item.name}</ItemName>
+        </>
+      )}
+      <ItemActions>{actions}</ItemActions>
+    </ItemBox>
   );
 }
 

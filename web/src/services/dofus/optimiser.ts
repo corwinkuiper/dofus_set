@@ -53,15 +53,6 @@ export interface OptimisationSettings {
 
 export type OptimisationRequest = OptimisationConfig & OptimisationSettings;
 
-export interface SearchApiResponseItem {
-  characteristics: number[];
-  name: string;
-  itemType: string;
-  level: number;
-  imageUrl?: string;
-  dofusId: number;
-}
-
 interface QueuedJob {
   query: WorkerQuery;
   resolve: (data: unknown) => void;
@@ -177,7 +168,6 @@ export class Optimiser {
     extra?: { abort?: AbortSignal }
   ): Promise<OptimiseApiResponse> {
     return new Promise((resolve, reject) => {
-      ``;
       const jobId = crypto.randomUUID();
 
       this.queueJob(
@@ -193,7 +183,7 @@ export class Optimiser {
     });
   }
 
-  async get_items_in_slot(slot: number): Promise<SearchApiResponseItem[]> {
+  async get_items_in_slot(slot: number): Promise<OptimiseApiResponseItem[]> {
     return new Promise((resolve, reject) => {
       const jobId = crypto.randomUUID();
       this.queueJob(
@@ -202,7 +192,7 @@ export class Optimiser {
           kind: "get-slot",
           slot,
         },
-        (data) => resolve(data as SearchApiResponseItem[]),
+        (data) => resolve(data as OptimiseApiResponseItem[]),
         reject,
         new AbortController().signal
       );

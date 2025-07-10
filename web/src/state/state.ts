@@ -34,6 +34,8 @@ export const maxLevelState = atom(149);
 
 export const bannedItemsState = atom([]);
 
+export const initialItemsState = atom(new Array(16).fill(null));
+
 export const optimisationConfig = atom<OptimisationConfig>((get) => {
   return {
     weights: get(simpleWeightState),
@@ -120,4 +122,8 @@ export function useDispatchOptimise() {
     },
     [config, setOptimiseResponse, setRunningOptimisation]
   );
+}
+
+export function getItemsInSlot(slot: number) {
+  return optimiser.get_items_in_slot(slot);
 }

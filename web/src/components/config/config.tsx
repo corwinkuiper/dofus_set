@@ -17,6 +17,9 @@ import { maxLevelState, simpleWeightState, useImmerAtom } from "@/state/state";
 import { useAtom } from "jotai";
 import { DamagingMoveInput } from "./damagingMove";
 import { Stack } from "../base/stack";
+import { InitialItems } from "./initialEquipment";
+import { Section } from "../base/section";
+import styled from "styled-components";
 
 function LevelInput() {
   const [level, setLevel] = useAtom(maxLevelState);
@@ -33,41 +36,71 @@ function LevelInput() {
   );
 }
 
+const BaseInputItem = styled.label`
+  display: flex;
+  border: 1px solid black;
+  border-radius: 4px;
+  overflow: hidden;
+  & > span {
+    background-color: #b5b5b5;
+    padding: 4px;
+  }
+`;
+
 function BaseStatInput({ statName }: { statName: StatName }) {
   const [statWeight, updateStatWeight] = useImmerAtom(simpleWeightState);
 
   return (
-    <label>
-      <span>{statName}</span>
-      <input
-        type="number"
-        value={statWeight[statIndex(statName)]}
-        onChange={(e) =>
-          updateStatWeight((x) => {
-            x[statIndex(statName)] = Number(e.target.value);
-          })
-        }
-      />
-    </label>
+    <li>
+      <BaseInputItem>
+        <span>{statName}</span>
+        <input
+          type="number"
+          value={statWeight[statIndex(statName)]}
+          onChange={(e) =>
+            updateStatWeight((x) => {
+              x[statIndex(statName)] = Number(e.target.value);
+            })
+          }
+        />
+      </BaseInputItem>
+    </li>
   );
 }
 
+const BasicList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 16px;
+`;
+
 function ApMpRangeWeightInput() {
   return (
-    <ul>
+    <BasicList>
       <BaseStatInput statName="AP" />
       <BaseStatInput statName="MP" />
       <BaseStatInput statName="Range" />
-    </ul>
+    </BasicList>
   );
 }
 
 export function OptimisationConfig() {
   return (
     <Stack>
-      <LevelInput />
-      <ApMpRangeWeightInput />
-      <DamagingMoveInput />
+      <Section title="Level">
+        <LevelInput />
+      </Section>
+      <Section title="Basic">
+        <ApMpRangeWeightInput />
+      </Section>
+      <Section title="Spells">
+        <DamagingMoveInput />
+      </Section>
+      <Section title="Initial items">
+        <InitialItems />
+      </Section>
     </Stack>
   );
 }

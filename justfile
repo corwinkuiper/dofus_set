@@ -9,4 +9,4 @@ prepare-web:
     cp -r wasm/pkg web/src/pkg
 
 web: prepare-web
-    (cd web; npm install --no-save --prefer-offline --no-audit; npm run start)
+    (cd web; npm install --no-save --prefer-offline --no-audit; npm run dev)

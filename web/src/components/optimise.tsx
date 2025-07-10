@@ -1,6 +1,5 @@
 "use client";
 
-import { styled } from "styled-components";
 import { SetDisplay } from "./set-display";
 import { OverallStats } from "./overall-stats";
 import {
@@ -12,12 +11,6 @@ import { Stack } from "./base/stack";
 import { OptimisationConfig } from "./config/config";
 import { ReactNode } from "react";
 import { Button } from "./base/button";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-`;
 
 function OptimiseButton() {
   const cancel = useCancelOptimisation();
@@ -49,17 +42,19 @@ export function Optimise() {
   const optimal = useOptimisationResult();
 
   return (
-    <Container>
+    <Stack>
       <Stack>
         <OptimiseForm>
           <OptimisationConfig />
           <OptimiseButton />
         </OptimiseForm>
       </Stack>
-      <Stack $grow>{optimal && <SetDisplay set={optimal.items} />}</Stack>
-      <Stack>
-        {optimal && <OverallStats stats={optimal.overallCharacteristics} />}
+      <Stack $dir="h">
+        <Stack $grow>{optimal && <SetDisplay set={optimal.items} />}</Stack>
+        <Stack>
+          {optimal && <OverallStats stats={optimal.overallCharacteristics} />}
+        </Stack>
       </Stack>
-    </Container>
+    </Stack>
   );
 }
