@@ -1,7 +1,7 @@
 import { initialItemsState, useImmerAtom } from "@/state/state";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { styled } from "styled-components";
-import { ActionDelete, ActionSearch, ItemDisplay } from "../item";
+import { ActionDelete, ActionPin, ActionSearch, ItemDisplay } from "../item";
 import { Stack } from "../base/stack";
 import { SearchBox } from "./search";
 
@@ -20,13 +20,26 @@ function ItemActions({ idx }: { idx: number }) {
   return (
     <>
       {items[idx] && (
-        <ActionDelete
-          action={() => {
-            update((item) => {
-              item[idx] = undefined;
-            });
-          }}
-        />
+        <>
+          <ActionPin
+            active={items[idx].pinned}
+            action={() => {
+              update((items) => {
+                const item = items[idx];
+                if (item) {
+                  item.pinned = !item.pinned;
+                }
+              });
+            }}
+          />
+          <ActionDelete
+            action={() => {
+              update((item) => {
+                item[idx] = null;
+              });
+            }}
+          />
+        </>
       )}
       <ActionSearch
         active={slotToSearchFor === idx}
@@ -49,7 +62,7 @@ function Search() {
     <SearchBox
       item={(set) => {
         update((item) => {
-          item[slotToSearchFor] = set;
+          item[slotToSearchFor] = { pinned: false, item: set };
         });
       }}
       slot={slotToSearchFor}
@@ -67,7 +80,7 @@ export function InitialItems() {
         <SetBox>
           {items.map((item, idx) => (
             <ItemDisplay
-              item={item}
+              item={item?.item}
               key={idx}
               actions={<ItemActions idx={idx} />}
             />

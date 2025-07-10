@@ -4,6 +4,7 @@ import {
   OptimiseApiResponse,
   Optimiser,
   OptimisationConfig,
+  OptimiseApiResponseItem,
 } from "@/services/dofus/optimiser";
 import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { damagingMoves } from "@/components/config/damagingMove";
@@ -34,17 +35,26 @@ export const maxLevelState = atom(149);
 
 export const bannedItemsState = atom([]);
 
-export const initialItemsState = atom(new Array(16).fill(null));
+export interface InitialItemState {
+  item: OptimiseApiResponseItem;
+  pinned: boolean;
+}
+
+export const initialItemsState = atom<(InitialItemState | null)[]>(
+  new Array(16).fill(null)
+);
 
 export const optimisationConfig = atom<OptimisationConfig>((get) => {
   return {
     weights: get(simpleWeightState),
     maxLevel: get(maxLevelState),
     bannedItems: get(bannedItemsState),
-    initialItems:
-      get(optimialResponseState)?.items.map((x) => x?.dofusId) ??
-      new Array(16).fill(undefined),
-    fixedItems: [],
+    initialItems: get(initialItemsState).map(
+      (x) => x?.item.dofusId ?? undefined
+    ),
+    fixedItems: get(initialItemsState).flatMap((x, idx) =>
+      x?.pinned ? [idx] : []
+    ),
     ...get(exosState),
     damagingMovesWeights: get(damagingMoves),
     changedItemWeight: 0,
