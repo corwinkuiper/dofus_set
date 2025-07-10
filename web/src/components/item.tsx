@@ -87,7 +87,7 @@ export function ActionDelete({ action, active }: ActionProps) {
   );
 }
 
-function makeUrl(imageUrl: string): string {
+export function makeUrl(imageUrl: string): string {
   return `https://d2iuiayak06k8j.cloudfront.net/${imageUrl}`;
 }
 

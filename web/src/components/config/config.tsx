@@ -20,6 +20,8 @@ import { Stack } from "../base/stack";
 import { InitialItems } from "./initialEquipment";
 import { Section } from "../base/section";
 import styled from "styled-components";
+import { ExosInputs } from "./exos";
+import { BannedItems } from "./bannedItems";
 
 function LevelInput() {
   const [level, setLevel] = useAtom(maxLevelState);
@@ -100,6 +102,12 @@ export function OptimisationConfig() {
       </Section>
       <Section title="Initial items">
         <InitialItems />
+      </Section>
+      <Section title="Exos">
+        <ExosInputs />
+      </Section>
+      <Section title="Banned items">
+        <BannedItems />
       </Section>
     </Stack>
   );

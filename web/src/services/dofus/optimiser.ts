@@ -246,4 +246,19 @@ export class Optimiser {
       );
     });
   }
+
+  async get_all_items(): Promise<OptimiseApiResponseItem[]> {
+    return new Promise((resolve, reject) => {
+      const jobId = crypto.randomUUID();
+      this.queueJob(
+        {
+          id: jobId,
+          kind: "get-items",
+        },
+        (data) => resolve(data as OptimiseApiResponseItem[]),
+        reject,
+        new AbortController().signal
+      );
+    });
+  }
 }

@@ -1,5 +1,5 @@
 use dofus_characteristics::Characteristic;
-use dofus_items::{ItemIndex, Items, NicheItemIndex};
+use dofus_items::{Item, ItemIndex, Items, NicheItemIndex};
 use dofus_set::{
     config::{Config, DamagingMove, DamagingMovesOptimisation},
     dofus_set::OptimiseError,
@@ -62,17 +62,21 @@ pub struct OptimiseResponse {
     set_bonuses: Vec<OptimiseResponseSetBonus>,
 }
 
+fn make_optimise_response(id: ItemIndex, item: &Item) -> OptimiseResponseItem {
+    OptimiseResponseItem {
+        dofus_id: id,
+        characteristics: item.stats.clone(),
+        name: item.name,
+        item_type: item.item_type,
+        level: item.level,
+        image_url: item.image_url,
+    }
+}
+
 fn item_list(list: &[ItemIndex], items: &Items) -> Vec<OptimiseResponseItem> {
     list.iter()
-        .map(|x| (x, &items[*x]))
-        .map(|(id, x)| OptimiseResponseItem {
-            dofus_id: *id,
-            characteristics: x.stats.clone(),
-            name: x.name,
-            item_type: x.item_type,
-            level: x.level,
-            image_url: x.image_url,
-        })
+        .map(|&x| (x, &items[x]))
+        .map(|(a, b)| make_optimise_response(a, b))
         .collect()
 }
 
@@ -84,6 +88,13 @@ pub fn get_item_list_index(slot: usize, items: &Items) -> Option<Vec<OptimiseRes
     let item_type = dofus_set::dofus_set::slot_index_to_item_type(slot);
 
     Some(item_list(&items[item_type], items))
+}
+
+pub fn get_all_items(items: &Items) -> Vec<OptimiseResponseItem> {
+    items
+        .iter()
+        .map(|(a, b)| make_optimise_response(a, b))
+        .collect()
 }
 
 pub fn create_optimised_set(

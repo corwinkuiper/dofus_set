@@ -40,6 +40,15 @@ impl Index<SetIndex> for Items {
     }
 }
 
+impl Items {
+    pub fn iter(&self) -> impl Iterator<Item = (ItemIndex, &Item)> {
+        self.items
+            .iter()
+            .enumerate()
+            .map(|(idx, item)| (ItemIndex::new_from_id(idx), item))
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ItemIndex(usize);
 

@@ -10,6 +10,7 @@ import { Stack } from "../base/stack";
 import { Button } from "../base/button";
 import { InputDecimal } from "../base/input";
 import { styled } from "styled-components";
+import { makeUrl } from "../item";
 
 interface OptimiseDamagingMoveString {
   weight: string;
@@ -79,6 +80,12 @@ interface DamagingMoveProps {
   move: PrimitiveAtom<OptimiseDamagingMoveString>;
 }
 
+const SpellImage = styled.img`
+  width: 64px;
+  height: 64px;
+  margin-right: 16px;
+`;
+
 function DamagingMove({ move }: DamagingMoveProps) {
   const [moveValue, setMove] = useImmerAtom(move);
   const spellsForClass = useAtomValue(spellsForSelectedClass);
@@ -87,37 +94,46 @@ function DamagingMove({ move }: DamagingMoveProps) {
   const spellId = useId();
 
   return (
-    <DamagingMoveGrid>
-      <label htmlFor={weightId}>Weight:</label>
-      <InputDecimal
-        id={weightId}
-        value={moveValue.weight}
-        onChange={(evt) =>
-          setMove((move) => {
-            move.weight = evt.target.value;
-          })
-        }
-      />
-      <label htmlFor={spellId}>Spell:</label>
-      <select
-        id={spellId}
-        value={moveValue.spell?.name}
-        onChange={(evt) =>
-          setMove((move) => {
-            move.spell =
-              spellsForClass?.spells.find((x) => x.name === evt.target.value) ??
-              null;
-          })
-        }
-      >
-        <option value="">Select a spall</option>
-        {spellsForClass?.spells.map((x) => (
-          <option key={x.name} value={x.name}>
-            {x.name}
-          </option>
-        ))}
-      </select>
-    </DamagingMoveGrid>
+    <Stack $dir="h">
+      <DamagingMoveGrid>
+        <label htmlFor={weightId}>Weight:</label>
+        <InputDecimal
+          id={weightId}
+          value={moveValue.weight}
+          onChange={(evt) =>
+            setMove((move) => {
+              move.weight = evt.target.value;
+            })
+          }
+        />
+        <label htmlFor={spellId}>Spell:</label>
+        <select
+          id={spellId}
+          value={moveValue.spell?.name}
+          onChange={(evt) =>
+            setMove((move) => {
+              move.spell =
+                spellsForClass?.spells.find(
+                  (x) => x.name === evt.target.value
+                ) ?? null;
+            })
+          }
+        >
+          <option value="">Select a spall</option>
+          {spellsForClass?.spells.map((x) => (
+            <option key={x.name} value={x.name}>
+              {x.name}
+            </option>
+          ))}
+        </select>
+      </DamagingMoveGrid>
+      {moveValue.spell && (
+        <SpellImage
+          src={makeUrl(moveValue.spell?.image_url)}
+          alt="Spell icon"
+        />
+      )}
+    </Stack>
   );
 }
 
@@ -147,7 +163,7 @@ export function DamagingMoveInput() {
   const [damagingMoves, setDamagingMoves] = useAtom(damagingMovesAtomAtom);
   const addDamagingMove = useCallback(() => {
     const newDamagingMove = atom<OptimiseDamagingMoveString>({
-      weight: "0",
+      weight: "1",
       spell: null,
     });
     setDamagingMoves((moves) => [...moves, newDamagingMove]);
