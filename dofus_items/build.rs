@@ -247,7 +247,6 @@ fn create_items() -> TokenStream {
             include_bytes!("data/weapons.json"),
             include_bytes!("data/mounts.json"),
             include_bytes!("data/pets.json"),
-            include_bytes!("data/rhineetles.json"),
         ],
         &sets.0,
     );
