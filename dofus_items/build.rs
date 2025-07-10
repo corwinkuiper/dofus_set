@@ -410,11 +410,11 @@ fn get_effect(effect: &[DofusLabEffectElement]) -> Damage {
     let mut damage = Damage::default();
     effect.iter().for_each(|x| {
         let idx = match x.stat.as_str() {
-            "Neutral damage" => &mut damage.neutral,
-            "Air damage" => &mut damage.air,
-            "Water damage" => &mut damage.water,
-            "Earth damage" => &mut damage.earth,
-            "Fire damage" => &mut damage.fire,
+            "Neutral damage" | "Neutral steal" => &mut damage.neutral,
+            "Air damage" | "Air steal" => &mut damage.air,
+            "Water damage" | "Water steal" => &mut damage.water,
+            "Earth damage" | "Earth steal" => &mut damage.earth,
+            "Fire damage" | "Fire steal" => &mut damage.fire,
             _ => return,
         };
         *idx = (x.minStat.unwrap_or(x.maxStat.0), x.maxStat.0);
