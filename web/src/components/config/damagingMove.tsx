@@ -1,131 +1,145 @@
-import { OptimisationDamagingMove } from "@/services/dofus/optimiser";
-import { getStatIconUrl, StatName } from "@/services/dofus/stats";
-import { useImmerAtom } from "@/state/state";
-import { atom, PrimitiveAtom, useAtom } from "jotai";
-import { useCallback } from "react";
-import { styled } from "styled-components";
+import {
+  OptimisationDamagingMove,
+  SpellDamage,
+  SpellSpell,
+} from "@/services/dofus/optimiser";
+import { getSpells, maxLevelState, useImmerAtom } from "@/state/state";
+import { atom, PrimitiveAtom, useAtom, useAtomValue } from "jotai";
+import { useCallback, useId } from "react";
 import { Stack } from "../base/stack";
 import { Button } from "../base/button";
 import { InputDecimal } from "../base/input";
+import { styled } from "styled-components";
 
 interface OptimiseDamagingMoveString {
   weight: string;
-  baseDamage: string[];
-  baseCritDamage: string[];
-  baseCritPercent: string;
-  critModifyable: boolean;
+  spell: SpellSpell | null;
 }
+
+const spellsAtom = atom(() => getSpells());
+const classAtom = atom<string | null>(null);
+const spellClasses = atom(async (get) =>
+  (await get(spellsAtom)).map((x) => x.name)
+);
+const spellsForSelectedClass = atom(async (get) => {
+  const _class = get(classAtom);
+  if (!_class) return null;
+
+  const spells = await get(spellsAtom);
+
+  return spells.find((x) => x.name === _class);
+});
 
 const damagingMovesAtomAtom = atom<PrimitiveAtom<OptimiseDamagingMoveString>[]>(
   []
 );
 
-export const damagingMoves = atom<OptimisationDamagingMove[]>((get) =>
-  get(damagingMovesAtomAtom)
-    .map(get)
-    .map((x) => ({
-      weight: Number(x.weight),
-      baseDamage: x.baseDamage.map(Number),
-      baseCritDamage: x.baseCritDamage.map(Number),
-      baseCritPercent: Number(x.baseCritPercent),
-      critModifyable: x.critModifyable,
-    }))
-);
+function damageToArray(damage: SpellDamage | null): number[] {
+  if (!damage) return Array(5).fill(0);
 
-const StatIconImg = styled.img`
-  height: 15px;
-  width: 15px;
-`;
-
-function StatIcon({ stat }: { stat: StatName }) {
-  return <StatIconImg alt={stat} src={getStatIconUrl(stat)} />;
+  return [
+    damage.neutral,
+    damage.air,
+    damage.water,
+    damage.earth,
+    damage.fire,
+  ].map((x) => (x.min + x.max) / 2);
 }
 
-const DamageInput = styled(InputDecimal)`
-  max-width: 32px;
-`;
+export const damagingMoves = atom<OptimisationDamagingMove[]>((get) => {
+  const level = get(maxLevelState);
 
-const ElementDamageGrid = styled.div`
+  return get(damagingMovesAtomAtom)
+    .map(get)
+    .flatMap((x) => {
+      const effect = x.spell?.effects.findLast((x) => level >= x.level);
+
+      if (!effect) return [];
+
+      return [
+        {
+          weight: Number(x.weight),
+          baseDamage: damageToArray(effect.normal),
+          baseCritDamage: damageToArray(effect.critical),
+          baseCritPercent: effect.base_crit ?? 0,
+          critModifyable: effect.base_crit !== null,
+        },
+      ];
+    });
+});
+
+const DamagingMoveGrid = styled.div`
   display: grid;
-  grid-template-columns: auto repeat(5, 1fr);
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-right: 16px;
 `;
 
-function DamagingMove({
-  move,
-}: {
+interface DamagingMoveProps {
   move: PrimitiveAtom<OptimiseDamagingMoveString>;
-}) {
-  const [dMove, updateMove] = useImmerAtom(move);
+}
+
+function DamagingMove({ move }: DamagingMoveProps) {
+  const [moveValue, setMove] = useImmerAtom(move);
+  const spellsForClass = useAtomValue(spellsForSelectedClass);
+
+  const weightId = useId();
+  const spellId = useId();
 
   return (
-    <Stack>
-      <ElementDamageGrid>
-        <span>Stat</span>
-        <StatIcon stat="Neutral Damage" />
-        <StatIcon stat="Air Damage" />
-        <StatIcon stat="Water Damage" />
-        <StatIcon stat="Earth Damage" />
-        <StatIcon stat="Fire Damage" />
-        <span>Base</span>
-        {dMove.baseDamage.map((dmg, idx) => (
-          <DamageInput
-            key={idx}
-            value={dmg}
-            onChange={(e) =>
-              updateMove((dMove) => {
-                dMove.baseDamage[idx] = e.target.value;
-              })
-            }
-          />
+    <DamagingMoveGrid>
+      <label htmlFor={weightId}>Weight:</label>
+      <InputDecimal
+        id={weightId}
+        value={moveValue.weight}
+        onChange={(evt) =>
+          setMove((move) => {
+            move.weight = evt.target.value;
+          })
+        }
+      />
+      <label htmlFor={spellId}>Spell:</label>
+      <select
+        id={spellId}
+        value={moveValue.spell?.name}
+        onChange={(evt) =>
+          setMove((move) => {
+            move.spell =
+              spellsForClass?.spells.find((x) => x.name === evt.target.value) ??
+              null;
+          })
+        }
+      >
+        <option value="">Select a spall</option>
+        {spellsForClass?.spells.map((x) => (
+          <option key={x.name} value={x.name}>
+            {x.name}
+          </option>
         ))}
-        <span>Crit</span>
-        {dMove.baseCritDamage.map((dmg, idx) => (
-          <DamageInput
-            key={idx}
-            value={dmg}
-            onChange={(e) =>
-              updateMove((dMove) => {
-                dMove.baseCritDamage[idx] = e.target.value;
-              })
-            }
-          />
+      </select>
+    </DamagingMoveGrid>
+  );
+}
+
+function ChooseClass() {
+  const [_class, setClass] = useAtom(classAtom);
+  const classes = useAtomValue(spellClasses);
+
+  return (
+    <label>
+      Select a class:
+      <select
+        value={_class ?? ""}
+        onChange={(evt) => setClass(evt.target.value || null)}
+      >
+        <option value="">Select a class</option>
+        {classes.map((x) => (
+          <option key={x} value={x}>
+            {x}
+          </option>
         ))}
-      </ElementDamageGrid>
-      <label>
-        Crit chance{" "}
-        <InputDecimal
-          value={dMove.baseCritPercent}
-          onChange={(e) =>
-            updateMove((dMove) => {
-              dMove.baseCritPercent = e.target.value;
-            })
-          }
-        />
-      </label>
-      <label>
-        Crit chance modifyable{" "}
-        <input
-          type="checkbox"
-          checked={dMove.critModifyable}
-          onChange={(e) =>
-            updateMove((dMove) => {
-              dMove.critModifyable = e.target.checked;
-            })
-          }
-        />
-      </label>
-      <label>
-        Damage weight{" "}
-        <InputDecimal
-          value={dMove.weight}
-          onChange={(e) =>
-            updateMove((dMove) => {
-              dMove.weight = e.target.value;
-            })
-          }
-        />
-      </label>
-    </Stack>
+      </select>
+    </label>
   );
 }
 
@@ -134,10 +148,7 @@ export function DamagingMoveInput() {
   const addDamagingMove = useCallback(() => {
     const newDamagingMove = atom<OptimiseDamagingMoveString>({
       weight: "0",
-      baseDamage: new Array(5).fill("0"),
-      baseCritDamage: new Array(5).fill("0"),
-      baseCritPercent: "0",
-      critModifyable: true,
+      spell: null,
     });
     setDamagingMoves((moves) => [...moves, newDamagingMove]);
   }, [setDamagingMoves]);
@@ -151,12 +162,17 @@ export function DamagingMoveInput() {
 
   return (
     <Stack>
-      {damagingMoves.map((x) => (
-        <Stack $dir="h" key={x.toString()}>
-          <DamagingMove move={x} />
-          <Button onClick={() => removeDamagingMove(x)}>Delete</Button>
-        </Stack>
-      ))}
+      <ChooseClass />
+      <ul>
+        {damagingMoves.map((x) => (
+          <li key={x.toString()}>
+            <Stack $dir="h">
+              <DamagingMove move={x} />
+              <Button onClick={() => removeDamagingMove(x)}>Delete</Button>
+            </Stack>
+          </li>
+        ))}
+      </ul>
       <Button onClick={addDamagingMove}>Add move</Button>
     </Stack>
   );

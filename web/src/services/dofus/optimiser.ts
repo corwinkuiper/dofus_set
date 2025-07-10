@@ -51,6 +51,38 @@ export interface OptimisationSettings {
   initialTemperature: number;
 }
 
+export interface SpellElementDamage {
+  min: number;
+  max: number;
+}
+
+export interface SpellDamage {
+  neutral: SpellElementDamage;
+  air: SpellElementDamage;
+  water: SpellElementDamage;
+  earth: SpellElementDamage;
+  fire: SpellElementDamage;
+}
+
+export interface SpellEffect {
+  level: number;
+  base_crit: number | null;
+  normal: SpellDamage | null;
+  critical: SpellDamage | null;
+}
+
+export interface SpellSpell {
+  name: string;
+  description: string;
+  image_url: string;
+  effects: SpellEffect[];
+}
+
+export interface SpellClass {
+  name: string;
+  spells: SpellSpell[];
+}
+
 export type OptimisationRequest = OptimisationConfig & OptimisationSettings;
 
 interface QueuedJob {
@@ -151,6 +183,7 @@ export class Optimiser {
     reject: (data: unknown) => void,
     abort: AbortSignal
   ) {
+    console.log("Job allocated", query);
     this.jobQueue.push({ query, resolve, reject, abort });
     this.allocateJob();
   }
@@ -193,6 +226,21 @@ export class Optimiser {
           slot,
         },
         (data) => resolve(data as OptimiseApiResponseItem[]),
+        reject,
+        new AbortController().signal
+      );
+    });
+  }
+
+  async get_spells(): Promise<SpellClass[]> {
+    return new Promise((resolve, reject) => {
+      const jobId = crypto.randomUUID();
+      this.queueJob(
+        {
+          id: jobId,
+          kind: "get-spells",
+        },
+        (data) => resolve(data as SpellClass[]),
         reject,
         new AbortController().signal
       );

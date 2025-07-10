@@ -4,6 +4,7 @@ use dofus_characteristics::{Characteristic, Stat, StatConversionError};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use serde::{de::Visitor, Deserialize};
+use serde_json::Value;
 use std::{collections::HashMap, convert::TryInto, io::Write};
 
 #[derive(Deserialize, Debug)]
@@ -58,30 +59,13 @@ struct DofusLabSpellClass {
 #[derive(Deserialize)]
 struct DofusLabEffectElement {
     stat: String,
-    minStat: i32,
-    maxStat: i32,
+    minStat: Option<i32>,
+    maxStat: StringI32,
 }
 
 #[derive(Deserialize)]
 struct DofusLabEffect {
-    modifyableEffect: Option<Vec<DofusLabEffectElement>>,
-}
-
-struct StringI32Visitor;
-
-impl Visitor<'_> for StringI32Visitor {
-    type Value = i32;
-
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        formatter.write_str("an integer that's a string")
-    }
-
-    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        value.parse::<i32>().map_err(|x| E::custom(x))
-    }
+    modifiableEffect: Option<Vec<DofusLabEffectElement>>,
 }
 
 #[derive(Clone, Copy)]
@@ -92,7 +76,16 @@ impl<'de> Deserialize<'de> for StringI32 {
     where
         D: serde::Deserializer<'de>,
     {
-        Ok(StringI32(deserializer.deserialize_str(StringI32Visitor)?))
+        Ok(match Value::deserialize(deserializer)? {
+            Value::String(s) => s.parse().map(StringI32).map_err(serde::de::Error::custom)?,
+            Value::Number(n) => n
+                .as_i64()
+                .ok_or(serde::de::Error::custom("wrong type"))?
+                .try_into()
+                .map(StringI32)
+                .map_err(serde::de::Error::custom)?,
+            _ => return Err(serde::de::Error::custom("wrong type")),
+        })
     }
 }
 
@@ -424,7 +417,7 @@ fn get_effect(effect: &[DofusLabEffectElement]) -> Damage {
             "Fire damage" => &mut damage.fire,
             _ => return,
         };
-        *idx = (x.minStat, x.maxStat);
+        *idx = (x.minStat.unwrap_or(x.maxStat.0), x.maxStat.0);
     });
 
     damage
@@ -454,10 +447,10 @@ fn create_spells() -> TokenStream {
                 let level = x.level.0;
 
                 let normal =
-                    quote_option(x.normalEffects.modifyableEffect.as_deref().map(get_effect));
+                    quote_option(x.normalEffects.modifiableEffect.as_deref().map(get_effect));
                 let critical = quote_option(
                     x.criticalEffects
-                        .modifyableEffect
+                        .modifiableEffect
                         .as_deref()
                         .map(get_effect),
                 );

@@ -137,3 +137,7 @@ export function useDispatchOptimise() {
 export function getItemsInSlot(slot: number) {
   return optimiser.get_items_in_slot(slot);
 }
+
+export function getSpells() {
+  return optimiser.get_spells();
+}

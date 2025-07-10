@@ -1,4 +1,4 @@
-import init, { setup, query, items_in_slot } from "@/pkg/wasm";
+import init, { setup, query, items_in_slot, get_spells } from "@/pkg/wasm";
 import { OptimisationConfig } from "./optimiser";
 
 interface WorkerQueryId {
@@ -15,8 +15,12 @@ interface WorkerQueryGetSlot {
   slot: number;
 }
 
+interface WorkerSpellsGet {
+  kind: "get-spells";
+}
+
 export type WorkerQuery = WorkerQueryId &
-  (WorkerQueryGetSlot | WorkerQueryOptimise);
+  (WorkerQueryGetSlot | WorkerQueryOptimise | WorkerSpellsGet);
 
 const initialised = (async () => {
   await init({});
@@ -36,6 +40,13 @@ onmessage = async (message: MessageEvent<WorkerQuery>) => {
   } else if (message.data.kind === "get-slot") {
     try {
       const response = items_in_slot(message.data.slot);
+      postMessage({ id: message.data.id, success: true, response });
+    } catch (e) {
+      postMessage({ id: message.data.id, success: false, response: e });
+    }
+  } else if (message.data.kind === "get-spells") {
+    try {
+      const response = get_spells();
       postMessage({ id: message.data.id, success: true, response });
     } catch (e) {
       postMessage({ id: message.data.id, success: false, response: e });
