@@ -7,6 +7,8 @@ import pin from "@/assets/pin.svg";
 import search from "@/assets/search.svg";
 import bin from "@/assets/bin.svg";
 import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
+import { Tooltip } from "./base/tooltip";
+import { OverallStats } from "./overall-stats";
 
 const ItemActions = styled.div`
   margin-left: auto;
@@ -87,21 +89,31 @@ export function ActionDelete({ action, active }: ActionProps) {
   );
 }
 
+interface TooltipDisplayProps {
+  item: OptimiseApiResponseItem;
+}
+
+function TooltipDisplay({ item }: TooltipDisplayProps) {
+  return <OverallStats stats={item.characteristics} />;
+}
+
 export function makeUrl(imageUrl: string): string {
   return `https://d2iuiayak06k8j.cloudfront.net/${imageUrl}`;
 }
 
 export function ItemDisplay({ item, actions }: ItemProps) {
   return (
-    <ItemBox>
-      {item && (
-        <>
-          <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
-          <ItemName>{item.name}</ItemName>
-        </>
-      )}
-      <ItemActions>{actions}</ItemActions>
-    </ItemBox>
+    <Tooltip tooltip={item && <TooltipDisplay item={item} />}>
+      <ItemBox>
+        {item && (
+          <>
+            <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
+            <ItemName>{item.name}</ItemName>
+          </>
+        )}
+        <ItemActions>{actions}</ItemActions>
+      </ItemBox>
+    </Tooltip>
   );
 }
 
