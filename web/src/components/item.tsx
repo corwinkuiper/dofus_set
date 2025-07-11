@@ -89,13 +89,12 @@ export function ActionDelete({ action, active }: ActionProps) {
   );
 }
 
-interface TooltipDisplayProps {
-  item: OptimiseApiResponseItem;
-}
-
-function TooltipDisplay({ item }: TooltipDisplayProps) {
-  return <OverallStats stats={item.characteristics} />;
-}
+const TooltipContainer = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  border: solid black 1px;
+  padding: 8px;
+`;
 
 export function makeUrl(imageUrl: string): string {
   return `https://d2iuiayak06k8j.cloudfront.net/${imageUrl}`;
@@ -103,7 +102,15 @@ export function makeUrl(imageUrl: string): string {
 
 export function ItemDisplay({ item, actions }: ItemProps) {
   return (
-    <Tooltip tooltip={item && <TooltipDisplay item={item} />}>
+    <Tooltip
+      tooltip={
+        item && (
+          <TooltipContainer>
+            <OverallStats stats={item.characteristics} />
+          </TooltipContainer>
+        )
+      }
+    >
       <ItemBox>
         {item && (
           <>

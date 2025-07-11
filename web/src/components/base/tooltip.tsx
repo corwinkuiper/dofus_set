@@ -9,7 +9,6 @@ interface TooltipProps {
 
 const TooltipBox = styled.div`
   position: absolute;
-  background-color: white;
   pointer-events: none;
 `;
 
