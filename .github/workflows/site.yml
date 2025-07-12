@@ -23,14 +23,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache site
-        uses: actions/cache@v3
-        with:
-          path: |
             web/node_modules
             web/.next
-          key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}
+          key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Install wasm-pack
         run: npm install -g wasm-pack
       - name: Build wasm deps
