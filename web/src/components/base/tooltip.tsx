@@ -15,8 +15,6 @@ const TooltipBox = styled.div`
 export function Tooltip({ className, children, tooltip }: TooltipProps) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
 
-  console.log(pos);
-
   return (
     <>
       <div
