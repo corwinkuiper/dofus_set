@@ -31,8 +31,8 @@ jobs:
             web/node_modules
             web/.next
           key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}
-      - name: Install rust nightly
-        run: rustup toolchain install nightly-x86_64-unknown-linux-gnu
+      - name: Install wasm-pack
+        run: npm install -g wasm-pack
       - name: Build wasm deps
         run: just prepare-web
       - name: Install npm deps

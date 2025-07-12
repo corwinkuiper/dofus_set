@@ -1,5 +1,5 @@
 prepare-web:
-    (cd wasm;  rustup run nightly wasm-pack  build --release --target web)
+    (cd wasm; wasm-pack build --release --target web)
     rm -rf web/src/pkg
     cp -r wasm/pkg web/src/pkg
 
