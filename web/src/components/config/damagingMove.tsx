@@ -75,7 +75,7 @@ function DamagingMove({ move }: DamagingMoveProps) {
             })
           }
         >
-          <option value="">Select a spall</option>
+          <option value="">Select a spell</option>
           {spellsForClass?.spells.map((x) => (
             <option key={x.name} value={x.name}>
               {x.name}
