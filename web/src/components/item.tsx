@@ -15,6 +15,8 @@ import { OverallStats } from "./overall-stats";
 
 const ItemActions = styled.div`
   margin-left: auto;
+  display: flex;
+  flex-direction: row;
 `;
 const ItemName = styled.span`
   font-size: 0.8rem;

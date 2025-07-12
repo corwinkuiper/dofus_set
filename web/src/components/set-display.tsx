@@ -3,7 +3,15 @@ import {
   OptimiseApiResponseSetBonus,
 } from "@/services/dofus/optimiser";
 import styled from "styled-components";
-import { EmptyItemDisplay, ItemDisplay, SetBonusDisplay } from "./item";
+import {
+  ActionDelete,
+  ActionPin,
+  EmptyItemDisplay,
+  ItemDisplay,
+  SetBonusDisplay,
+} from "./item";
+import { initialItemsState, useImmerAtom } from "@/state/state";
+import { bannedItemsAtom } from "./config/bannedItems";
 
 interface SetDisplayProps {
   set: (OptimiseApiResponseItem | null)[];
@@ -17,11 +25,42 @@ const SetBox = styled.div`
 
 interface SingleItemOrNullDisplayProps {
   item: OptimiseApiResponseItem | null;
+  idx: number;
 }
 
-function SingleItemOrNullDisplay({ item }: SingleItemOrNullDisplayProps) {
+function SingleItemOrNullDisplay({ item, idx }: SingleItemOrNullDisplayProps) {
+  const [initialItems, updateInitialItems] = useImmerAtom(initialItemsState);
+  const [bannedItems, updateBannedItems] = useImmerAtom(bannedItemsAtom);
+
   if (item) {
-    return <ItemDisplay item={item} />;
+    return (
+      <ItemDisplay
+        item={item}
+        actions={
+          <>
+            <ActionPin
+              action={() =>
+                updateInitialItems((items) => {
+                  items[idx] = { pinned: false, item: item };
+                })
+              }
+              active={
+                initialItems.find((x) => x?.item.dofusId === item.dofusId)
+                  ?.pinned
+              }
+            />
+            <ActionDelete
+              action={() =>
+                updateBannedItems((items) => {
+                  items.set(item.dofusId, item);
+                })
+              }
+              active={bannedItems.has(item.dofusId)}
+            />
+          </>
+        }
+      />
+    );
   } else {
     return <EmptyItemDisplay />;
   }
@@ -31,7 +70,7 @@ export function SetDisplay({ set }: SetDisplayProps) {
   return (
     <SetBox>
       {set.map((item, idx) => (
-        <SingleItemOrNullDisplay item={item} key={idx} />
+        <SingleItemOrNullDisplay item={item} key={idx} idx={idx} />
       ))}
     </SetBox>
   );
