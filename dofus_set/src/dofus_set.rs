@@ -1,18 +1,10 @@
 use std::ops::Index;
 
-use crate::anneal;
-use crate::config;
-use crate::config::Config;
+use crate::{anneal, config, config::Config};
 
 use dofus_characteristics::{stat_is_element, Characteristic, Stat, STAT_ELEMENT};
-use dofus_items::Item;
-use dofus_items::ItemIndex;
-use dofus_items::ItemType;
-use dofus_items::Items;
-use dofus_items::NicheItemIndex;
-use dofus_items::SetIndex;
-use rand::prelude::Rng;
-use rand::seq::SliceRandom;
+use dofus_items::{Item, ItemIndex, ItemType, Items, NicheItemIndex, SetIndex};
+use rand::{prelude::Rng, seq::SliceRandom};
 use serde::Serialize;
 
 pub fn slot_index_to_item_type(index: usize) -> ItemType {
