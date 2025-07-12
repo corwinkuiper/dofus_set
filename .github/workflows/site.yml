@@ -1,0 +1,44 @@
+name: Rust
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: extractions/setup-just@v3
+      - uses: actions/checkout@v3
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache site
+        uses: actions/cache@v3
+        with:
+          path: |
+            web/node_modules
+            web/.next
+          key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}
+      - name: Build wasm deps
+        run: just prepare-web
+      - name: Install npm deps
+        run: npm ci
+        working-directory: web
+      - name: Lint
+        run: npm run lint
+        working-directory: web
+      - name: Build
+        run: npm run build
+        working-directory: web
