@@ -1,7 +1,6 @@
 use dofus_characteristics::Stat;
 use dofus_items::{Items, NicheItemIndex};
-use dofus_set::config;
-use dofus_set::dofus_set::Optimiser;
+use dofus_set::{config, dofus_set::Optimiser};
 
 pub fn bench(items: &Items) -> f64 {
     let mut weights = [0.0; 51];

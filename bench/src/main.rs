@@ -2,8 +2,7 @@
 
 use dofus_characteristics::Stat;
 use dofus_items::{NicheItemIndex, ITEMS};
-use dofus_set::config;
-use dofus_set::dofus_set::Optimiser;
+use dofus_set::{config, dofus_set::Optimiser};
 
 fn main() {
     let items = &ITEMS;

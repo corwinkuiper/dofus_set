@@ -1,7 +1,9 @@
 #![deny(clippy::all)]
 
-use ::dofus_set::config;
-use ::dofus_set::dofus_set::{Optimiser, State};
+use ::dofus_set::{
+    config,
+    dofus_set::{Optimiser, State},
+};
 use dofus_characteristics::{Characteristic, Stat};
 use dofus_items::{Item, Items, NicheItemIndex, ITEMS};
 
