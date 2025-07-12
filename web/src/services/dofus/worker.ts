@@ -38,7 +38,7 @@ export type WorkerQuery = WorkerQueryId &
   );
 
 const initialised = (async () => {
-  await init({});
+  await init();
   setup();
 })();
 

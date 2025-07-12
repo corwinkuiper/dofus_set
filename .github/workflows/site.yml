@@ -25,6 +25,7 @@ jobs:
             ~/.cargo/git
             target
             web/node_modules
+            web/.next
           key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Install wasm-pack
         run: npm install -g wasm-pack
@@ -42,7 +43,7 @@ jobs:
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "web/dist"
+          path: "web/out"
   deploy:
     name: Deploy website
     if: github.event_name == 'push'

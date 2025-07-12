@@ -108,9 +108,7 @@ export class Optimiser {
 
   private createWorker() {
     console.log("Creating worker");
-    const worker = new Worker(new URL("./worker", import.meta.url), {
-      type: "module",
-    });
+    const worker = new Worker(new URL("./worker", import.meta.url));
     worker.onmessage = (message) => {
       const id = message.data.id;
       console.log("Job resolved", id, message.data.response);

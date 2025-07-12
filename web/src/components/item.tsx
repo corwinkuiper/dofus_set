@@ -12,6 +12,7 @@ import {
 import { Tooltip } from "./base/tooltip";
 import { OverallStats } from "./overall-stats";
 import { makeUrl } from "../services/makeUrl";
+import Image from "next/image";
 
 const ItemActions = styled.div`
   margin-left: auto;
@@ -45,12 +46,10 @@ const COLOUR_LOOKUP: Record<Colour, RuleSet> = {
   RED: RED_FILTER,
 };
 
-const ActionImage = styled.img<{ $colour?: Colour }>`
+const ActionImage = styled(Image)<{ $colour?: Colour }>`
   ${(props) => props.$colour && COLOUR_LOOKUP[props.$colour]}
 
   cursor: pointer;
-  width: 24px;
-  height: 24px;
 `;
 
 interface ItemProps {
