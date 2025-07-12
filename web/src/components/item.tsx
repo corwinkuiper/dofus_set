@@ -6,7 +6,10 @@ import styled, { css, RuleSet } from "styled-components";
 import pin from "@/assets/pin.svg";
 import search from "@/assets/search.svg";
 import bin from "@/assets/bin.svg";
-import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
+import {
+  OptimiseApiResponseItem,
+  OptimiseApiResponseSetBonus,
+} from "@/services/dofus/optimiser";
 import { Tooltip } from "./base/tooltip";
 import { OverallStats } from "./overall-stats";
 
@@ -119,6 +122,28 @@ export function ItemDisplay({ item, actions }: ItemProps) {
           </>
         )}
         <ItemActions>{actions}</ItemActions>
+      </ItemBox>
+    </Tooltip>
+  );
+}
+
+interface SetBonusDisplayProps {
+  set: OptimiseApiResponseSetBonus;
+}
+
+export function SetBonusDisplay({ set }: SetBonusDisplayProps) {
+  return (
+    <Tooltip
+      tooltip={
+        <TooltipContainer>
+          <OverallStats stats={set.characteristics} />
+        </TooltipContainer>
+      }
+    >
+      <ItemBox>
+        <ItemName>
+          {set.name} ({set.numberOfItems})
+        </ItemName>
       </ItemBox>
     </Tooltip>
   );

@@ -1,6 +1,9 @@
-import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
+import {
+  OptimiseApiResponseItem,
+  OptimiseApiResponseSetBonus,
+} from "@/services/dofus/optimiser";
 import styled from "styled-components";
-import { EmptyItemDisplay, ItemDisplay } from "./item";
+import { EmptyItemDisplay, ItemDisplay, SetBonusDisplay } from "./item";
 
 interface SetDisplayProps {
   set: (OptimiseApiResponseItem | null)[];
@@ -8,7 +11,7 @@ interface SetDisplayProps {
 
 const SetBox = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(192px, auto));
+  grid-template-columns: repeat(auto-fit, minmax(192px, 300px));
   max-width: 100%;
 `;
 
@@ -29,6 +32,20 @@ export function SetDisplay({ set }: SetDisplayProps) {
     <SetBox>
       {set.map((item, idx) => (
         <SingleItemOrNullDisplay item={item} key={idx} />
+      ))}
+    </SetBox>
+  );
+}
+
+interface SetBonusesDisplayProps {
+  bonuses: OptimiseApiResponseSetBonus[];
+}
+
+export function SetBonusesDisplay({ bonuses }: SetBonusesDisplayProps) {
+  return (
+    <SetBox>
+      {bonuses.map((x) => (
+        <SetBonusDisplay key={x.name} set={x} />
       ))}
     </SetBox>
   );

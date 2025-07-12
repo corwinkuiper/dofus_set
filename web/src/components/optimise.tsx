@@ -1,6 +1,6 @@
 "use client";
 
-import { SetDisplay } from "./set-display";
+import { SetBonusesDisplay, SetDisplay } from "./set-display";
 import { OverallStats } from "./overall-stats";
 import {
   useCancelOptimisation,
@@ -38,9 +38,25 @@ function OptimiseForm({ children }: { children: ReactNode }) {
   );
 }
 
-export function Optimise() {
+function CurrentOptimalResult() {
   const optimal = useOptimisationResult();
 
+  if (!optimal) return null;
+
+  return (
+    <Stack $dir="h">
+      <Stack $grow>
+        <SetDisplay set={optimal.items} />
+        <SetBonusesDisplay bonuses={optimal.setBonuses} />
+      </Stack>
+      <Stack>
+        <OverallStats stats={optimal.overallCharacteristics} />
+      </Stack>
+    </Stack>
+  );
+}
+
+export function Optimise() {
   return (
     <Stack>
       <Stack>
@@ -49,12 +65,7 @@ export function Optimise() {
           <OptimiseButton />
         </OptimiseForm>
       </Stack>
-      <Stack $dir="h">
-        <Stack $grow>{optimal && <SetDisplay set={optimal.items} />}</Stack>
-        <Stack>
-          {optimal && <OverallStats stats={optimal.overallCharacteristics} />}
-        </Stack>
-      </Stack>
+      <CurrentOptimalResult />
     </Stack>
   );
 }
