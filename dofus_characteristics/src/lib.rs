@@ -313,7 +313,7 @@ impl std::convert::TryFrom<&str> for Stat {
 impl std::fmt::Display for Stat {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let s = STAT_NAMES[*self as usize];
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 

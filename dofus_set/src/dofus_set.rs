@@ -146,7 +146,7 @@ impl State {
                 continue;
             }
             if dofus[i + 1..].contains(singular_dofus) {
-                violation_energy += 2000.;
+                violation_energy += 1_000.;
             }
         }
 
@@ -157,7 +157,7 @@ impl State {
             let ring1_set = items[ring1].set_id;
             if let (Some(ring0_set), Some(ring1_set)) = (ring0_set, ring1_set) {
                 if ring0_set == ring1_set {
-                    violation_energy += 2000.;
+                    violation_energy += 1_000.;
                 }
             }
         }
@@ -178,6 +178,57 @@ impl State {
             .map(|((&stat, &weight), &target)| {
                 let stat = target.map_or_else(|| stat, |target| std::cmp::min(target, stat));
                 stat as f64 * weight
+            })
+            .sum::<f64>();
+
+        let difference_energy = config
+            .initial_set
+            .iter()
+            .zip(self.set.iter())
+            .filter(|(a, b)| a != b)
+            .count() as f64
+            * config.changed_item_weight;
+
+        let damage_energy = config
+            .damaging_moves
+            .iter()
+            .map(|x| {
+                let critical = if x.damage.modifyable_crit {
+                    (x.damage.base_crit_ratio + stats[Stat::Critical]).clamp(0, 100) as f64
+                } else {
+                    x.damage.base_crit_ratio as f64
+                };
+                let ratio = critical / 100.;
+                let damage_stats = [
+                    (Stat::Strength, Stat::DamageNeutral),
+                    (Stat::Agility, Stat::DamageAir),
+                    (Stat::Chance, Stat::DamageWater),
+                    (Stat::Strength, Stat::DamageEarth),
+                    (Stat::Intelligence, Stat::DamageFire),
+                ];
+
+                let critical_damage = stats[Stat::DamageCritical];
+                let power = stats[Stat::Power];
+                let damage = stats[Stat::Damage];
+                x.damage
+                    .elemental_damage
+                    .into_iter()
+                    .zip(x.damage.crit_elemental_damage)
+                    .zip(damage_stats)
+                    .map(|((b, c), (stat_power, stat_damage))| {
+                        let stat_power = stats[stat_power];
+                        let average_base_damage = b * (1. - ratio) + c * ratio;
+
+                        if average_base_damage != 0. {
+                            average_base_damage * (1. + ((stat_power + power) as f64) / 100.)
+                                + (damage + stats[stat_damage]) as f64
+                                + ratio * critical_damage as f64
+                        } else {
+                            0.
+                        }
+                    })
+                    .sum::<f64>()
+                    * x.weight
             })
             .sum::<f64>();
 
@@ -206,10 +257,14 @@ impl State {
             element_iter.sum()
         };
 
-        -energy_non_element - energy_element + self.restriction_energy(config, &stats, items, sets)
+        -energy_non_element - energy_element - difference_energy - damage_energy
+            + self.restriction_energy(config, &stats, items, sets)
     }
 
-    fn items<'a>(&'a self, items: &'a Items) -> impl std::iter::Iterator<Item = &Item> + 'a {
+    fn items<'a>(
+        &'a self,
+        items: &'a Items,
+    ) -> impl std::iter::Iterator<Item = &'a Item> + use<'a> {
         self.set
             .iter()
             .filter_map(move |item_id| item_id.get().map(|item_id| &items[item_id]))
@@ -295,10 +350,11 @@ impl Index<ItemType> for AllowedItemCache {
 impl<'a> Optimiser<'a> {
     pub fn new(
         config: &'a config::Config,
-        initial_set: [Option<ItemIndex>; 16],
+        initial_temperature: f64,
         items: &'a Items,
     ) -> Result<Optimiser<'a>, OptimiseError> {
-        let initial_state: State = State::new_from_initial_equipment(initial_set, items)?;
+        let initial_state: State =
+            State::new_from_initial_equipment(config.initial_set.map(NicheItemIndex::get), items)?;
 
         let mut item_list: [Vec<ItemIndex>; 10] = Default::default();
 
@@ -311,7 +367,7 @@ impl<'a> Optimiser<'a> {
                 .collect();
         }
 
-        let temperature_initial = 1000.;
+        let temperature_initial = initial_temperature;
         let temperature_quench = 5.;
         let temperature_time_constant =
             (0.01f64 / temperature_initial).ln() / 0.95_f64.powf(temperature_quench);
@@ -326,7 +382,7 @@ impl<'a> Optimiser<'a> {
         })
     }
 
-    pub fn optimise(self) -> Result<State, OptimiseError> {
+    pub fn optimise(self, iterations: i64) -> Result<State, OptimiseError> {
         if !self
             .config
             .changable
@@ -339,7 +395,7 @@ impl<'a> Optimiser<'a> {
         let sets = self.initial_state.sets(self.items);
         let energy = self.initial_state.energy(self.config, self.items, &sets);
 
-        anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), 1_000_000)
+        anneal::Anneal::optimise(&self, (self.initial_state.clone(), energy), iterations)
     }
 }
 
@@ -356,7 +412,7 @@ pub enum OptimiseError {
     InvalidState,
 }
 
-impl<'a> anneal::Anneal<State> for Optimiser<'a> {
+impl anneal::Anneal<State> for Optimiser<'_> {
     type Error = OptimiseError;
 
     fn random(&self) -> f64 {
@@ -373,16 +429,23 @@ impl<'a> anneal::Anneal<State> for Optimiser<'a> {
             if item_type.is_empty() {
                 continue;
             }
-            let item_index = item_type[rng.gen_range(0..item_type.len())];
-            break (item_slot, item_index);
+            let idx = rng.gen_range(0..item_type.len() + 1);
+            if idx != item_type.len() {
+                let item_index = item_type[idx];
+                break (item_slot, Some(item_index));
+            } else {
+                break (item_slot, None);
+            }
         };
 
         if let Some(old_item) = new_state.set[item_slot].get() {
             new_state.remove_item(&self.items[old_item]);
         }
-        new_state.add_item(&self.items[item]);
+        if let Some(item) = item {
+            new_state.add_item(&self.items[item]);
+        }
 
-        new_state.set[item_slot] = NicheItemIndex::new_from_idx(item);
+        new_state.set[item_slot] = NicheItemIndex::new(item);
         let sets = new_state.sets(self.items);
 
         let energy = new_state.energy(self.config, self.items, &sets);

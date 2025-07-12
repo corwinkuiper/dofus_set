@@ -3,7 +3,7 @@
 use ::dofus_set::config;
 use ::dofus_set::dofus_set::{Optimiser, State};
 use dofus_characteristics::{Characteristic, Stat};
-use dofus_items::{Item, Items, ITEMS};
+use dofus_items::{Item, Items, NicheItemIndex, ITEMS};
 
 fn main() {
     let items = &ITEMS;
@@ -25,13 +25,14 @@ fn main() {
         exo_mp: false,
         exo_range: false,
         multi_element: false,
+        initial_set: [NicheItemIndex::new(None); 16],
+        changed_item_weight: 0.,
+        damaging_moves: Vec::new(),
     };
 
-    let initial_set: [Option<_>; 16] = [None; 16];
+    let optimiser = Optimiser::new(&config, 1000., items).unwrap();
 
-    let optimiser = Optimiser::new(&config, initial_set, items).unwrap();
-
-    let final_state = optimiser.optimise().unwrap();
+    let final_state = optimiser.optimise(1_000_000).unwrap();
     print_state(&final_state, &config, items);
     let sets = final_state.sets(items);
     println!("Set Energy: {}", -final_state.energy(&config, items, &sets));
@@ -43,7 +44,7 @@ pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     for item in state.set().flatten().map(|idx| &items[idx]) {
         let state_name = item.item_type;
         if state_name != last_state_name {
-            println!("{}", state_name);
+            println!("{state_name}");
             println!("-----------------------------");
         }
 
@@ -66,7 +67,7 @@ fn print_stats(stat: &Characteristic) {
     for (characteristic, value) in stat.iter().enumerate() {
         let stat = Stat::from_repr(characteristic).unwrap();
         if *value != 0 {
-            println!("\t{}: {}", stat, value);
+            println!("\t{stat}: {value}");
         }
     }
 }
