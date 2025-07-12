@@ -3,7 +3,7 @@ use std::{error::Error, fs::File, io::BufWriter};
 use dofus_characteristics::{Characteristic, Stat, StatConversionError};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
-use serde::{de::Visitor, Deserialize};
+use serde::Deserialize;
 use serde_json::Value;
 use std::{collections::HashMap, convert::TryInto, io::Write};
 
@@ -57,15 +57,17 @@ struct DofusLabSpellClass {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct DofusLabEffectElement {
     stat: String,
-    minStat: Option<i32>,
-    maxStat: StringI32,
+    min_stat: Option<i32>,
+    max_stat: StringI32,
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct DofusLabEffect {
-    modifiableEffect: Option<Vec<DofusLabEffectElement>>,
+    modifiable_effect: Option<Vec<DofusLabEffectElement>>,
 }
 
 #[derive(Clone, Copy)]
@@ -90,18 +92,20 @@ impl<'de> Deserialize<'de> for StringI32 {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct DofusLabSpellEffect {
     level: StringI32,
-    baseCritRate: Option<StringI32>,
-    normalEffects: DofusLabEffect,
-    criticalEffects: DofusLabEffect,
+    base_crit_rate: Option<StringI32>,
+    normal_effects: DofusLabEffect,
+    critical_effects: DofusLabEffect,
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct DofusLabSpell {
     name: DofusLabLocalised,
     description: DofusLabLocalised,
-    imageUrl: String,
+    image_url: String,
     effects: Vec<DofusLabSpellEffect>,
 }
 
@@ -417,7 +421,7 @@ fn get_effect(effect: &[DofusLabEffectElement]) -> Damage {
             "Fire damage" | "Fire steal" => &mut damage.fire,
             _ => return,
         };
-        *idx = (x.minStat.unwrap_or(x.maxStat.0), x.maxStat.0);
+        *idx = (x.min_stat.unwrap_or(x.max_stat.0), x.max_stat.0);
     });
 
     damage
@@ -441,16 +445,20 @@ fn create_spells() -> TokenStream {
         let spells = x.spells.iter().flatten().map(|x| {
             let name = &x.name;
             let description = &x.description;
-            let image_url = &x.imageUrl;
+            let image_url = &x.image_url;
             let effects = x.effects.iter().map(|x| {
-                let base_crit = quote_option(x.baseCritRate.map(|StringI32(x)| x));
+                let base_crit = quote_option(x.base_crit_rate.map(|StringI32(x)| x));
                 let level = x.level.0;
 
-                let normal =
-                    quote_option(x.normalEffects.modifiableEffect.as_deref().map(get_effect));
+                let normal = quote_option(
+                    x.normal_effects
+                        .modifiable_effect
+                        .as_deref()
+                        .map(get_effect),
+                );
                 let critical = quote_option(
-                    x.criticalEffects
-                        .modifiableEffect
+                    x.critical_effects
+                        .modifiable_effect
                         .as_deref()
                         .map(get_effect),
                 );
