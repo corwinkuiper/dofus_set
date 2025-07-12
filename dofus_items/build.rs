@@ -501,11 +501,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let output_file = File::create(format!("{out_dir}/compiled_items.rs"))?;
     let mut writer = BufWriter::new(output_file);
-    writeln!(writer, "{}", items)?;
+    writeln!(writer, "{items}")?;
 
     let output_file = File::create(format!("{out_dir}/compiled_spells.rs"))?;
     let mut writer = BufWriter::new(output_file);
-    writeln!(writer, "{}", spells)?;
+    writeln!(writer, "{spells}")?;
 
     Ok(())
 }

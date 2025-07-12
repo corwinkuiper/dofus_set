@@ -44,7 +44,7 @@ pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     for item in state.set().flatten().map(|idx| &items[idx]) {
         let state_name = item.item_type;
         if state_name != last_state_name {
-            println!("{}", state_name);
+            println!("{state_name}");
             println!("-----------------------------");
         }
 
@@ -67,7 +67,7 @@ fn print_stats(stat: &Characteristic) {
     for (characteristic, value) in stat.iter().enumerate() {
         let stat = Stat::from_repr(characteristic).unwrap();
         if *value != 0 {
-            println!("\t{}: {}", stat, value);
+            println!("\t{stat}: {value}");
         }
     }
 }
