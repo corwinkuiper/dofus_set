@@ -6,23 +6,32 @@ import {
   OptimisationConfig,
   OptimiseApiResponseItem,
 } from "@/services/dofus/optimiser";
-import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  atom,
+  SetStateAction,
+  useAtom,
+  useAtomValue,
+  useSetAtom,
+  WritableAtom,
+} from "jotai";
 import { damagingMoves } from "@/components/config/damagingMove";
 import { bannedItemsAtom } from "@/components/config/bannedItems";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
-export const useImmerAtom = <T>(atom: PrimitiveAtom<T>) => {
+export const useImmerAtom = <T, V, R>(
+  atom: WritableAtom<T, [SetStateAction<V>], R>
+) => {
   const [state, setState] = useAtom(atom);
 
   return [
     state,
     useCallback(
-      (update: DraftFunction<T> | T) => {
+      (update: DraftFunction<V> | V) => {
         setState((current) =>
           typeof update === "function"
-            ? produce(current, update as DraftFunction<T>)
-            : (update as T)
+            ? produce(current, update as DraftFunction<V>)
+            : (update as V)
         );
       },
       [setState]
@@ -34,10 +43,8 @@ export const simpleWeightState = atom<number[]>(new Array(51).fill(0));
 
 export const maxLevelState = atom(149);
 
-export const bannedItemsState = atom((get) => [
-  ...get(bannedItemsAtom)
-    .values()
-    .map((x) => x.dofusId),
+export const bannedItemsState = atom(async (get) => [
+  ...(await get(bannedItemsAtom)).values().map((x) => x.dofusId),
 ]);
 
 export interface InitialItemState {
@@ -49,22 +56,24 @@ export const initialItemsState = atom<(InitialItemState | null)[]>(
   new Array(16).fill(null)
 );
 
-export const optimisationConfig = atom<OptimisationConfig>((get) => {
-  return {
-    weights: get(simpleWeightState),
-    maxLevel: get(maxLevelState),
-    bannedItems: get(bannedItemsState),
-    initialItems: get(initialItemsState).map(
-      (x) => x?.item.dofusId ?? undefined
-    ),
-    fixedItems: get(initialItemsState).flatMap((x, idx) =>
-      x?.pinned ? [idx] : []
-    ),
-    ...get(exosState),
-    damagingMovesWeights: get(damagingMoves),
-    changedItemWeight: 0,
-  };
-});
+export const optimisationConfig = atom<Promise<OptimisationConfig>>(
+  async (get) => {
+    return {
+      weights: get(simpleWeightState),
+      maxLevel: get(maxLevelState),
+      bannedItems: await get(bannedItemsState),
+      initialItems: get(initialItemsState).map(
+        (x) => x?.item.dofusId ?? undefined
+      ),
+      fixedItems: get(initialItemsState).flatMap((x, idx) =>
+        x?.pinned ? [idx] : []
+      ),
+      ...get(exosState),
+      damagingMovesWeights: get(damagingMoves),
+      changedItemWeight: 0,
+    };
+  }
+);
 
 export const exosState = atom({
   apExo: false,

@@ -78,12 +78,12 @@ interface SearchAllItemsBoxProps {
   item: (item: OptimiseApiResponseItem) => void;
 }
 
-const allItems = atom(() => getAllItems());
+export const allItemsAtom = atom(() => getAllItems());
 
 export function SearchAllItemsBox({ item }: SearchAllItemsBoxProps) {
   return (
     <Suspense>
-      <SearchResults item={item} itemList={allItems} />
+      <SearchResults item={item} itemList={allItemsAtom} />
     </Suspense>
   );
 }
