@@ -24,7 +24,6 @@ jobs:
             ~/.cargo/git
             target
             web/node_modules
-            web/.next
           key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Install wasm-pack
         run: npm install -g wasm-pack

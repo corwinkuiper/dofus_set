@@ -1,12 +1,13 @@
 import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
-import { Stack } from "../base/stack";
+import { Stack } from "@/components/base/stack";
 import { atom, useAtomValue } from "jotai";
 import { Suspense, useMemo, useState, useTransition } from "react";
-import { getAllItems, getItemsInSlot } from "@/state/state";
+import { getItemsInSlot } from "@/state/state";
 import Fuse, { FuseResult } from "fuse.js";
-import { ActionPin, ItemDisplay } from "../item";
+import { ActionPin, ItemDisplay } from "@/components/item";
 import styled from "styled-components";
 import { Atom } from "jotai";
+import { allItemsAtom } from "@/state/allItemsState";
 
 const ScrollStack = styled(Stack)`
   max-height: 400px;
@@ -77,8 +78,6 @@ export function SearchBox({ slot, item }: SearchBoxProps) {
 interface SearchAllItemsBoxProps {
   item: (item: OptimiseApiResponseItem) => void;
 }
-
-export const allItemsAtom = atom(() => getAllItems());
 
 export function SearchAllItemsBox({ item }: SearchAllItemsBoxProps) {
   return (

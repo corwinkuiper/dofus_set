@@ -1,5 +1,3 @@
-"use client";
-
 import { WorkerQuery } from "./worker";
 
 export interface OptimiseApiResponse {
@@ -110,7 +108,9 @@ export class Optimiser {
 
   private createWorker() {
     console.log("Creating worker");
-    const worker = new Worker(new URL("./worker", import.meta.url));
+    const worker = new Worker(new URL("./worker", import.meta.url), {
+      type: "module",
+    });
     worker.onmessage = (message) => {
       const id = message.data.id;
       console.log("Job resolved", id, message.data.response);
@@ -129,9 +129,9 @@ export class Optimiser {
         this.allocateJob();
       }
     };
-    worker.onerror = () => {
+    worker.onerror = (e) => {
       worker.terminate();
-      console.log("Worker failed");
+      console.log("Worker failed", e);
       this.createWorker();
       this.freeWorkers = this.freeWorkers.filter((x) => x !== worker);
     };

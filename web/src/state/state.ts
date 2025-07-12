@@ -14,8 +14,8 @@ import {
   useSetAtom,
   WritableAtom,
 } from "jotai";
-import { damagingMoves } from "@/components/config/damagingMove";
-import { bannedItemsAtom } from "@/components/config/bannedItems";
+import { damagingMoves } from "@/state/damagingMovesState";
+import { bannedItemsAtom } from "./bannedItemsState";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
@@ -43,7 +43,7 @@ export const simpleWeightState = atom<number[]>(new Array(51).fill(0));
 
 export const maxLevelState = atom(149);
 
-export const bannedItemsState = atom(async (get) => [
+const bannedItemsState = atom(async (get) => [
   ...(await get(bannedItemsAtom)).values().map((x) => x.dofusId),
 ]);
 

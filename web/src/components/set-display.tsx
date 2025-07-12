@@ -11,7 +11,7 @@ import {
   SetBonusDisplay,
 } from "./item";
 import { initialItemsState, useImmerAtom } from "@/state/state";
-import { bannedItemsAtom } from "./config/bannedItems";
+import { bannedItemsAtom } from "@/state/bannedItemsState";
 
 interface SetDisplayProps {
   set: (OptimiseApiResponseItem | null)[];

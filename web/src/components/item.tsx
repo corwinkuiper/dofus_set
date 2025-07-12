@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ReactNode } from "react";
 import styled, { css, RuleSet } from "styled-components";
 import pin from "@/assets/pin.svg";
@@ -12,6 +11,7 @@ import {
 } from "@/services/dofus/optimiser";
 import { Tooltip } from "./base/tooltip";
 import { OverallStats } from "./overall-stats";
+import { makeUrl } from "../services/makeUrl";
 
 const ItemActions = styled.div`
   margin-left: auto;
@@ -45,10 +45,12 @@ const COLOUR_LOOKUP: Record<Colour, RuleSet> = {
   RED: RED_FILTER,
 };
 
-const ActionImage = styled(Image)<{ $colour?: Colour }>`
+const ActionImage = styled.img<{ $colour?: Colour }>`
   ${(props) => props.$colour && COLOUR_LOOKUP[props.$colour]}
 
   cursor: pointer;
+  width: 24px;
+  height: 24px;
 `;
 
 interface ItemProps {
@@ -100,10 +102,6 @@ const TooltipContainer = styled.div`
   border: solid black 1px;
   padding: 8px;
 `;
-
-export function makeUrl(imageUrl: string): string {
-  return `https://d2iuiayak06k8j.cloudfront.net/${imageUrl}`;
-}
 
 export function ItemDisplay({ item, actions }: ItemProps) {
   return (
