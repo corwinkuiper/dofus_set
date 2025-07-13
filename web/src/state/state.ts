@@ -70,6 +70,8 @@ export const initialItemsState = atom<(InitialItemState | null)[]>(
   new Array(16).fill(null)
 );
 
+export const differentEquipmentWeightState = atom(0);
+
 export const numberOfIterationsAtom = atom(1000000);
 export const initialTemperatureAtom = atom(1000);
 
@@ -89,7 +91,7 @@ export const optimisationConfig = atom<Promise<OptimisationRequest>>(
       ),
       ...get(exosState),
       damagingMovesWeights: get(damagingMoves),
-      changedItemWeight: 0,
+      changedItemWeight: get(differentEquipmentWeightState),
       iterations: get(numberOfIterationsAtom),
       initialTemperature: get(initialTemperatureAtom),
     };

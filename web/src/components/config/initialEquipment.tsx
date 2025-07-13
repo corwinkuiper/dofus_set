@@ -1,4 +1,8 @@
-import { initialItemsState, useImmerAtom } from "@/state/state";
+import {
+  differentEquipmentWeightState,
+  initialItemsState,
+  useImmerAtom,
+} from "@/state/state";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { styled } from "styled-components";
 import {
@@ -78,24 +82,38 @@ function Search() {
 
 export function InitialItems() {
   const items = useAtomValue(initialItemsState);
+  const [changedItem, setChangedItem] = useAtom(differentEquipmentWeightState);
 
   return (
     <Stack $dir="h">
       <Search />
       <Stack $grow>
-        <SetBox>
-          {items.map((item, idx) =>
-            item ? (
-              <ItemDisplay
-                item={item?.item}
-                key={idx}
-                actions={<ItemActions idx={idx} />}
-              />
-            ) : (
-              <EmptyItemDisplay key={idx} actions={<ItemActions idx={idx} />} />
-            )
-          )}
-        </SetBox>
+        <Stack $grow>
+          <SetBox>
+            {items.map((item, idx) =>
+              item ? (
+                <ItemDisplay
+                  item={item?.item}
+                  key={idx}
+                  actions={<ItemActions idx={idx} />}
+                />
+              ) : (
+                <EmptyItemDisplay
+                  key={idx}
+                  actions={<ItemActions idx={idx} />}
+                />
+              )
+            )}
+          </SetBox>
+        </Stack>
+        <label>
+          Changed item weight:{" "}
+          <input
+            type="number"
+            value={changedItem}
+            onChange={(evt) => setChangedItem(Number(evt.target.value))}
+          />
+        </label>
       </Stack>
     </Stack>
   );
