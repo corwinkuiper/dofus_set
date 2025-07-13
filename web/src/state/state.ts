@@ -17,6 +17,7 @@ import {
 import { damagingMoves } from "@/state/damagingMovesState";
 import { bannedItemsAtom } from "./bannedItemsState";
 import { useClientAtom } from "@/hooks/useClientAtom";
+import { statIndex } from "@/services/dofus/stats";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
@@ -40,7 +41,19 @@ export const useImmerAtom = <T, V, R>(
   ] as const;
 };
 
-export const simpleWeightState = atom<number[]>(new Array(51).fill(0));
+function generateSampleStats() {
+  const stats = new Array(51).fill(0);
+
+  stats[0] = 100;
+  stats[1] = 100;
+  stats[2] = 50;
+
+  stats[statIndex("Vitality")] = 0.0001;
+
+  return stats;
+}
+
+export const simpleWeightState = atom<number[]>(generateSampleStats());
 
 export const maxLevelState = atom(149);
 

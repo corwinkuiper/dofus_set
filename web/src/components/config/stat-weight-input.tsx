@@ -10,6 +10,9 @@ import { Button } from "../base/button";
 const Weights = styled.ul`
   list-style: none;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(192px, 300px));
+  gap: 16px;
 `;
 
 const Weight = styled.li`
@@ -19,8 +22,12 @@ const Weight = styled.li`
     flex-grow: 1;
   }
 `;
-const WeightStatInput = styled.select``;
-const WeightCountInput = styled.input``;
+const WeightStatInput = styled.select`
+  max-width: 50%;
+`;
+const WeightCountInput = styled.input`
+  max-width: 50%;
+`;
 
 const AddWeightButton = Button;
 

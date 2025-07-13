@@ -22,6 +22,7 @@ import { Section } from "../base/section";
 import styled from "styled-components";
 import { ExosInputs } from "./exos";
 import { BannedItems } from "./bannedItems";
+import { StatWeightInput } from "./stat-weight-input";
 
 function LevelInput() {
   const [level, setLevel] = useAtom(maxLevelState);
@@ -84,6 +85,7 @@ function ApMpRangeWeightInput() {
       <BaseStatInput statName="AP" />
       <BaseStatInput statName="MP" />
       <BaseStatInput statName="Range" />
+      <BaseStatInput statName="Vitality" />
     </BasicList>
   );
 }
@@ -108,6 +110,9 @@ export function OptimisationConfig() {
       </Section>
       <Section title="Banned items">
         <BannedItems />
+      </Section>
+      <Section title="Raw input" closed>
+        <StatWeightInput />
       </Section>
     </Stack>
   );
