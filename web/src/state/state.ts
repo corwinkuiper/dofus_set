@@ -3,8 +3,8 @@ import { useCallback } from "react";
 import {
   OptimiseApiResponse,
   Optimiser,
-  OptimisationConfig,
   OptimiseApiResponseItem,
+  OptimisationRequest,
 } from "@/services/dofus/optimiser";
 import {
   atom,
@@ -17,6 +17,7 @@ import {
 import { damagingMoves } from "@/state/damagingMovesState";
 import { bannedItemsAtom } from "./bannedItemsState";
 import { useClientAtom } from "@/hooks/useClientAtom";
+import { statIndex } from "@/services/dofus/stats";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
@@ -40,7 +41,19 @@ export const useImmerAtom = <T, V, R>(
   ] as const;
 };
 
-export const simpleWeightState = atom<number[]>(new Array(51).fill(0));
+function generateSampleStats() {
+  const stats = new Array(51).fill(0);
+
+  stats[0] = 100;
+  stats[1] = 100;
+  stats[2] = 50;
+
+  stats[statIndex("Vitality")] = 0.0001;
+
+  return stats;
+}
+
+export const simpleWeightState = atom<number[]>(generateSampleStats());
 
 export const maxLevelState = atom(149);
 
@@ -57,7 +70,12 @@ export const initialItemsState = atom<(InitialItemState | null)[]>(
   new Array(16).fill(null)
 );
 
-export const optimisationConfig = atom<Promise<OptimisationConfig>>(
+export const numberOfIterationsAtom = atom(1000000);
+export const initialTemperatureAtom = atom(1000);
+
+export const continuousOptimisationAtom = atom(false);
+
+export const optimisationConfig = atom<Promise<OptimisationRequest>>(
   async (get) => {
     return {
       weights: get(simpleWeightState),
@@ -72,6 +90,8 @@ export const optimisationConfig = atom<Promise<OptimisationConfig>>(
       ...get(exosState),
       damagingMovesWeights: get(damagingMoves),
       changedItemWeight: 0,
+      iterations: get(numberOfIterationsAtom),
+      initialTemperature: get(initialTemperatureAtom),
     };
   }
 );
@@ -106,48 +126,97 @@ export function useOptimisationResult() {
   return useAtomValue(optimialResponseState);
 }
 
+export const optimisationProgressAtom = atom({ current: 0, dispatched: 0 });
+
 export function useDispatchOptimise() {
   const setRunningOptimisation = useSetAtom(runningOptimisationState);
   const optimiseConfigAtom = useClientAtom(optimisationConfig, null);
   const config = useAtomValue(optimiseConfigAtom);
   const setOptimiseResponse = useSetAtom(optimialResponseState);
+  const shouldUseContinuousOptimisation = useAtomValue(
+    continuousOptimisationAtom
+  );
+
+  const setProgress = useSetAtom(optimisationProgressAtom);
 
   return useCallback(
-    async function triggerOptimisation(iterations: number) {
+    async function triggerOptimisation() {
       if (!config) return;
       const abort = new AbortController();
       setRunningOptimisation(abort);
 
-      const optimiseRequests = [];
-      const freeWorkers = optimiser.freeWorkerCount() || 1;
-      const request = {
-        ...config,
-        iterations,
-        initialTemperature: 1000,
-      };
-      while (optimiseRequests.length < freeWorkers)
-        optimiseRequests.push(
-          optimiser.optimise(request, { abort: abort.signal })
+      if (!shouldUseContinuousOptimisation) {
+        const optimiseRequests = [];
+        const freeWorkers = optimiser.freeWorkerCount() || 1;
+        setProgress({ current: 0, dispatched: freeWorkers });
+        while (optimiseRequests.length < freeWorkers)
+          optimiseRequests.push(
+            (async () => {
+              const response = await optimiser.optimise(config, {
+                abort: abort.signal,
+              });
+              setProgress((current) => ({
+                ...current,
+                current: current.current + 1,
+              }));
+              return response;
+            })()
+          );
+
+        const settled = await Promise.allSettled(optimiseRequests);
+
+        setRunningOptimisation(null);
+
+        const success = settled.flatMap((x) =>
+          x.status === "fulfilled" ? [x.value] : []
         );
+        if (success.length === 0) {
+          return;
+        }
 
-      const settled = await Promise.allSettled(optimiseRequests);
+        let max = success[0];
+        success.forEach((x) => {
+          if (x.energy > max.energy) max = x;
+        });
+        setOptimiseResponse(max);
+      } else {
+        setOptimiseResponse(null);
+        const numberOfThreads = Math.max(navigator.hardwareConcurrency ?? 1, 1);
+        const optimiseRequests = [];
 
-      setRunningOptimisation(null);
+        setProgress({ current: 0, dispatched: numberOfThreads });
 
-      const success = settled.flatMap((x) =>
-        x.status === "fulfilled" ? [x.value] : []
-      );
-      if (success.length === 0) {
-        return;
+        while (optimiseRequests.length < numberOfThreads)
+          optimiseRequests.push(
+            (async () => {
+              while (!abort.signal.aborted) {
+                const result = await optimiser.optimise(config, {
+                  abort: abort.signal,
+                });
+                setProgress((current) => ({
+                  dispatched: current.dispatched + 1,
+                  current: current.current + 1,
+                }));
+                setOptimiseResponse((current) => {
+                  if (!current) return result;
+                  if (current.energy < result.energy) return result;
+                  return current;
+                });
+              }
+            })()
+          );
+        await Promise.allSettled(optimiseRequests);
+
+        setRunningOptimisation(null);
       }
-
-      let max = success[0];
-      success.forEach((x) => {
-        if (x.energy > max.energy) max = x;
-      });
-      setOptimiseResponse(max);
     },
-    [config, setOptimiseResponse, setRunningOptimisation]
+    [
+      config,
+      setOptimiseResponse,
+      setRunningOptimisation,
+      shouldUseContinuousOptimisation,
+      setProgress,
+    ]
   );
 }
 

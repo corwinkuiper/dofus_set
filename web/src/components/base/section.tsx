@@ -23,11 +23,12 @@ const Title = styled.span`
 interface SectionProps {
   title: string;
   children: ReactNode;
+  closed?: boolean;
 }
 
-export function Section({ title, children }: SectionProps) {
+export function Section({ title, children, closed = false }: SectionProps) {
   return (
-    <SectionWrapper open={true}>
+    <SectionWrapper open={!closed}>
       <Summary>
         <Title>{title}</Title>
       </Summary>
