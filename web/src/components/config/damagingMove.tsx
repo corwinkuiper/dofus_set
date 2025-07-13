@@ -10,6 +10,7 @@ import {
   damagingMovesAtomAtom,
   OptimiseDamagingMoveString,
 } from "../../state/damagingMovesState";
+import { useClientAtom } from "@/hooks/useClientAtom";
 
 const spellsAtom = atom(() => getSpells());
 const classAtom = atom<string | null>(null);
@@ -44,7 +45,8 @@ const SpellImage = styled.img`
 
 function DamagingMove({ move }: DamagingMoveProps) {
   const [moveValue, setMove] = useImmerAtom(move);
-  const spellsForClass = useAtomValue(spellsForSelectedClass);
+  const spellForSelectedClassAtom = useClientAtom(spellsForSelectedClass, null);
+  const spellsForClass = useAtomValue(spellForSelectedClassAtom);
 
   const weightId = useId();
   const spellId = useId();
@@ -95,7 +97,8 @@ function DamagingMove({ move }: DamagingMoveProps) {
 
 function ChooseClass() {
   const [_class, setClass] = useAtom(classAtom);
-  const classes = useAtomValue(spellClasses);
+  const spellClassesAtom = useClientAtom(spellClasses, []);
+  const classes = useAtomValue(spellClassesAtom);
 
   return (
     <label>

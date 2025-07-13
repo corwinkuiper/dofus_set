@@ -103,7 +103,11 @@ export class Optimiser {
   private desiredWorkerCount: number;
 
   constructor() {
-    this.desiredWorkerCount = navigator.hardwareConcurrency;
+    if (typeof Worker !== "function") {
+      this.desiredWorkerCount = 0;
+    } else {
+      this.desiredWorkerCount = navigator.hardwareConcurrency;
+    }
   }
 
   private createWorker() {
