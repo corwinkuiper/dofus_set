@@ -23,6 +23,7 @@ import styled from "styled-components";
 import { ExosInputs } from "./exos";
 import { BannedItems } from "./bannedItems";
 import { StatWeightInput } from "./stat-weight-input";
+import { AdvancedConfig } from "./advanced";
 
 function LevelInput() {
   const [level, setLevel] = useAtom(maxLevelState);
@@ -113,6 +114,9 @@ export function OptimisationConfig() {
       </Section>
       <Section title="Raw input" closed>
         <StatWeightInput />
+      </Section>
+      <Section title="Advanced" closed>
+        <AdvancedConfig />
       </Section>
     </Stack>
   );

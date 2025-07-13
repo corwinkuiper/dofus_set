@@ -3,6 +3,7 @@
 import { SetBonusesDisplay, SetDisplay } from "./set-display";
 import { OverallStats } from "./overall-stats";
 import {
+  optimisationProgressAtom,
   useCancelOptimisation,
   useDispatchOptimise,
   useOptimisationResult,
@@ -11,11 +12,18 @@ import { Stack } from "./base/stack";
 import { OptimisationConfig } from "./config/config";
 import { ReactNode } from "react";
 import { Button } from "./base/button";
+import { useAtomValue } from "jotai";
 
 function OptimiseButton() {
   const cancel = useCancelOptimisation();
 
-  return <Button type="submit">{(cancel && "Cancel") || "Optimise"}</Button>;
+  const { current, dispatched } = useAtomValue(optimisationProgressAtom);
+
+  return (
+    <Button type="submit">
+      {(cancel && `Cancel (${current} / ${dispatched})`) || "Optimise"}
+    </Button>
+  );
 }
 
 function OptimiseForm({ children }: { children: ReactNode }) {
@@ -29,13 +37,27 @@ function OptimiseForm({ children }: { children: ReactNode }) {
         if (cancel) {
           cancel("aborted by user");
         } else {
-          trigger(1000000);
+          trigger();
         }
       }}
     >
       {children}
     </form>
   );
+}
+
+interface DisplayNumberAppropriatelyProps {
+  number: number;
+}
+
+function DisplayNumberAppropriately({
+  number,
+}: DisplayNumberAppropriatelyProps) {
+  if (Math.abs(number) >= 1) {
+    return number.toFixed(2);
+  }
+
+  return number;
 }
 
 function CurrentOptimalResult() {
@@ -50,6 +72,9 @@ function CurrentOptimalResult() {
         <SetBonusesDisplay bonuses={optimal.setBonuses} />
       </Stack>
       <Stack>
+        <div>
+          Energy: <DisplayNumberAppropriately number={optimal.energy} />
+        </div>
         <OverallStats stats={optimal.overallCharacteristics} />
       </Stack>
     </Stack>

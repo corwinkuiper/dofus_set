@@ -135,6 +135,7 @@ export class Optimiser {
     worker.onerror = (e) => {
       worker.terminate();
       console.log("Worker failed", e);
+      this.workerCount -= 1;
       this.createWorker();
       this.freeWorkers = this.freeWorkers.filter((x) => x !== worker);
     };
@@ -159,6 +160,7 @@ export class Optimiser {
       const worker = this.freeWorkers.pop()!; // just checked it is not empty
       const abortListener = () => {
         worker.terminate();
+        this.workerCount -= 1;
         this.createWorker();
         job.reject({ message: "aborted" });
       };
