@@ -13,9 +13,9 @@ import { Tooltip } from "./base/tooltip";
 import { OverallStats } from "./overall-stats";
 import { makeUrl } from "../services/makeUrl";
 import Image from "next/image";
+import { Stack } from "./base/stack";
 
 const ItemActions = styled.div`
-  margin-left: auto;
   display: flex;
   flex-direction: row;
 `;
@@ -33,6 +33,8 @@ const ItemBox = styled.div`
   background-color: lightgray;
   margin: 8px;
   padding-right: 8px;
+  align-items: center;
+  gap: 8px;
 `;
 
 type Colour = "RED";
@@ -52,8 +54,8 @@ const ActionImage = styled(Image)<{ $colour?: Colour }>`
   cursor: pointer;
 `;
 
-interface ItemProps {
-  item?: OptimiseApiResponseItem;
+interface ItemDisplayProps {
+  item: OptimiseApiResponseItem;
   actions?: ReactNode;
 }
 
@@ -102,25 +104,35 @@ const TooltipContainer = styled.div`
   padding: 8px;
 `;
 
-export function ItemDisplay({ item, actions }: ItemProps) {
+const LevelAndActions = styled(Stack)`
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const NonImageContent = styled(Stack)`
+  flex-grow: 1;
+`;
+
+const ItemLevel = styled(ItemName)``;
+
+export function ItemDisplay({ item, actions }: ItemDisplayProps) {
   return (
     <Tooltip
       tooltip={
-        item && (
-          <TooltipContainer>
-            <OverallStats stats={item.characteristics} />
-          </TooltipContainer>
-        )
+        <TooltipContainer>
+          <OverallStats stats={item.characteristics} />
+        </TooltipContainer>
       }
     >
       <ItemBox>
-        {item && (
-          <>
-            <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
-            <ItemName>{item.name}</ItemName>
-          </>
-        )}
-        <ItemActions>{actions}</ItemActions>
+        <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
+        <NonImageContent>
+          <LevelAndActions $dir="h">
+            <ItemLevel>{item.level}</ItemLevel>
+            <ItemActions>{actions}</ItemActions>
+          </LevelAndActions>
+          <ItemName>{item.name}</ItemName>
+        </NonImageContent>
       </ItemBox>
     </Tooltip>
   );
@@ -148,6 +160,20 @@ export function SetBonusDisplay({ set }: SetBonusDisplayProps) {
   );
 }
 
-export function EmptyItemDisplay() {
-  return <ItemBox />;
+interface EmptyItemDisplayProps {
+  actions?: ReactNode;
+}
+
+export function EmptyItemDisplay({ actions }: EmptyItemDisplayProps) {
+  return (
+    <ItemBox>
+      <NonImageContent>
+        <div />
+        <LevelAndActions $dir="h">
+          <div />
+          <ItemActions>{actions}</ItemActions>
+        </LevelAndActions>
+      </NonImageContent>
+    </ItemBox>
+  );
 }
