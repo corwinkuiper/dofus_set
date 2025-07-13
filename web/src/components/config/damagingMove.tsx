@@ -67,20 +67,18 @@ function DamagingMove({ move }: DamagingMoveProps) {
         <label htmlFor={spellId}>Spell:</label>
         <select
           id={spellId}
-          value={moveValue.spell?.name}
+          value={spellsForClass?.spells.findIndex((x) => x == moveValue.spell)}
           onChange={(evt) =>
             setMove((move) => {
-              move.spell =
-                spellsForClass?.spells.find(
-                  (x) => x.name === evt.target.value
-                ) ?? null;
+              const selectedSpell = Number(evt.target.value);
+              move.spell = spellsForClass?.spells.at(selectedSpell) ?? null;
             })
           }
         >
           <option value="">Select a spell</option>
-          {spellsForClass?.spells.map((x) => (
-            <option key={x.name} value={x.name}>
-              {x.name}
+          {spellsForClass?.spells.map((x, idx) => (
+            <option key={`${x.name} - ${idx}`} value={idx}>
+              {x.name} ({x.effects.map((x) => x.level).join(", ")})
             </option>
           ))}
         </select>

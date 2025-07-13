@@ -71,6 +71,7 @@ export interface SpellEffect {
 
 export interface SpellSpell {
   name: string;
+  level: number;
   description: string;
   image_url: string;
   effects: SpellEffect[];
