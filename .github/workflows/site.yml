@@ -27,6 +27,9 @@ jobs:
             web/node_modules
             web/.next
           key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - name: Install wasm-pack
         run: npm install -g wasm-pack
       - name: Build wasm deps
