@@ -16,6 +16,7 @@ import {
 } from "jotai";
 import { damagingMoves } from "@/state/damagingMovesState";
 import { bannedItemsAtom } from "./bannedItemsState";
+import { useClientAtom } from "@/hooks/useClientAtom";
 
 type DraftFunction<T> = (draft: Draft<T>) => void;
 
@@ -107,11 +108,13 @@ export function useOptimisationResult() {
 
 export function useDispatchOptimise() {
   const setRunningOptimisation = useSetAtom(runningOptimisationState);
-  const config = useAtomValue(optimisationConfig);
+  const optimiseConfigAtom = useClientAtom(optimisationConfig, null);
+  const config = useAtomValue(optimiseConfigAtom);
   const setOptimiseResponse = useSetAtom(optimialResponseState);
 
   return useCallback(
     async function triggerOptimisation(iterations: number) {
+      if (!config) return;
       const abort = new AbortController();
       setRunningOptimisation(abort);
 

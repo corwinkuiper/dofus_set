@@ -5,6 +5,7 @@ import { bannedItemsAtom } from "@/state/bannedItemsState";
 import { styled } from "styled-components";
 import { ActionDelete, ItemDisplay } from "../item";
 import { enableMapSet } from "immer";
+import { useClientAtom } from "@/hooks/useClientAtom";
 
 enableMapSet();
 
@@ -17,7 +18,8 @@ const SetBox = styled.div`
 `;
 
 export function BannedItems() {
-  const [items, updateItems] = useImmerAtom(bannedItemsAtom);
+  const atom = useClientAtom(bannedItemsAtom, new Map());
+  const [items, updateItems] = useImmerAtom(atom);
 
   return (
     <Stack $dir="h">

@@ -8,6 +8,7 @@ import { ActionPin, ItemDisplay } from "@/components/item";
 import styled from "styled-components";
 import { Atom } from "jotai";
 import { allItemsAtom } from "@/state/allItemsState";
+import { useClientAtom } from "@/hooks/useClientAtom";
 
 const ScrollStack = styled(Stack)`
   max-height: 400px;
@@ -80,9 +81,11 @@ interface SearchAllItemsBoxProps {
 }
 
 export function SearchAllItemsBox({ item }: SearchAllItemsBoxProps) {
+  const atom = useClientAtom(allItemsAtom, []);
+
   return (
     <Suspense>
-      <SearchResults item={item} itemList={allItemsAtom} />
+      <SearchResults item={item} itemList={atom} />
     </Suspense>
   );
 }
