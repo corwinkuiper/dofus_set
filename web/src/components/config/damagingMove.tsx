@@ -100,7 +100,7 @@ function ChooseClass() {
 
   return (
     <label>
-      Select a class:
+      Select a class:{" "}
       <select
         value={_class ?? ""}
         onChange={(evt) => setClass(evt.target.value || null)}
