@@ -13,6 +13,7 @@ import { OptimisationConfig } from "./config/config";
 import { ReactNode } from "react";
 import { Button } from "./base/button";
 import { useAtomValue } from "jotai";
+import { styled } from "styled-components";
 
 function OptimiseButton() {
   const cancel = useCancelOptimisation();
@@ -60,22 +61,34 @@ function DisplayNumberAppropriately({
   return number;
 }
 
+const Warning = styled.div`
+  color: red;
+`;
+
 function CurrentOptimalResult() {
   const optimal = useOptimisationResult();
 
   if (!optimal) return null;
 
   return (
-    <Stack $dir="h">
-      <Stack $grow>
-        <SetDisplay set={optimal.items} />
-        <SetBonusesDisplay bonuses={optimal.setBonuses} />
-      </Stack>
-      <Stack>
-        <div>
-          Energy: <DisplayNumberAppropriately number={optimal.energy} />
-        </div>
-        <OverallStats stats={optimal.overallCharacteristics} />
+    <Stack>
+      {!optimal.valid && (
+        <Warning>
+          This set isn&apos;t valid, this is likely because your weights are too
+          high making it energetically preferable to make invalid sets.
+        </Warning>
+      )}
+      <Stack $dir="h">
+        <Stack $grow>
+          <SetDisplay set={optimal.items} />
+          <SetBonusesDisplay bonuses={optimal.setBonuses} />
+        </Stack>
+        <Stack>
+          <div>
+            Energy: <DisplayNumberAppropriately number={optimal.energy} />
+          </div>
+          <OverallStats stats={optimal.overallCharacteristics} />
+        </Stack>
       </Stack>
     </Stack>
   );

@@ -60,6 +60,7 @@ pub struct OptimiseResponse {
     overall_characteristics: Characteristic,
     items: Vec<Option<OptimiseResponseItem>>,
     set_bonuses: Vec<OptimiseResponseSetBonus>,
+    valid: bool,
 }
 
 fn make_optimise_response(id: ItemIndex, item: &Item) -> OptimiseResponseItem {
@@ -164,9 +165,12 @@ pub fn create_optimised_set(
         })
         .collect();
 
+    let stats = final_state.stats(&dofus_set_config, &sets);
+
     Ok(OptimiseResponse {
         energy: -final_state.energy(&dofus_set_config, items, &sets),
-        overall_characteristics: final_state.stats(&dofus_set_config, &sets).clone(),
+        valid: final_state.is_valid(&dofus_set_config, &stats, items, &sets),
+        overall_characteristics: stats,
         items: final_state
             .set()
             .map(|idx| {
