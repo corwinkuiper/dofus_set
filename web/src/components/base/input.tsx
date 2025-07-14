@@ -43,12 +43,6 @@ export function InputDecimal({ value, onChange, ...rest }: InputDecimalProps) {
   }
   const change = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const desired = evt.target.value;
-
-    const n = makeNumberRepresentation(desired);
-    if (n !== null) {
-      onChange(n);
-    }
-
     setStringInput(desired);
   };
 
@@ -56,10 +50,13 @@ export function InputDecimal({ value, onChange, ...rest }: InputDecimalProps) {
     <input
       type="text"
       inputMode="decimal"
-      pattern="[0-9 ]*(.[0-9]*)?"
+      pattern="([0-9 ]*(.[0-9]*)?)|([0-9]*e[0-9-]*)"
       onChange={change}
       value={stringInput}
-      onBlur={() => setStringInput(formatNumber(stringInput))}
+      onBlur={() => {
+        onChange(makeNumberRepresentation(stringInput) ?? 0);
+        setStringInput(formatNumber(stringInput));
+      }}
       {...rest}
     />
   );
@@ -77,12 +74,6 @@ export function InputInteger({ value, onChange, ...rest }: InputDecimalProps) {
   }
   const change = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const desired = evt.target.value;
-
-    const n = makeNumberRepresentation(desired);
-    if (n !== null) {
-      onChange(n);
-    }
-
     setStringInput(desired);
   };
 
@@ -93,7 +84,10 @@ export function InputInteger({ value, onChange, ...rest }: InputDecimalProps) {
       pattern="[0-9 ]*"
       onChange={change}
       value={stringInput}
-      onBlur={() => setStringInput(formatNumber(stringInput))}
+      onBlur={() => {
+        onChange(makeNumberRepresentation(stringInput) ?? 0);
+        setStringInput(formatNumber(stringInput));
+      }}
       {...rest}
     />
   );
