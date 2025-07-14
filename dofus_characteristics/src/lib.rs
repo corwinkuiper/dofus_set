@@ -95,8 +95,8 @@ impl Restriction for RestrictionLeaf {
         let value = characteristics[self.stat];
         let extra_strict = self.stat == Stat::AP || self.stat == Stat::MP;
         let difference = match self.operator {
-            Operator::GreaterThan => (self.value - value).max(0),
-            Operator::LessThan => (value - self.value).max(0),
+            Operator::GreaterThan => ((self.value + 1) - value).max(0),
+            Operator::LessThan => (value - (self.value - 1)).max(0),
         };
 
         let multiplier = if extra_strict { 100 } else { 1 };
@@ -114,8 +114,8 @@ pub struct SetBonusRestriction {
 impl Restriction for SetBonusRestriction {
     fn accepts(&self, _characteristics: &Characteristic, set_bonus: i32) -> i32 {
         let difference = match self.operator {
-            Operator::GreaterThan => (self.value - set_bonus).max(0),
-            Operator::LessThan => (set_bonus - self.value).max(0),
+            Operator::GreaterThan => ((self.value + 1) - set_bonus).max(0),
+            Operator::LessThan => (set_bonus - (self.value - 1)).max(0),
         };
         difference * 100
     }
