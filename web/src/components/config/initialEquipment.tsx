@@ -14,6 +14,7 @@ import {
 } from "../item";
 import { Stack } from "../base/stack";
 import { SearchBox } from "./search";
+import { InputDecimal } from "../base/input";
 
 const SetBox = styled.div`
   display: grid;
@@ -108,10 +109,9 @@ export function InitialItems() {
         </Stack>
         <label>
           Changed item weight:{" "}
-          <input
-            type="number"
+          <InputDecimal
             value={changedItem}
-            onChange={(evt) => setChangedItem(Number(evt.target.value))}
+            onChange={(evt) => setChangedItem(evt)}
           />
         </label>
       </Stack>

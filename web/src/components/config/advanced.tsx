@@ -6,6 +6,7 @@ import {
   initialTemperatureAtom,
   numberOfIterationsAtom,
 } from "@/state/state";
+import { InputDecimal } from "../base/input";
 
 const AdvancedConfigStack = styled(Stack)`
   flex-wrap: wrap;
@@ -23,18 +24,16 @@ export function AdvancedConfig() {
     <AdvancedConfigStack $dir="h">
       <label>
         Number of iterations:{" "}
-        <input
-          type="number"
+        <InputDecimal
           value={iterations}
-          onChange={(evt) => setIterations(Number(evt.target.value))}
+          onChange={(evt) => setIterations(evt)}
         />
       </label>
       <label>
         Initial temperature:{" "}
-        <input
-          type="number"
+        <InputDecimal
           value={initialTemperature}
-          onChange={(evt) => setInitialTemperature(Number(evt.target.value))}
+          onChange={(evt) => setInitialTemperature(evt)}
         />
       </label>
       <label>

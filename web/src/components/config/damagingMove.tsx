@@ -60,7 +60,7 @@ function DamagingMove({ move }: DamagingMoveProps) {
           value={moveValue.weight}
           onChange={(evt) =>
             setMove((move) => {
-              move.weight = evt.target.value;
+              move.weight = evt;
             })
           }
         />
@@ -120,7 +120,7 @@ export function DamagingMoveInput() {
   const [damagingMoves, setDamagingMoves] = useAtom(damagingMovesAtomAtom);
   const addDamagingMove = useCallback(() => {
     const newDamagingMove = atom<OptimiseDamagingMoveString>({
-      weight: "1",
+      weight: 1,
       spell: null,
     });
     setDamagingMoves((moves) => [...moves, newDamagingMove]);

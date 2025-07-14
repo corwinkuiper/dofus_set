@@ -33,7 +33,7 @@ export const damagingMoves = atom<OptimisationDamagingMove[]>((get) => {
 
       return [
         {
-          weight: Number(x.weight),
+          weight: x.weight,
           baseDamage: damageToArray(effect.normal),
           baseCritDamage: damageToArray(effect.critical),
           baseCritPercent: effect.base_crit ?? 0,
@@ -43,6 +43,6 @@ export const damagingMoves = atom<OptimisationDamagingMove[]>((get) => {
     });
 });
 export interface OptimiseDamagingMoveString {
-  weight: string;
+  weight: number;
   spell: SpellSpell | null;
 }
