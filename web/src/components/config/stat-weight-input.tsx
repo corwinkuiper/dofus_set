@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { useImmer } from "use-immer";
 import { Stack } from "../base/stack";
 import { Button } from "../base/button";
+import { InputDecimal } from "../base/input";
 
 const Weights = styled.ul`
   list-style: none;
@@ -25,7 +26,7 @@ const Weight = styled.li`
 const WeightStatInput = styled.select`
   max-width: 50%;
 `;
-const WeightCountInput = styled.input`
+const WeightCountInput = styled(InputDecimal)`
   max-width: 50%;
 `;
 
@@ -74,11 +75,10 @@ export function StatWeightInput() {
               ))}
             </WeightStatInput>
             <WeightCountInput
-              type="number"
               value={weights[stat]}
               onChange={(evt) => {
                 updateWeights((weights) => {
-                  weights[stat] = Number(evt.target.value);
+                  weights[stat] = evt;
                 });
               }}
             />

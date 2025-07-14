@@ -24,6 +24,7 @@ import { ExosInputs } from "./exos";
 import { BannedItems } from "./bannedItems";
 import { StatWeightInput } from "./stat-weight-input";
 import { AdvancedConfig } from "./advanced";
+import { InputDecimal, InputInteger } from "../base/input";
 
 function LevelInput() {
   const [level, setLevel] = useAtom(maxLevelState);
@@ -31,11 +32,7 @@ function LevelInput() {
   return (
     <label>
       <span>Max level: </span>
-      <input
-        type="number"
-        value={level}
-        onChange={(evt) => setLevel(Number(evt.target.value))}
-      />
+      <InputInteger value={level} onChange={setLevel} />
     </label>
   );
 }
@@ -58,12 +55,11 @@ function BaseStatInput({ statName }: { statName: StatName }) {
     <li>
       <BaseInputItem>
         <span>{statName}</span>
-        <input
-          type="number"
+        <InputDecimal
           value={statWeight[statIndex(statName)]}
           onChange={(e) =>
             updateStatWeight((x) => {
-              x[statIndex(statName)] = Number(e.target.value);
+              x[statIndex(statName)] = e;
             })
           }
         />
