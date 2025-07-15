@@ -5,6 +5,7 @@ export interface OptimiseApiResponse {
   overallCharacteristics: number[];
   items: (OptimiseApiResponseItem | null)[];
   setBonuses: OptimiseApiResponseSetBonus[];
+  valid: boolean;
 }
 
 export interface OptimiseApiResponseItem {

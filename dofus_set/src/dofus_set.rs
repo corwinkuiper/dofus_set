@@ -111,6 +111,16 @@ impl State {
             .collect()
     }
 
+    pub fn is_valid(
+        &self,
+        config: &Config,
+        stats: &Characteristic,
+        items: &Items,
+        sets: &SetBonusList,
+    ) -> bool {
+        self.restriction_energy(config, stats, items, sets) == 0.
+    }
+
     /// Violating restrictions reduces the energy of the system such that not violating would be better
     fn restriction_energy(
         &self,
