@@ -24,27 +24,23 @@ function ItemActions({ idx }: { idx: number }) {
 
   return (
     <>
-      {items[idx] && (
-        <>
-          <ActionPin
-            active={items[idx].pinned}
-            action={() => {
-              update((items) => {
-                const item = items[idx];
-                if (item) {
-                  item.pinned = !item.pinned;
-                }
-              });
-            }}
-          />
-          <ActionDelete
-            action={() => {
-              update((item) => {
-                item[idx] = null;
-              });
-            }}
-          />
-        </>
+      <ActionPin
+        active={items[idx].pinned}
+        action={() => {
+          update((items) => {
+            const item = items[idx];
+            item.pinned = !item.pinned;
+          });
+        }}
+      />
+      {items[idx].item && (
+        <ActionDelete
+          action={() => {
+            update((item) => {
+              item[idx] = { pinned: false, item: null };
+            });
+          }}
+        />
       )}
       <ActionSearch
         active={slotToSearchFor === idx}
@@ -87,7 +83,7 @@ export function InitialItems() {
           <SetBox>
             {items.map((item, idx) => (
               <ItemDisplay
-                item={item?.item}
+                item={item?.item ?? undefined}
                 slot={idx}
                 key={idx}
                 actions={<ItemActions idx={idx} />}

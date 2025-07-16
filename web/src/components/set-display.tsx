@@ -40,7 +40,7 @@ function SingleItemOrNullDisplay({ item, idx }: SingleItemOrNullDisplayProps) {
                 })
               }
               active={
-                initialItems.find((x) => x?.item.dofusId === item.dofusId)
+                initialItems.find((x) => x.item?.dofusId === item.dofusId)
                   ?.pinned
               }
             />
