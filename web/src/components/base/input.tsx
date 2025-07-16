@@ -23,7 +23,9 @@ function formatNumber(value: string): string {
   const number = makeNumberRepresentation(value);
 
   if (number) {
-    const parts = number.toString().split(".");
+    const numberAsString = number.toString();
+    if (numberAsString.includes("e")) return numberAsString;
+    const parts = numberAsString.split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     return parts.join(".");
   }
@@ -50,7 +52,7 @@ export function InputDecimal({ value, onChange, ...rest }: InputDecimalProps) {
     <input
       type="text"
       inputMode="decimal"
-      pattern="([0-9 ]*(.[0-9]*)?)|([0-9]*e[0-9-]*)"
+      pattern="^[0-9 ]*(\.[0-9]*)?$|^[0-9]+e[0-9\-]+$"
       onChange={change}
       value={stringInput}
       onBlur={() => {
