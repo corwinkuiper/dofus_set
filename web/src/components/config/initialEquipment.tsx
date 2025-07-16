@@ -5,13 +5,7 @@ import {
 } from "@/state/state";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { styled } from "styled-components";
-import {
-  ActionDelete,
-  ActionPin,
-  ActionSearch,
-  EmptyItemDisplay,
-  ItemDisplay,
-} from "../item";
+import { ActionDelete, ActionPin, ActionSearch, ItemDisplay } from "../item";
 import { Stack } from "../base/stack";
 import { SearchBox } from "./search";
 import { InputDecimal } from "../base/input";
@@ -30,27 +24,23 @@ function ItemActions({ idx }: { idx: number }) {
 
   return (
     <>
-      {items[idx] && (
-        <>
-          <ActionPin
-            active={items[idx].pinned}
-            action={() => {
-              update((items) => {
-                const item = items[idx];
-                if (item) {
-                  item.pinned = !item.pinned;
-                }
-              });
-            }}
-          />
-          <ActionDelete
-            action={() => {
-              update((item) => {
-                item[idx] = null;
-              });
-            }}
-          />
-        </>
+      <ActionPin
+        active={items[idx].pinned}
+        action={() => {
+          update((items) => {
+            const item = items[idx];
+            item.pinned = !item.pinned;
+          });
+        }}
+      />
+      {items[idx].item && (
+        <ActionDelete
+          action={() => {
+            update((item) => {
+              item[idx] = { pinned: false, item: null };
+            });
+          }}
+        />
       )}
       <ActionSearch
         active={slotToSearchFor === idx}
@@ -91,20 +81,14 @@ export function InitialItems() {
       <Stack $grow>
         <Stack $grow>
           <SetBox>
-            {items.map((item, idx) =>
-              item ? (
-                <ItemDisplay
-                  item={item?.item}
-                  key={idx}
-                  actions={<ItemActions idx={idx} />}
-                />
-              ) : (
-                <EmptyItemDisplay
-                  key={idx}
-                  actions={<ItemActions idx={idx} />}
-                />
-              )
-            )}
+            {items.map((item, idx) => (
+              <ItemDisplay
+                item={item?.item ?? undefined}
+                slot={idx}
+                key={idx}
+                actions={<ItemActions idx={idx} />}
+              />
+            ))}
           </SetBox>
         </Stack>
         <label>

@@ -62,12 +62,12 @@ const bannedItemsState = atom(async (get) => [
 ]);
 
 export interface InitialItemState {
-  item: OptimiseApiResponseItem;
+  item: OptimiseApiResponseItem | null;
   pinned: boolean;
 }
 
-export const initialItemsState = atom<(InitialItemState | null)[]>(
-  new Array(16).fill(null)
+export const initialItemsState = atom<InitialItemState[]>(
+  new Array(16).fill({ pinned: false, item: null })
 );
 
 export const differentEquipmentWeightState = atom(0);
@@ -84,10 +84,10 @@ export const optimisationConfig = atom<Promise<OptimisationRequest>>(
       maxLevel: get(maxLevelState),
       bannedItems: await get(bannedItemsState),
       initialItems: get(initialItemsState).map(
-        (x) => x?.item.dofusId ?? undefined
+        (x) => x.item?.dofusId ?? undefined
       ),
       fixedItems: get(initialItemsState).flatMap((x, idx) =>
-        x?.pinned ? [idx] : []
+        x.pinned ? [idx] : []
       ),
       ...get(exosState),
       damagingMovesWeights: get(damagingMoves),

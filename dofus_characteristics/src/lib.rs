@@ -344,4 +344,15 @@ mod tests {
         assert_eq!(Stat::Vitality.to_string(), "Vitality");
         assert_eq!(Stat::ResistanceAirFixed.to_string(), "Air Resistance");
     }
+
+    #[test]
+    fn less_than_set_restriction_is_correct() {
+        let set_restriction = SetBonusRestriction {
+            operator: Operator::LessThan,
+            value: 3,
+        };
+
+        assert_eq!(set_restriction.accepts(&Characteristic([0; 51]), 2), 0);
+        assert_eq!(set_restriction.accepts(&Characteristic([0; 51]), 3), 100);
+    }
 }

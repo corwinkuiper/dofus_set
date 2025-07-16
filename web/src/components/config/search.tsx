@@ -51,6 +51,7 @@ function SearchResults({ item, itemList }: SearchResultsProps) {
       <ScrollStack>
         {results.map((x) => (
           <ItemDisplay
+            slot={-1}
             key={x.item.dofusId}
             item={x.item}
             actions={<ActionPin action={() => item(x.item)} />}

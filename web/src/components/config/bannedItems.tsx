@@ -40,6 +40,7 @@ export function BannedItems() {
             ...items.entries().map(([, x]) => (
               <ItemDisplay
                 key={x.dofusId}
+                slot={-1}
                 item={x}
                 actions={
                   <ActionDelete
