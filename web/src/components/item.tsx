@@ -137,15 +137,17 @@ const ItemLevel = styled(ItemName)``;
 
 export function ItemDisplay({ item, actions, slot }: ItemDisplayProps) {
   if (!item) {
+    const itemType = slotToItemType.at(slot);
+    if (!itemType) return;
     return (
       <ItemBox>
-        <ItemImage src={makeUrl(`icon/${slotToItemType[slot]}.svg`)} alt="" />
+        <ItemImage src={makeUrl(`icon/${itemType}.svg`)} alt="" />
         <NonImageContent>
           <LevelAndActions $dir="h">
             <div />
             <ItemActions>{actions}</ItemActions>
           </LevelAndActions>
-          <ItemName>{slotToItemType[slot]}</ItemName>
+          <ItemName>{slot && itemType}</ItemName>
         </NonImageContent>
       </ItemBox>
     );
