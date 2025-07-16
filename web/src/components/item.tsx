@@ -55,8 +55,9 @@ const ActionImage = styled(Image)<{ $colour?: Colour }>`
 `;
 
 interface ItemDisplayProps {
-  item: OptimiseApiResponseItem;
+  item?: OptimiseApiResponseItem;
   actions?: ReactNode;
+  slot: number;
 }
 
 interface ActionProps {
@@ -113,9 +114,43 @@ const NonImageContent = styled(Stack)`
   flex-grow: 1;
 `;
 
+const slotToItemType = [
+  "Hat",
+  "Cloak",
+  "Amulet",
+  "Ring",
+  "Ring",
+  "Belt",
+  "Boots",
+  "Shield",
+  "Weapon",
+  "Dofus",
+  "Dofus",
+  "Dofus",
+  "Dofus",
+  "Dofus",
+  "Dofus",
+  "Pet",
+];
+
 const ItemLevel = styled(ItemName)``;
 
-export function ItemDisplay({ item, actions }: ItemDisplayProps) {
+export function ItemDisplay({ item, actions, slot }: ItemDisplayProps) {
+  if (!item) {
+    return (
+      <ItemBox>
+        <ItemImage src={makeUrl(`icon/${slotToItemType[slot]}.svg`)} alt="" />
+        <NonImageContent>
+          <LevelAndActions $dir="h">
+            <div />
+            <ItemActions>{actions}</ItemActions>
+          </LevelAndActions>
+          <ItemName>{slotToItemType[slot]}</ItemName>
+        </NonImageContent>
+      </ItemBox>
+    );
+  }
+
   return (
     <Tooltip
       tooltip={
@@ -157,23 +192,5 @@ export function SetBonusDisplay({ set }: SetBonusDisplayProps) {
         </ItemName>
       </ItemBox>
     </Tooltip>
-  );
-}
-
-interface EmptyItemDisplayProps {
-  actions?: ReactNode;
-}
-
-export function EmptyItemDisplay({ actions }: EmptyItemDisplayProps) {
-  return (
-    <ItemBox>
-      <NonImageContent>
-        <div />
-        <LevelAndActions $dir="h">
-          <div />
-          <ItemActions>{actions}</ItemActions>
-        </LevelAndActions>
-      </NonImageContent>
-    </ItemBox>
   );
 }

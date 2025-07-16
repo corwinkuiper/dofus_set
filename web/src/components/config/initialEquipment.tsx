@@ -5,13 +5,7 @@ import {
 } from "@/state/state";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { styled } from "styled-components";
-import {
-  ActionDelete,
-  ActionPin,
-  ActionSearch,
-  EmptyItemDisplay,
-  ItemDisplay,
-} from "../item";
+import { ActionDelete, ActionPin, ActionSearch, ItemDisplay } from "../item";
 import { Stack } from "../base/stack";
 import { SearchBox } from "./search";
 import { InputDecimal } from "../base/input";
@@ -91,20 +85,14 @@ export function InitialItems() {
       <Stack $grow>
         <Stack $grow>
           <SetBox>
-            {items.map((item, idx) =>
-              item ? (
-                <ItemDisplay
-                  item={item?.item}
-                  key={idx}
-                  actions={<ItemActions idx={idx} />}
-                />
-              ) : (
-                <EmptyItemDisplay
-                  key={idx}
-                  actions={<ItemActions idx={idx} />}
-                />
-              )
-            )}
+            {items.map((item, idx) => (
+              <ItemDisplay
+                item={item?.item}
+                slot={idx}
+                key={idx}
+                actions={<ItemActions idx={idx} />}
+              />
+            ))}
           </SetBox>
         </Stack>
         <label>

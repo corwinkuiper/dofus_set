@@ -3,13 +3,7 @@ import {
   OptimiseApiResponseSetBonus,
 } from "@/services/dofus/optimiser";
 import styled from "styled-components";
-import {
-  ActionDelete,
-  ActionPin,
-  EmptyItemDisplay,
-  ItemDisplay,
-  SetBonusDisplay,
-} from "./item";
+import { ActionDelete, ActionPin, ItemDisplay, SetBonusDisplay } from "./item";
 import { initialItemsState, useImmerAtom } from "@/state/state";
 import { bannedItemsAtom } from "@/state/bannedItemsState";
 
@@ -32,11 +26,12 @@ function SingleItemOrNullDisplay({ item, idx }: SingleItemOrNullDisplayProps) {
   const [initialItems, updateInitialItems] = useImmerAtom(initialItemsState);
   const [bannedItems, updateBannedItems] = useImmerAtom(bannedItemsAtom);
 
-  if (item) {
-    return (
-      <ItemDisplay
-        item={item}
-        actions={
+  return (
+    <ItemDisplay
+      item={item ?? undefined}
+      slot={idx}
+      actions={
+        !!item && (
           <>
             <ActionPin
               action={() =>
@@ -58,12 +53,10 @@ function SingleItemOrNullDisplay({ item, idx }: SingleItemOrNullDisplayProps) {
               active={bannedItems.has(item.dofusId)}
             />
           </>
-        }
-      />
-    );
-  } else {
-    return <EmptyItemDisplay />;
-  }
+        )
+      }
+    />
+  );
 }
 
 export function SetDisplay({ set }: SetDisplayProps) {
