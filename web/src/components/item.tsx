@@ -147,7 +147,7 @@ export function ItemDisplay({ item, actions, slot }: ItemDisplayProps) {
             <div />
             <ItemActions>{actions}</ItemActions>
           </LevelAndActions>
-          <ItemName>{slot && itemType}</ItemName>
+          <ItemName>{itemType}</ItemName>
         </NonImageContent>
       </ItemBox>
     );
