@@ -1,5 +1,10 @@
 import { useValueChanged } from "@/hooks/useValueChanged";
 import { useState } from "react";
+import { styled } from "styled-components";
+
+const ThisInput = styled.input`
+  min-width: 0;
+`;
 
 interface InputDecimalProps {
   value: number | null;
@@ -49,7 +54,7 @@ export function InputDecimal({ value, onChange, ...rest }: InputDecimalProps) {
   };
 
   return (
-    <input
+    <ThisInput
       type="text"
       inputMode="decimal"
       pattern="^[0-9 ]*(\.[0-9]*)?$|^[0-9]+e[0-9\-]+$"
@@ -80,7 +85,7 @@ export function InputInteger({ value, onChange, ...rest }: InputDecimalProps) {
   };
 
   return (
-    <input
+    <ThisInput
       type="text"
       inputMode="numeric"
       pattern="[0-9 ]*"

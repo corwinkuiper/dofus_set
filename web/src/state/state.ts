@@ -54,6 +54,9 @@ function generateSampleStats() {
 }
 
 export const simpleWeightState = atom<number[]>(generateSampleStats());
+export const targetState = atom<(number | undefined)[]>(
+  new Array(51).fill(undefined)
+);
 
 export const maxLevelState = atom(149);
 
@@ -82,6 +85,7 @@ export const optimisationConfig = atom<Promise<OptimisationRequest>>(
     return {
       weights: get(simpleWeightState),
       maxLevel: get(maxLevelState),
+      targets: get(targetState),
       bannedItems: await get(bannedItemsState),
       initialItems: get(initialItemsState).map(
         (x) => x.item?.dofusId ?? undefined

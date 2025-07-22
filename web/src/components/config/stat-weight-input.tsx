@@ -1,12 +1,12 @@
 "use client";
 
 import { StatNames } from "@/services/dofus/stats";
-import { simpleWeightState, useImmerAtom } from "@/state/state";
+import { simpleWeightState, targetState, useImmerAtom } from "@/state/state";
 import styled from "styled-components";
 import { useImmer } from "use-immer";
 import { Stack } from "../base/stack";
 import { Button } from "../base/button";
-import { InputDecimal } from "../base/input";
+import { InputDecimal, InputInteger } from "../base/input";
 
 const Weights = styled.ul`
   list-style: none;
@@ -18,17 +18,11 @@ const Weights = styled.ul`
 
 const Weight = styled.li`
   display: flex;
-
-  > * {
-    flex-grow: 1;
-  }
 `;
 const WeightStatInput = styled.select`
-  max-width: 50%;
+  min-width: 0;
 `;
-const WeightCountInput = styled(InputDecimal)`
-  max-width: 50%;
-`;
+const WeightCountInput = styled(InputDecimal)``;
 
 const AddWeightButton = Button;
 
@@ -43,6 +37,8 @@ export function StatWeightInput() {
   const [enabledWeights, updateEnabledWeights] = useImmer<number[]>(() =>
     deriveEnabledWeights(weights)
   );
+
+  const [targets, updateTargets] = useImmerAtom(targetState);
 
   const remainingStatNames = StatNames.map(
     (x, idx) => [x, idx] as const
@@ -79,6 +75,25 @@ export function StatWeightInput() {
               onChange={(evt) => {
                 updateWeights((weights) => {
                   weights[stat] = evt;
+                });
+              }}
+            />
+            {targets[stat] !== undefined && (
+              <InputInteger
+                value={targets[stat]}
+                onChange={(t) => {
+                  updateTargets((targets) => {
+                    targets[stat] = t;
+                  });
+                }}
+              />
+            )}
+            <input
+              type="checkbox"
+              checked={targets[stat] !== undefined}
+              onChange={(evt) => {
+                updateTargets((targets) => {
+                  targets[stat] = evt.target.checked ? 0 : undefined;
                 });
               }}
             />
