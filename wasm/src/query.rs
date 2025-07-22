@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct OptimiseRequest {
     weights: Vec<f64>,
+    targets: Vec<Option<i32>>,
     max_level: i32,
     initial_items: Vec<Option<ItemIndex>>,
     fixed_items: Vec<usize>,
@@ -109,6 +110,9 @@ pub fn create_optimised_set(
     let mut weights: [f64; 51] = [0.0f64; 51];
     weights[..51].clone_from_slice(&config.weights[..51]);
 
+    let mut targets: [Option<i32>; 51] = [None; 51];
+    targets[..].clone_from_slice(&config.targets);
+
     let changable = (0..16)
         .filter(|x| !config.fixed_items.contains(x))
         .collect();
@@ -116,7 +120,7 @@ pub fn create_optimised_set(
     let dofus_set_config = Config {
         max_level: config.max_level,
         weights,
-        targets: [None; 51],
+        targets,
         changable,
         ban_list: config.banned_items.clone(),
         exo_ap: config.ap_exo,
