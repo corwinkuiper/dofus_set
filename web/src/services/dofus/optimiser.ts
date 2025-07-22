@@ -25,6 +25,7 @@ export interface OptimiseApiResponseSetBonus {
 
 export interface OptimisationConfig {
   weights: number[];
+  targets: (number | undefined)[];
   maxLevel: number;
   initialItems: (number | undefined)[];
   fixedItems: number[];
