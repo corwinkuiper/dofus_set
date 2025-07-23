@@ -30,6 +30,7 @@ const MAX_RANGE: i32 = 6;
 #[derive(Clone, Debug)]
 pub struct State {
     set: [NicheItemIndex; 16],
+    characteristic_points: [i32; 6],
     cached_totals: Characteristic,
 }
 
@@ -55,11 +56,13 @@ impl State {
 
         let state = State {
             set: niche_optimised,
+            characteristic_points: [0; 6],
             cached_totals: Characteristic::new(),
         };
         let totals = state.item_stat_from_nothing(items);
         Ok(State {
             set: niche_optimised,
+            characteristic_points: [0; 6],
             cached_totals: totals,
         })
     }
@@ -163,6 +166,13 @@ impl State {
                 }
             }
         }
+
+        let total_used_points: i32 = self.characteristic_points.iter().copied().sum();
+        let total_points = config.characteristics_point();
+
+        let over_usage = (total_used_points - total_points).max(0);
+
+        violation_energy += (over_usage * 100) as f64;
 
         violation_energy
     }
@@ -301,6 +311,14 @@ impl State {
             stat += set_bonus.bonus;
         }
 
+        stat[Stat::Vitality] += self.characteristic_points[0];
+        stat[Stat::Wisdom] += self.characteristic_points[1] / 3;
+
+        stat[Stat::Agility] += calculate_points_for_stat(self.characteristic_points[2]);
+        stat[Stat::Chance] += calculate_points_for_stat(self.characteristic_points[3]);
+        stat[Stat::Strength] += calculate_points_for_stat(self.characteristic_points[4]);
+        stat[Stat::Intelligence] += calculate_points_for_stat(self.characteristic_points[5]);
+
         stat[Stat::AP] = std::cmp::min(
             stat[Stat::AP] + level_initial_ap(config.max_level) + config.exo_ap as i32,
             MAX_AP,
@@ -317,6 +335,13 @@ impl State {
 
         stat
     }
+}
+
+fn calculate_points_for_stat(points_in: i32) -> i32 {
+    points_in.min(100)
+        + (points_in - 100).clamp(0, 200) / 2
+        + (points_in - 300).clamp(0, 300) / 3
+        + (points_in - 600).max(0) / 4
 }
 
 fn level_initial_ap(level: i32) -> i32 {
@@ -458,5 +483,21 @@ impl anneal::Anneal<State> for Optimiser<'_> {
         self.temperature_initial
             * std::f64::consts::E
                 .powf(self.temperature_time_constant * iteration.powf(self.temperature_quench))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn check_characteristic_calculation() {
+        assert_eq!(calculate_points_for_stat(50), 50);
+        assert_eq!(calculate_points_for_stat(100), 100);
+
+        assert_eq!(calculate_points_for_stat(150), 125);
+        assert_eq!(calculate_points_for_stat(688), 322);
+        assert_eq!(calculate_points_for_stat(1000), 400);
     }
 }

@@ -15,6 +15,12 @@ pub struct Config {
     pub damaging_moves: Vec<DamagingMovesOptimisation>,
 }
 
+impl Config {
+    pub fn characteristics_point(&self) -> i32 {
+        (self.max_level - 1) * 5
+    }
+}
+
 pub struct DamagingMovesOptimisation {
     pub weight: f64,
     pub damage: DamagingMove,
