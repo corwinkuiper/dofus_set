@@ -1,7 +1,7 @@
 "use client";
 
 import { SetBonusesDisplay, SetDisplay } from "./set-display";
-import { OverallStats } from "./overall-stats";
+import { CharacteristicsPoints, OverallStats } from "./overall-stats";
 import {
   optimisationProgressAtom,
   useCancelOptimisation,
@@ -82,6 +82,9 @@ function CurrentOptimalResult() {
         <Stack $grow>
           <SetDisplay set={optimal.items} />
           <SetBonusesDisplay bonuses={optimal.setBonuses} />
+          {optimal.characteristics.filter((x) => x !== 0).length > 0 && (
+            <CharacteristicsPoints points={optimal.characteristics} />
+          )}
         </Stack>
         <Stack>
           <div>

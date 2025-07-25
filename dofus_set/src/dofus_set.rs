@@ -30,6 +30,7 @@ const MAX_RANGE: i32 = 6;
 #[derive(Clone, Debug)]
 pub struct State {
     set: [NicheItemIndex; 16],
+    characteristic_points: [i32; 6],
     cached_totals: Characteristic,
 }
 
@@ -55,11 +56,13 @@ impl State {
 
         let state = State {
             set: niche_optimised,
+            characteristic_points: [0; 6],
             cached_totals: Characteristic::new(),
         };
         let totals = state.item_stat_from_nothing(items);
         Ok(State {
             set: niche_optimised,
+            characteristic_points: [0; 6],
             cached_totals: totals,
         })
     }
@@ -77,6 +80,10 @@ const MAX_SETS: usize = 12;
 impl State {
     pub fn set(&'_ self) -> impl std::iter::Iterator<Item = Option<ItemIndex>> + '_ {
         self.set.iter().map(|x| x.get())
+    }
+
+    pub fn points(&self) -> &[i32] {
+        &self.characteristic_points
     }
 
     pub fn sets<'a>(&self, items: &'a Items) -> SetBonusList<'a> {
@@ -163,6 +170,13 @@ impl State {
                 }
             }
         }
+
+        let total_used_points: i32 = self.characteristic_points.iter().copied().sum();
+        let total_points = config.characteristics_point();
+
+        let over_usage = (total_used_points - total_points).max(0);
+
+        violation_energy += (over_usage * 100) as f64;
 
         violation_energy
     }
@@ -301,6 +315,14 @@ impl State {
             stat += set_bonus.bonus;
         }
 
+        stat[Stat::Vitality] += self.characteristic_points[0];
+        stat[Stat::Wisdom] += self.characteristic_points[1] / 3;
+
+        stat[Stat::Agility] += calculate_points_for_stat(self.characteristic_points[2]);
+        stat[Stat::Chance] += calculate_points_for_stat(self.characteristic_points[3]);
+        stat[Stat::Strength] += calculate_points_for_stat(self.characteristic_points[4]);
+        stat[Stat::Intelligence] += calculate_points_for_stat(self.characteristic_points[5]);
+
         stat[Stat::AP] = std::cmp::min(
             stat[Stat::AP] + level_initial_ap(config.max_level) + config.exo_ap as i32,
             MAX_AP,
@@ -317,6 +339,13 @@ impl State {
 
         stat
     }
+}
+
+fn calculate_points_for_stat(points_in: i32) -> i32 {
+    points_in.min(100)
+        + (points_in - 100).clamp(0, 200) / 2
+        + (points_in - 300).clamp(0, 300) / 3
+        + (points_in - 600).max(0) / 4
 }
 
 fn level_initial_ap(level: i32) -> i32 {
@@ -425,29 +454,37 @@ impl anneal::Anneal<State> for Optimiser<'_> {
         let mut rng = rand::thread_rng();
 
         let mut new_state = state.clone();
-        let (item_slot, item) = loop {
-            let item_slot = *self.config.changable.choose(&mut rng).unwrap();
-            let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
-            if item_type.is_empty() {
-                continue;
-            }
-            let idx = rng.gen_range(0..item_type.len() + 1);
-            if idx != item_type.len() {
-                let item_index = item_type[idx];
-                break (item_slot, Some(item_index));
-            } else {
-                break (item_slot, None);
-            }
-        };
 
-        if let Some(old_item) = new_state.set[item_slot].get() {
-            new_state.remove_item(&self.items[old_item]);
-        }
-        if let Some(item) = item {
-            new_state.add_item(&self.items[item]);
-        }
+        if !self.config.consider_characteristics || rng.gen_ratio(51, 51 + 6) {
+            let (item_slot, item) = loop {
+                let item_slot = *self.config.changable.choose(&mut rng).unwrap();
+                let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
+                if item_type.is_empty() {
+                    continue;
+                }
+                let idx = rng.gen_range(0..item_type.len() + 1);
+                if idx != item_type.len() {
+                    let item_index = item_type[idx];
+                    break (item_slot, Some(item_index));
+                } else {
+                    break (item_slot, None);
+                }
+            };
 
-        new_state.set[item_slot] = NicheItemIndex::new(item);
+            if let Some(old_item) = new_state.set[item_slot].get() {
+                new_state.remove_item(&self.items[old_item]);
+            }
+            if let Some(item) = item {
+                new_state.add_item(&self.items[item]);
+            }
+
+            new_state.set[item_slot] = NicheItemIndex::new(item);
+        } else {
+            *new_state
+                .characteristic_points
+                .choose_mut(&mut rng)
+                .unwrap() = rng.gen_range(0..=self.config.characteristics_point());
+        }
         let sets = new_state.sets(self.items);
 
         let energy = new_state.energy(self.config, self.items, &sets);
@@ -458,5 +495,21 @@ impl anneal::Anneal<State> for Optimiser<'_> {
         self.temperature_initial
             * std::f64::consts::E
                 .powf(self.temperature_time_constant * iteration.powf(self.temperature_quench))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn check_characteristic_calculation() {
+        assert_eq!(calculate_points_for_stat(50), 50);
+        assert_eq!(calculate_points_for_stat(100), 100);
+
+        assert_eq!(calculate_points_for_stat(150), 125);
+        assert_eq!(calculate_points_for_stat(688), 322);
+        assert_eq!(calculate_points_for_stat(1000), 400);
     }
 }

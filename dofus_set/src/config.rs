@@ -13,6 +13,13 @@ pub struct Config {
     pub initial_set: [NicheItemIndex; 16],
     pub changed_item_weight: f64,
     pub damaging_moves: Vec<DamagingMovesOptimisation>,
+    pub consider_characteristics: bool,
+}
+
+impl Config {
+    pub fn characteristics_point(&self) -> i32 {
+        (self.max_level - 1) * 5
+    }
 }
 
 pub struct DamagingMovesOptimisation {

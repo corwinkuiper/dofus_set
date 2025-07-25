@@ -76,9 +76,11 @@ export const initialItemsState = atom<InitialItemState[]>(
 export const differentEquipmentWeightState = atom(0);
 
 export const numberOfIterationsAtom = atom(1000000);
-export const initialTemperatureAtom = atom(1000);
+export const initialTemperatureAtom = atom(10000);
 
 export const continuousOptimisationAtom = atom(false);
+
+export const considerCharacteristicsAtom = atom(false);
 
 export const optimisationConfig = atom<Promise<OptimisationRequest>>(
   async (get) => {
@@ -98,6 +100,7 @@ export const optimisationConfig = atom<Promise<OptimisationRequest>>(
       changedItemWeight: get(differentEquipmentWeightState),
       iterations: get(numberOfIterationsAtom),
       initialTemperature: get(initialTemperatureAtom),
+      considerCharacteristics: get(considerCharacteristicsAtom),
     };
   }
 );

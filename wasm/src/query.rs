@@ -23,6 +23,7 @@ pub struct OptimiseRequest {
     damaging_moves_weights: Vec<DamagingMovesWeight>,
     iterations: i64,
     initial_temperature: f64,
+    consider_characteristics: bool,
 }
 
 #[derive(Deserialize, Debug)]
@@ -62,6 +63,7 @@ pub struct OptimiseResponse {
     items: Vec<Option<OptimiseResponseItem>>,
     set_bonuses: Vec<OptimiseResponseSetBonus>,
     valid: bool,
+    characteristics: Vec<i32>,
 }
 
 fn make_optimise_response(id: ItemIndex, item: &Item) -> OptimiseResponseItem {
@@ -151,6 +153,7 @@ pub fn create_optimised_set(
                 },
             })
             .collect(),
+        consider_characteristics: config.consider_characteristics,
     };
 
     let optimiser =
@@ -192,5 +195,6 @@ pub fn create_optimised_set(
             })
             .collect(),
         set_bonuses,
+        characteristics: final_state.points().to_vec(),
     })
 }
