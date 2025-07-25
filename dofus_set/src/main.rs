@@ -30,6 +30,7 @@ fn main() {
         initial_set: [NicheItemIndex::new(None); 16],
         changed_item_weight: 0.,
         damaging_moves: Vec::new(),
+        consider_characteristics: false,
     };
 
     let optimiser = Optimiser::new(&config, 1000., items).unwrap();

@@ -13,6 +13,7 @@ pub struct Config {
     pub initial_set: [NicheItemIndex; 16],
     pub changed_item_weight: f64,
     pub damaging_moves: Vec<DamagingMovesOptimisation>,
+    pub consider_characteristics: bool,
 }
 
 impl Config {

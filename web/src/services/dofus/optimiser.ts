@@ -5,6 +5,7 @@ export interface OptimiseApiResponse {
   overallCharacteristics: number[];
   items: (OptimiseApiResponseItem | null)[];
   setBonuses: OptimiseApiResponseSetBonus[];
+  characteristics: number[];
   valid: boolean;
 }
 
@@ -36,6 +37,7 @@ export interface OptimisationConfig {
   multiElement: boolean;
   changedItemWeight: number;
   damagingMovesWeights: OptimisationDamagingMove[];
+  considerCharacteristics: boolean;
 }
 
 export interface OptimisationDamagingMove {

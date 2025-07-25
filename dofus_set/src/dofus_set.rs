@@ -82,6 +82,10 @@ impl State {
         self.set.iter().map(|x| x.get())
     }
 
+    pub fn points(&self) -> &[i32] {
+        &self.characteristic_points
+    }
+
     pub fn sets<'a>(&self, items: &'a Items) -> SetBonusList<'a> {
         let mut sets_linear_map: heapless::Vec<(SetIndex, i32), MAX_SETS> = heapless::Vec::new();
 
@@ -450,29 +454,37 @@ impl anneal::Anneal<State> for Optimiser<'_> {
         let mut rng = rand::thread_rng();
 
         let mut new_state = state.clone();
-        let (item_slot, item) = loop {
-            let item_slot = *self.config.changable.choose(&mut rng).unwrap();
-            let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
-            if item_type.is_empty() {
-                continue;
-            }
-            let idx = rng.gen_range(0..item_type.len() + 1);
-            if idx != item_type.len() {
-                let item_index = item_type[idx];
-                break (item_slot, Some(item_index));
-            } else {
-                break (item_slot, None);
-            }
-        };
 
-        if let Some(old_item) = new_state.set[item_slot].get() {
-            new_state.remove_item(&self.items[old_item]);
-        }
-        if let Some(item) = item {
-            new_state.add_item(&self.items[item]);
-        }
+        if !self.config.consider_characteristics || rng.gen_ratio(51, 51 + 6) {
+            let (item_slot, item) = loop {
+                let item_slot = *self.config.changable.choose(&mut rng).unwrap();
+                let item_type = &self.item_list[slot_index_to_item_type(item_slot)];
+                if item_type.is_empty() {
+                    continue;
+                }
+                let idx = rng.gen_range(0..item_type.len() + 1);
+                if idx != item_type.len() {
+                    let item_index = item_type[idx];
+                    break (item_slot, Some(item_index));
+                } else {
+                    break (item_slot, None);
+                }
+            };
 
-        new_state.set[item_slot] = NicheItemIndex::new(item);
+            if let Some(old_item) = new_state.set[item_slot].get() {
+                new_state.remove_item(&self.items[old_item]);
+            }
+            if let Some(item) = item {
+                new_state.add_item(&self.items[item]);
+            }
+
+            new_state.set[item_slot] = NicheItemIndex::new(item);
+        } else {
+            *new_state
+                .characteristic_points
+                .choose_mut(&mut rng)
+                .unwrap() = rng.gen_range(0..=self.config.characteristics_point());
+        }
         let sets = new_state.sets(self.items);
 
         let energy = new_state.energy(self.config, self.items, &sets);
