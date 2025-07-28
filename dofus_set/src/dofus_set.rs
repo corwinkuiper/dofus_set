@@ -205,48 +205,55 @@ impl State {
             .count() as f64
             * config.changed_item_weight;
 
-        let damage_energy = config
-            .damaging_moves
-            .iter()
-            .map(|x| {
-                let critical = if x.damage.modifyable_crit {
-                    (x.damage.base_crit_ratio + stats[Stat::Critical]).clamp(0, 100) as f64
-                } else {
-                    x.damage.base_crit_ratio as f64
-                };
-                let ratio = critical / 100.;
-                let damage_stats = [
-                    (Stat::Strength, Stat::DamageNeutral),
-                    (Stat::Agility, Stat::DamageAir),
-                    (Stat::Chance, Stat::DamageWater),
-                    (Stat::Strength, Stat::DamageEarth),
-                    (Stat::Intelligence, Stat::DamageFire),
-                ];
+        let damage_energy = config.damaging_moves.iter().map(|x| {
+            let critical = if x.damage.modifyable_crit {
+                (x.damage.base_crit_ratio + stats[Stat::Critical]).clamp(0, 100) as f64
+            } else {
+                x.damage.base_crit_ratio as f64
+            };
+            let ratio = critical / 100.;
+            let damage_stats = [
+                (Stat::Strength, Stat::DamageNeutral),
+                (Stat::Agility, Stat::DamageAir),
+                (Stat::Chance, Stat::DamageWater),
+                (Stat::Strength, Stat::DamageEarth),
+                (Stat::Intelligence, Stat::DamageFire),
+            ];
 
-                let critical_damage = stats[Stat::DamageCritical];
-                let power = stats[Stat::Power];
-                let damage = stats[Stat::Damage];
-                x.damage
-                    .elemental_damage
-                    .into_iter()
-                    .zip(x.damage.crit_elemental_damage)
-                    .zip(damage_stats)
-                    .map(|((b, c), (stat_power, stat_damage))| {
-                        let stat_power = stats[stat_power];
-                        let average_base_damage = b * (1. - ratio) + c * ratio;
+            let critical_damage = stats[Stat::DamageCritical];
+            let power = stats[Stat::Power];
+            let damage = stats[Stat::Damage];
+            x.damage
+                .elemental_damage
+                .into_iter()
+                .zip(x.damage.crit_elemental_damage)
+                .zip(damage_stats)
+                .map(|((b, c), (stat_power, stat_damage))| {
+                    let stat_power = stats[stat_power];
+                    let average_base_damage = b * (1. - ratio) + c * ratio;
 
-                        if average_base_damage != 0. {
-                            average_base_damage * (1. + ((stat_power + power) as f64) / 100.)
-                                + (damage + stats[stat_damage]) as f64
-                                + ratio * critical_damage as f64
-                        } else {
-                            0.
-                        }
-                    })
-                    .sum::<f64>()
-                    * x.weight
-            })
-            .sum::<f64>();
+                    if average_base_damage != 0. {
+                        average_base_damage * (1. + ((stat_power + power) as f64) / 100.)
+                            + (damage + stats[stat_damage]) as f64
+                            + ratio * critical_damage as f64
+                    } else {
+                        0.
+                    }
+                })
+                .sum::<f64>()
+                * x.weight
+        });
+
+        let damage_energy = if config.multi_element {
+            let e = damage_energy.fold(f64::NAN, f64::min);
+            if e.is_nan() {
+                0.
+            } else {
+                e
+            }
+        } else {
+            damage_energy.sum()
+        };
 
         let element_iter = STAT_ELEMENT
             .iter()
