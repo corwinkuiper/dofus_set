@@ -1,9 +1,9 @@
 import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
 import { Stack } from "@/components/base/stack";
 import { atom, useAtomValue } from "jotai";
-import { Suspense, useMemo, useState, useTransition } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { getItemsInSlot } from "@/state/state";
-import Fuse, { FuseResult } from "fuse.js";
+import Fuse from "fuse.js";
 import { ActionPin, ItemDisplay } from "@/components/item";
 import styled from "styled-components";
 import { Atom } from "jotai";
@@ -23,13 +23,9 @@ interface SearchResultsProps {
 function SearchResults({ item, itemList }: SearchResultsProps) {
   const items = useAtomValue(itemList);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<FuseResult<OptimiseApiResponseItem>[]>(
-    []
-  );
-
-  const [, startTransition] = useTransition();
-
   const fuse = useMemo(() => new Fuse(items, { keys: ["name"] }), [items]);
+
+  const results = useMemo(() => fuse.search(query), [query, fuse]);
 
   return (
     <Stack>
@@ -41,10 +37,6 @@ function SearchResults({ item, itemList }: SearchResultsProps) {
           onChange={(e) => {
             const query = e.target.value;
             setQuery(query);
-            startTransition(() => {
-              const results = fuse.search(query);
-              setResults(results);
-            });
           }}
         />
       </label>
