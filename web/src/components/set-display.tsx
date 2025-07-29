@@ -77,7 +77,7 @@ export function SetBonusesDisplay({ bonuses }: SetBonusesDisplayProps) {
   return (
     <SetBox>
       {bonuses.map((x) => (
-        <SetBonusDisplay key={x.name} set={x} />
+        <SetBonusDisplay key={x.name.en} set={x} />
       ))}
     </SetBox>
   );

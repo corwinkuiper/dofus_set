@@ -11,6 +11,7 @@ import {
   OptimiseDamagingMoveString,
 } from "../../state/damagingMovesState";
 import { useClientAtom } from "@/hooks/useClientAtom";
+import { Localised } from "../base/localisedDisplay";
 
 const spellsAtom = atom(() => getSpells());
 const classAtom = atom<string | null>(null);
@@ -23,7 +24,7 @@ const spellsForSelectedClass = atom(async (get) => {
 
   const spells = await get(spellsAtom);
 
-  return spells.find((x) => x.name === _class);
+  return spells.find((x) => x.name.en === _class);
 });
 
 const DamagingMoveGrid = styled.div`
@@ -78,7 +79,8 @@ function DamagingMove({ move }: DamagingMoveProps) {
           <option value="">Select a spell</option>
           {spellsForClass?.spells.map((x, idx) => (
             <option key={`${x.name} - ${idx}`} value={idx}>
-              {x.name} ({x.effects.map((x) => x.level).join(", ")})
+              <Localised s={x.name} /> (
+              {x.effects.map((x) => x.level).join(", ")})
             </option>
           ))}
         </select>
@@ -107,8 +109,8 @@ function ChooseClass() {
       >
         <option value="">Select a class</option>
         {classes.map((x) => (
-          <option key={x} value={x}>
-            {x}
+          <option key={x.en} value={x.en}>
+            <Localised s={x} />
           </option>
         ))}
       </select>

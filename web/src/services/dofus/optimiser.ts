@@ -1,5 +1,10 @@
 import { WorkerQuery } from "./worker";
 
+export interface LocalisedString {
+  en: string;
+  fr: string;
+}
+
 export interface OptimiseApiResponse {
   energy: number;
   overallCharacteristics: number[];
@@ -11,7 +16,7 @@ export interface OptimiseApiResponse {
 
 export interface OptimiseApiResponseItem {
   characteristics: number[];
-  name: string;
+  name: LocalisedString;
   itemType: string;
   level: number;
   imageUrl: string;
@@ -19,7 +24,7 @@ export interface OptimiseApiResponseItem {
 }
 
 export interface OptimiseApiResponseSetBonus {
-  name: string;
+  name: LocalisedString;
   numberOfItems: number;
   characteristics: number[];
 }
@@ -74,15 +79,15 @@ export interface SpellEffect {
 }
 
 export interface SpellSpell {
-  name: string;
+  name: LocalisedString;
   level: number;
-  description: string;
+  description: LocalisedString;
   image_url: string;
   effects: SpellEffect[];
 }
 
 export interface SpellClass {
-  name: string;
+  name: LocalisedString;
   spells: SpellSpell[];
 }
 

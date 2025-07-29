@@ -13,14 +13,23 @@ struct DofusLabConditions {
 }
 
 #[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 struct DofusLabLocalised {
     en: String,
+    fr: String,
 }
 
 impl ToTokens for DofusLabLocalised {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.en.to_tokens(tokens)
+        let en = &self.en;
+        let fr = &self.fr;
+        quote! {
+            &LocalisedString {
+                en: #en,
+                fr: #fr,
+            }
+        }
+        .to_tokens(tokens);
     }
 }
 
@@ -224,9 +233,9 @@ fn parse_items(
 
 #[derive(Debug)]
 pub struct Set {
-    pub name: String,
-    pub bonus_start_at: usize,
-    pub bonuses: Vec<Characteristic>,
+    name: DofusLabLocalised,
+    bonus_start_at: usize,
+    bonuses: Vec<Characteristic>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -280,7 +289,7 @@ fn parse_sets(data: &[u8]) -> (HashMap<String, usize>, Vec<Set>) {
             dofus_id_to_internal_id_mapping.insert(set.id.clone(), idx);
 
             Set {
-                name: set.name.en.to_owned(),
+                name: set.name.clone(),
                 bonus_start_at: minimum_number_of_items,
                 bonuses,
             }

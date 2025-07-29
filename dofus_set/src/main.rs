@@ -61,7 +61,10 @@ pub fn print_state(state: &State, config: &config::Config, items: &Items) {
     println!("\nSet bonuses");
     println!("-----------------------------");
     for set_bonus in state.sets(items) {
-        println!("{} - {} items", set_bonus.name, set_bonus.number_of_items);
+        println!(
+            "{} - {} items",
+            set_bonus.name.en, set_bonus.number_of_items
+        );
         print_stats(set_bonus.bonus);
     }
 }
@@ -76,7 +79,7 @@ fn print_stats(stat: &Characteristic) {
 }
 
 fn print_item(item: &Item) {
-    println!("Name: {}", item.name);
+    println!("Name: {}", item.name.en);
     println!("Level: {}", item.level);
     println!("Stats:");
     print_stats(&item.stats);

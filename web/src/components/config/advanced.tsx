@@ -9,6 +9,7 @@ import {
 } from "@/state/state";
 import { InputDecimal } from "../base/input";
 import { Tooltip } from "../base/tooltip";
+import { Language, languageAtom } from "@/state/languageState";
 
 const AdvancedConfigStack = styled(Stack)`
   flex-wrap: wrap;
@@ -21,6 +22,23 @@ const TooltipBox = styled.div`
   border-radius: 8px;
   padding: 4px;
 `;
+
+function LanguageInput() {
+  const [language, setLanguage] = useAtom(languageAtom);
+
+  return (
+    <label>
+      Language:{" "}
+      <select
+        value={language}
+        onChange={(evt) => setLanguage(evt.target.value as Language)}
+      >
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </label>
+  );
+}
 
 export function AdvancedConfig() {
   const [iterations, setIterations] = useAtom(numberOfIterationsAtom);
@@ -73,6 +91,7 @@ export function AdvancedConfig() {
           />
         </Tooltip>
       </label>
+      <LanguageInput />
     </AdvancedConfigStack>
   );
 }

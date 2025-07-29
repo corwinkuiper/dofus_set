@@ -3,7 +3,7 @@ use std::ops::Index;
 use crate::{anneal, config, config::Config};
 
 use dofus_characteristics::{stat_is_element, Characteristic, Stat, STAT_ELEMENT};
-use dofus_items::{Item, ItemIndex, ItemType, Items, NicheItemIndex, SetIndex};
+use dofus_items::{Item, ItemIndex, ItemType, Items, LocalisedString, NicheItemIndex, SetIndex};
 use rand::{prelude::Rng, seq::SliceRandom};
 use serde::Serialize;
 
@@ -44,7 +44,7 @@ impl State {
             if let Some(equipment) = equipment {
                 if !items[slot_index_to_item_type(index)].contains(equipment) {
                     return Err(OptimiseError::InvalidItem {
-                        item: items[*equipment].name.to_owned(),
+                        item: items[*equipment].name,
                         attempted_slot: slot_index_to_item_type(index),
                     });
                 }
@@ -69,7 +69,7 @@ impl State {
 }
 
 pub struct SetBonus<'a> {
-    pub name: &'a str,
+    pub name: &'a LocalisedString,
     pub bonus: &'a Characteristic,
     pub number_of_items: i32,
 }
@@ -434,9 +434,9 @@ impl<'a> Optimiser<'a> {
 pub enum OptimiseError {
     #[error("could not find neighbour after {0} attempts")]
     ExceededMaxAttempts(usize),
-    #[error("item {item} could not fit in slot {attempted_slot:?}")]
+    #[error("item {item:?} could not fit in slot {attempted_slot:?}")]
     InvalidItem {
-        item: String,
+        item: &'static LocalisedString,
         attempted_slot: ItemType,
     },
     #[error("the given state is not valid even with leniency")]
