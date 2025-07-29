@@ -14,7 +14,7 @@ export const bannedItemsAtom = atom(
       const allItems = await get(allItemsAtom);
       const map = new Map(
         allItems
-          .filter((x) => x.name.startsWith("Khardboard"))
+          .filter((x) => x.name.en.startsWith("Khardboard"))
           .map((x) => [x.dofusId, x])
       );
       return map;

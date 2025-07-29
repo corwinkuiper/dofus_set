@@ -5,9 +5,15 @@ mod data;
 use dofus_characteristics::*;
 use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Debug, Clone)]
+pub struct LocalisedString {
+    pub en: &'static str,
+    pub fr: &'static str,
+}
+
 #[derive(Debug)]
 pub struct Item {
-    pub name: &'static str,
+    pub name: &'static LocalisedString,
     pub item_type: &'static str,
     pub stats: Characteristic,
     pub level: i32,
@@ -131,7 +137,7 @@ impl From<usize> for ItemType {
 
 #[derive(Debug)]
 pub struct Set {
-    pub name: &'static str,
+    pub name: &'static LocalisedString,
     start_at: usize,
     bonuses: &'static [Characteristic],
 }
@@ -152,14 +158,14 @@ pub static ITEMS: Items = data::ITEMS;
 
 #[derive(Serialize)]
 pub struct Class {
-    pub name: &'static str,
+    pub name: &'static LocalisedString,
     pub spells: &'static [Spell],
 }
 
 #[derive(Serialize)]
 pub struct Spell {
-    pub name: &'static str,
-    pub description: &'static str,
+    pub name: &'static LocalisedString,
+    pub description: &'static LocalisedString,
     pub image_url: &'static str,
     pub effects: &'static [Effect],
 }

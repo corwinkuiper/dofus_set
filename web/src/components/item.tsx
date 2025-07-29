@@ -14,6 +14,7 @@ import { OverallStats } from "./overall-stats";
 import { makeUrl } from "../services/makeUrl";
 import Image from "next/image";
 import { Stack } from "./base/stack";
+import { Localised } from "./base/localisedDisplay";
 
 const ItemActions = styled.div`
   display: flex;
@@ -168,7 +169,9 @@ export function ItemDisplay({ item, actions, slot }: ItemDisplayProps) {
             <ItemLevel>{item.level}</ItemLevel>
             <ItemActions>{actions}</ItemActions>
           </LevelAndActions>
-          <ItemName>{item.name}</ItemName>
+          <ItemName>
+            <Localised s={item.name} />
+          </ItemName>
         </NonImageContent>
       </ItemBox>
     </Tooltip>
@@ -190,7 +193,7 @@ export function SetBonusDisplay({ set }: SetBonusDisplayProps) {
     >
       <ItemBox>
         <ItemName>
-          {set.name} ({set.numberOfItems})
+          <Localised s={set.name} /> ({set.numberOfItems})
         </ItemName>
       </ItemBox>
     </Tooltip>

@@ -1,5 +1,5 @@
 use dofus_characteristics::Characteristic;
-use dofus_items::{Item, ItemIndex, Items, NicheItemIndex};
+use dofus_items::{Item, ItemIndex, Items, LocalisedString, NicheItemIndex};
 use dofus_set::{
     config::{Config, DamagingMove, DamagingMovesOptimisation},
     dofus_set::OptimiseError,
@@ -39,7 +39,7 @@ struct DamagingMovesWeight {
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct OptimiseResponseSetBonus {
-    name: &'static str,
+    name: &'static LocalisedString,
     number_of_items: i32,
     characteristics: Characteristic,
 }
@@ -49,7 +49,7 @@ struct OptimiseResponseSetBonus {
 pub struct OptimiseResponseItem {
     dofus_id: ItemIndex,
     characteristics: Characteristic,
-    name: &'static str,
+    name: &'static LocalisedString,
     item_type: &'static str,
     level: i32,
     image_url: &'static str,
