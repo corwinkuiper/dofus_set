@@ -1,6 +1,6 @@
 import { LocalisedString } from "@/services/dofus/optimiser";
-import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 export type Language = keyof LocalisedString;
 
-export const languageAtom = atom<Language>("en");
+export const languageAtom = atomWithStorage<Language>("language", "en");
