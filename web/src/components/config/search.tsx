@@ -1,31 +1,30 @@
 import { OptimiseApiResponseItem } from "@/services/dofus/optimiser";
 import { Stack } from "@/components/base/stack";
-import { atom, useAtomValue } from "jotai";
-import { Suspense, useMemo, useState } from "react";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { Suspense, useMemo } from "react";
 import { getItemsInSlot } from "@/state/state";
-import Fuse from "fuse.js";
 import { ActionPin, ItemDisplay } from "@/components/item";
 import styled from "styled-components";
 import { Atom } from "jotai";
 import { allItemsAtom } from "@/state/allItemsState";
-import { useClientAtom } from "@/hooks/useClientAtom";
+import { SearchResult, useSearch } from "@/services/search/search";
+import { ClientOnly } from "../client";
 
 const ScrollStack = styled(Stack)`
   max-height: 400px;
   overflow-y: scroll;
 `;
 
-interface SearchResultsProps {
+interface SearchInputProps {
   item: (item: OptimiseApiResponseItem) => void;
   itemList: Atom<Promise<OptimiseApiResponseItem[]>>;
 }
 
-function SearchResults({ item, itemList }: SearchResultsProps) {
-  const items = useAtomValue(itemList);
-  const [query, setQuery] = useState("");
-  const fuse = useMemo(() => new Fuse(items, { keys: ["name"] }), [items]);
+function SearchInput({ item, itemList }: SearchInputProps) {
+  const queryAtom = useMemo(() => atom(""), []);
+  const search = useSearch(itemList, queryAtom);
 
-  const results = useMemo(() => fuse.search(query), [query, fuse]);
+  const [query, setQuery] = useAtom(queryAtom);
 
   return (
     <Stack>
@@ -40,17 +39,32 @@ function SearchResults({ item, itemList }: SearchResultsProps) {
           }}
         />
       </label>
-      <ScrollStack>
-        {results.map((x) => (
-          <ItemDisplay
-            slot={-1}
-            key={x.item.dofusId}
-            item={x.item}
-            actions={<ActionPin action={() => item(x.item)} />}
-          />
-        ))}
-      </ScrollStack>
+      <Suspense fallback="Searching...">
+        <SearchResults results={search} item={item} />
+      </Suspense>
     </Stack>
+  );
+}
+
+interface SearchResults2Props {
+  item: (item: OptimiseApiResponseItem) => void;
+
+  results: SearchResult;
+}
+
+function SearchResults({ results, item }: SearchResults2Props) {
+  const results2 = useAtomValue(results);
+  return (
+    <ScrollStack>
+      {results2.map((x) => (
+        <ItemDisplay
+          slot={-1}
+          key={x.item.dofusId}
+          item={x.item}
+          actions={<ActionPin action={() => item(x.item)} />}
+        />
+      ))}
+    </ScrollStack>
   );
 }
 
@@ -63,9 +77,11 @@ export function SearchBox({ slot, item }: SearchBoxProps) {
   const items = useMemo(() => atom(getItemsInSlot(slot)), [slot]);
 
   return (
-    <Suspense>
-      <SearchResults item={item} itemList={items} />
-    </Suspense>
+    <ClientOnly>
+      <Suspense>
+        <SearchInput item={item} itemList={items} />
+      </Suspense>
+    </ClientOnly>
   );
 }
 
@@ -74,11 +90,11 @@ interface SearchAllItemsBoxProps {
 }
 
 export function SearchAllItemsBox({ item }: SearchAllItemsBoxProps) {
-  const atom = useClientAtom(allItemsAtom, []);
-
   return (
-    <Suspense>
-      <SearchResults item={item} itemList={atom} />
-    </Suspense>
+    <ClientOnly>
+      <Suspense>
+        <SearchInput item={item} itemList={allItemsAtom} />
+      </Suspense>
+    </ClientOnly>
   );
 }
