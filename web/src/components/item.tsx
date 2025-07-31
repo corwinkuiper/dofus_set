@@ -15,6 +15,7 @@ import { makeUrl } from "../services/makeUrl";
 import Image from "next/image";
 import { Stack } from "./base/stack";
 import { Localised } from "./base/localisedDisplay";
+import { useLocalised } from "@/hooks/useLocalised";
 
 const ItemActions = styled.div`
   display: flex;
@@ -137,6 +138,8 @@ const slotToItemType = [
 const ItemLevel = styled(ItemName)``;
 
 export function ItemDisplay({ item, actions, slot }: ItemDisplayProps) {
+  const itemName = useLocalised(item?.name ?? null);
+
   if (!item) {
     const itemType = slotToItemType.at(slot);
     if (!itemType) return;
@@ -162,7 +165,7 @@ export function ItemDisplay({ item, actions, slot }: ItemDisplayProps) {
         </TooltipContainer>
       }
     >
-      <ItemBox>
+      <ItemBox onClick={() => navigator.clipboard.writeText(itemName)}>
         <ItemImage src={makeUrl(item.imageUrl)} alt="" aria-hidden="true" />
         <NonImageContent>
           <LevelAndActions $dir="h">

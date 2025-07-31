@@ -22,7 +22,6 @@ interface SearchInputProps {
 
 function SearchInput({ item, itemList }: SearchInputProps) {
   const queryAtom = useMemo(() => atom(""), []);
-  const search = useSearch(itemList, queryAtom);
 
   const [query, setQuery] = useAtom(queryAtom);
 
@@ -40,23 +39,39 @@ function SearchInput({ item, itemList }: SearchInputProps) {
         />
       </label>
       <Suspense fallback="Searching...">
-        <SearchResults results={search} item={item} />
+        <Searcher queryAtom={queryAtom} itemList={itemList} item={item} />
       </Suspense>
     </Stack>
   );
 }
 
-interface SearchResults2Props {
+interface SearcherProps {
+  queryAtom: Atom<string>;
+  itemList: Atom<Promise<OptimiseApiResponseItem[]>>;
+  item: (item: OptimiseApiResponseItem) => void;
+}
+
+function Searcher({ itemList, queryAtom, item }: SearcherProps) {
+  const search = useSearch(itemList, queryAtom);
+
+  return (
+    <Suspense>
+      <SearchResults results={search} item={item} />
+    </Suspense>
+  );
+}
+
+interface SearchResultsProps {
   item: (item: OptimiseApiResponseItem) => void;
 
   results: SearchResult;
 }
 
-function SearchResults({ results, item }: SearchResults2Props) {
-  const results2 = useAtomValue(results);
+function SearchResults({ results, item }: SearchResultsProps) {
+  const resultsValue = useAtomValue(results);
   return (
     <ScrollStack>
-      {results2.map((x) => (
+      {resultsValue.map((x) => (
         <ItemDisplay
           slot={-1}
           key={x.item.dofusId}

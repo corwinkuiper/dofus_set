@@ -1,8 +1,8 @@
-import { atom, Atom } from "jotai";
+import { atom, Atom, useAtomValue, useSetAtom } from "jotai";
 import { OptimiseApiResponseItem } from "../dofus/optimiser";
 import { SearchCommand } from "./searchWorker";
 import { languageAtom } from "@/state/languageState";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { FuseResult } from "fuse.js";
 
 interface QueuedJob {
@@ -24,8 +24,9 @@ class Search {
   } = {};
   private jobQueue: QueuedJob[] = [];
   private freeWorkers: Worker[] = [];
-  private workerCount: number = 0;
   private desiredWorkerCount: number;
+
+  private workers: Set<Worker> = new Set();
 
   constructor(items: OptimiseApiResponseItem[], language: string) {
     this.items = items;
@@ -33,9 +34,22 @@ class Search {
     this.desiredWorkerCount = navigator.hardwareConcurrency || 1;
   }
 
+  terminate() {
+    this.desiredWorkerCount = 0;
+    for (const worker of this.workers) {
+      worker.terminate();
+    }
+    this.workers = new Set();
+  }
+
+  private workerCount() {
+    return this.workers.size;
+  }
+
   private createWorker() {
     console.log("Creating search worker");
     const worker = new Worker(new URL("./searchWorker", import.meta.url));
+    this.workers.add(worker);
     worker.onmessage = (message) => {
       const id = message.data.id;
       console.log("Search job message", message.data);
@@ -46,18 +60,15 @@ class Search {
       }
       delete this.activeJobs[id];
 
-      if (this.workerCount > this.desiredWorkerCount) {
-        worker.terminate();
-        this.workerCount -= 1;
+      if (this.workerCount() > this.desiredWorkerCount) {
+        this.terminateWorker(worker);
       } else {
         this.freeWorkers.push(worker);
         this.allocateJob();
       }
     };
-    worker.onerror = (e) => {
-      worker.terminate();
-      console.log("Worker failed", e);
-      this.workerCount -= 1;
+    worker.onerror = () => {
+      this.terminateWorker(worker);
       this.createWorker();
       this.freeWorkers = this.freeWorkers.filter((x) => x !== worker);
     };
@@ -70,11 +81,15 @@ class Search {
     });
 
     this.freeWorkers.push(worker);
-    this.workerCount += 1;
+  }
+
+  private terminateWorker(worker: Worker) {
+    worker.terminate();
+    this.workers.delete(worker);
   }
 
   private balanceWorkers() {
-    if (this.workerCount < this.desiredWorkerCount) this.createWorker();
+    if (this.workerCount() < this.desiredWorkerCount) this.createWorker();
   }
 
   private allocateJob() {
@@ -88,9 +103,7 @@ class Search {
       }
       const worker = this.freeWorkers.pop()!; // just checked it is not empty
       const abortListener = () => {
-        console.log("ABORTED");
-        worker.terminate();
-        this.workerCount -= 1;
+        this.terminateWorker(worker);
         this.createWorker();
         job.reject({ message: "aborted" });
       };
@@ -159,15 +172,26 @@ export function useSearch(
   itemsAtom: Atom<Promise<OptimiseApiResponseItem[]>>,
   queryAtom: Atom<string>
 ): SearchResult {
-  const searchAtom = useMemo(() => {
-    return atom(
-      async (get) => new Search(await get(itemsAtom), get(languageAtom))
-    );
-  }, [itemsAtom]);
+  const searchAtom = useMemo(() => atom<Search | null>(null), []);
+  const items = useAtomValue(itemsAtom);
+  const language = useAtomValue(languageAtom);
+
+  const setSearchAtom = useSetAtom(searchAtom);
+
+  useEffect(() => {
+    const worker = new Search(items, language);
+    setSearchAtom(worker);
+
+    return () => {
+      worker.terminate();
+    };
+  });
 
   const resultAtom = useMemo(() => {
-    return atom(async (get, { signal }) =>
-      (await get(searchAtom)).search(get(queryAtom), { abort: signal })
+    return atom(
+      async (get, { signal }) =>
+        await (get(searchAtom)?.search(get(queryAtom), { abort: signal }) ??
+          Promise.resolve([]))
     );
   }, [queryAtom, searchAtom]);
 
