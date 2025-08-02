@@ -4,6 +4,7 @@ import { SearchCommand } from "./searchWorker";
 import { languageAtom } from "@/state/languageState";
 import { useEffect, useMemo } from "react";
 import { FuseResult } from "fuse.js";
+import { generateId } from "../generateId";
 
 interface QueuedJob {
   query: SearchCommand;
@@ -74,7 +75,7 @@ class Search {
     };
 
     worker.postMessage({
-      id: crypto.randomUUID(),
+      id: generateId(),
       kind: "configure",
       items: this.items,
       config: { keys: [`name.${this.language}`] },
@@ -149,7 +150,7 @@ class Search {
     extra?: { abort?: AbortSignal }
   ): Promise<FuseResult<OptimiseApiResponseItem>[]> {
     return new Promise((resolve, reject) => {
-      const jobId = crypto.randomUUID();
+      const jobId = generateId();
 
       this.queueJob(
         {

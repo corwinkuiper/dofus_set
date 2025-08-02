@@ -1,3 +1,4 @@
+import { generateId } from "../generateId";
 import { WorkerQuery } from "./worker";
 
 export interface LocalisedString {
@@ -215,7 +216,7 @@ export class Optimiser {
     extra?: { abort?: AbortSignal }
   ): Promise<OptimiseApiResponse> {
     return new Promise((resolve, reject) => {
-      const jobId = crypto.randomUUID();
+      const jobId = generateId();
 
       this.queueJob(
         {
@@ -232,7 +233,7 @@ export class Optimiser {
 
   async get_items_in_slot(slot: number): Promise<OptimiseApiResponseItem[]> {
     return new Promise((resolve, reject) => {
-      const jobId = crypto.randomUUID();
+      const jobId = generateId();
       this.queueJob(
         {
           id: jobId,
@@ -248,7 +249,7 @@ export class Optimiser {
 
   async get_spells(): Promise<SpellClass[]> {
     return new Promise((resolve, reject) => {
-      const jobId = crypto.randomUUID();
+      const jobId = generateId();
       this.queueJob(
         {
           id: jobId,
@@ -263,7 +264,7 @@ export class Optimiser {
 
   async get_all_items(): Promise<OptimiseApiResponseItem[]> {
     return new Promise((resolve, reject) => {
-      const jobId = crypto.randomUUID();
+      const jobId = generateId();
       this.queueJob(
         {
           id: jobId,
