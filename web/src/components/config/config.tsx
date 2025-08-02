@@ -38,21 +38,30 @@ function LevelInput() {
 }
 
 const BaseInputItem = styled.label`
-  display: flex;
   border: 1px solid black;
   border-radius: 4px;
   overflow: hidden;
+  display: grid;
+  grid-column: span 2;
+  grid-template-columns: subgrid;
   & > span {
     background-color: #b5b5b5;
     padding: 4px;
   }
 `;
 
+const BaseInputLi = styled.li`
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: span 2;
+  gap: 0;
+`;
+
 function BaseStatInput({ statName }: { statName: StatName }) {
   const [statWeight, updateStatWeight] = useImmerAtom(simpleWeightState);
 
   return (
-    <li>
+    <BaseInputLi>
       <BaseInputItem>
         <span>{statName}</span>
         <InputDecimal
@@ -64,7 +73,7 @@ function BaseStatInput({ statName }: { statName: StatName }) {
           }
         />
       </BaseInputItem>
-    </li>
+    </BaseInputLi>
   );
 }
 
@@ -72,8 +81,12 @@ const BasicList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
+  display: grid;
   gap: 16px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(60px, auto) minmax(50px, 1fr)
+  );
 `;
 
 function ApMpRangeWeightInput() {
