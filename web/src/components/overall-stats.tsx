@@ -10,6 +10,9 @@ const StatsBlock = styled.ul`
   padding: 0;
   display: grid;
   grid-template-columns: auto auto 1fr auto auto 1fr;
+  @media screen and (max-width: 600px) {
+    grid-template-columns: auto auto 1fr;
+  }
   gap: 4px;
 `;
 
