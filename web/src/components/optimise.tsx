@@ -13,7 +13,25 @@ import { OptimisationConfig } from "./config/config";
 import { ReactNode } from "react";
 import { Button } from "./base/button";
 import { useAtomValue } from "jotai";
-import { styled } from "styled-components";
+import { css, styled } from "styled-components";
+
+const OptimiseButtonElement = styled(Button)<{ $active: boolean }>`
+  width: 100%;
+  font-size: 1rem;
+  height: 3rem;
+  background-color: #bcd607;
+  border-color: #ffff00;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 8px;
+
+  ${(props) =>
+    props.$active &&
+    css`
+      background-color: #fdb509;
+      border-color: #a42805;
+    `}
+`;
 
 function OptimiseButton() {
   const cancel = useCancelOptimisation();
@@ -21,9 +39,9 @@ function OptimiseButton() {
   const { current, dispatched } = useAtomValue(optimisationProgressAtom);
 
   return (
-    <Button type="submit">
+    <OptimiseButtonElement type="submit" $active={!!cancel}>
       {(cancel && `Cancel (${current} / ${dispatched})`) || "Optimise"}
-    </Button>
+    </OptimiseButtonElement>
   );
 }
 
