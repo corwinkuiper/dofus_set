@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::{collections::HashSet, ops::Index};
 
 use crate::{anneal, config, config::Config};
 
@@ -389,11 +389,13 @@ impl<'a> Optimiser<'a> {
 
         let mut item_list: [Vec<ItemIndex>; 10] = Default::default();
 
+        let banned_items: HashSet<ItemIndex> = config.ban_list.iter().copied().collect();
+
         for (idx, item_list) in item_list.iter_mut().enumerate() {
             *item_list = items[ItemType::from(idx)]
                 .iter()
                 .filter(|&x| items[*x].level <= config.max_level)
-                .filter(|&x| !config.ban_list.contains(x))
+                .filter(|&x| !banned_items.contains(x))
                 .copied()
                 .collect();
         }
