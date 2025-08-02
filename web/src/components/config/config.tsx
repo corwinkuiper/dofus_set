@@ -85,7 +85,7 @@ const BasicList = styled.ul`
   gap: 16px;
   grid-template-columns: repeat(
     auto-fill,
-    minmax(60px, auto) minmax(50px, 1fr)
+    minmax(60px, 1fr) minmax(100px, 3fr)
   );
 `;
 
