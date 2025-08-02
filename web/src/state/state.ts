@@ -15,7 +15,7 @@ import {
   WritableAtom,
 } from "jotai";
 import { damagingMoves } from "@/state/damagingMovesState";
-import { bannedItemsAtom } from "./bannedItemsState";
+import { bannedItemsAllAtom } from "./bannedItemsState";
 import { useClientAtom } from "@/hooks/useClientAtom";
 import { statIndex } from "@/services/dofus/stats";
 
@@ -61,7 +61,7 @@ export const targetState = atom<(number | undefined)[]>(
 export const maxLevelState = atom(149);
 
 const bannedItemsState = atom(async (get) => [
-  ...(await get(bannedItemsAtom)).values().map((x) => x.dofusId),
+  ...(await get(bannedItemsAllAtom)).map((x) => x.dofusId),
 ]);
 
 export interface InitialItemState {
