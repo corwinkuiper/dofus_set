@@ -15,7 +15,7 @@
 import { statIndex, StatName } from "@/services/dofus/stats";
 import { maxLevelState, simpleWeightState, useImmerAtom } from "@/state/state";
 import { useAtom } from "jotai";
-import { DamagingMoveInput } from "./damagingMove";
+import { DamagingMoveInput } from "./damagingMove/damagingMove";
 import { Stack } from "../base/stack";
 import { InitialItems } from "./initialEquipment";
 import { Section } from "../base/section";
@@ -38,21 +38,30 @@ function LevelInput() {
 }
 
 const BaseInputItem = styled.label`
-  display: flex;
   border: 1px solid black;
   border-radius: 4px;
   overflow: hidden;
+  display: grid;
+  grid-column: span 2;
+  grid-template-columns: subgrid;
   & > span {
     background-color: #b5b5b5;
     padding: 4px;
   }
 `;
 
+const BaseInputLi = styled.li`
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: span 2;
+  gap: 0;
+`;
+
 function BaseStatInput({ statName }: { statName: StatName }) {
   const [statWeight, updateStatWeight] = useImmerAtom(simpleWeightState);
 
   return (
-    <li>
+    <BaseInputLi>
       <BaseInputItem>
         <span>{statName}</span>
         <InputDecimal
@@ -64,7 +73,7 @@ function BaseStatInput({ statName }: { statName: StatName }) {
           }
         />
       </BaseInputItem>
-    </li>
+    </BaseInputLi>
   );
 }
 
@@ -72,8 +81,12 @@ const BasicList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
+  display: grid;
   gap: 16px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(60px, 1fr) minmax(100px, 3fr)
+  );
 `;
 
 function ApMpRangeWeightInput() {

@@ -6,7 +6,7 @@ import {
 import { maxLevelState } from "@/state/state";
 import { atom, PrimitiveAtom } from "jotai";
 
-export const damagingMovesAtomAtom = atom<
+export const damagingMovesSpellAtomAtom = atom<
   PrimitiveAtom<OptimiseDamagingMoveString>[]
 >([]);
 function damageToArray(damage: SpellDamage | null): number[] {
@@ -21,10 +21,14 @@ function damageToArray(damage: SpellDamage | null): number[] {
   ].map((x) => (x.min + x.max) / 2);
 }
 
+export const damagingMovesRawInputAtomAtom = atom<
+  PrimitiveAtom<OptimisationDamagingMove>[]
+>([]);
+
 export const damagingMoves = atom<OptimisationDamagingMove[]>((get) => {
   const level = get(maxLevelState);
 
-  return get(damagingMovesAtomAtom)
+  const spellInput = get(damagingMovesSpellAtomAtom)
     .map(get)
     .flatMap((x) => {
       const effect = x.spell?.effects.findLast((x) => level >= x.level);
@@ -41,7 +45,12 @@ export const damagingMoves = atom<OptimisationDamagingMove[]>((get) => {
         },
       ];
     });
+
+  const rawInput = get(damagingMovesRawInputAtomAtom).map(get);
+
+  return [...spellInput, ...rawInput];
 });
+
 export interface OptimiseDamagingMoveString {
   weight: number;
   spell: SpellSpell | null;

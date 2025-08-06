@@ -1,17 +1,17 @@
 import { getSpells, useImmerAtom } from "@/state/state";
 import { atom, PrimitiveAtom, useAtom, useAtomValue } from "jotai";
 import { useCallback, useId } from "react";
-import { Stack } from "../base/stack";
-import { Button } from "../base/button";
-import { InputDecimal } from "../base/input";
+import { Stack } from "../../base/stack";
+import { Button } from "../../base/button";
+import { InputDecimal } from "../../base/input";
 import { styled } from "styled-components";
-import { makeUrl } from "../../services/makeUrl";
+import { makeUrl } from "../../../services/makeUrl";
 import {
-  damagingMovesAtomAtom,
+  damagingMovesSpellAtomAtom,
   OptimiseDamagingMoveString,
-} from "../../state/damagingMovesState";
+} from "../../../state/damagingMovesState";
 import { useClientAtom } from "@/hooks/useClientAtom";
-import { Localised } from "../base/localisedDisplay";
+import { Localised } from "../../base/localisedDisplay";
 
 const spellsAtom = atom(() => getSpells());
 const classAtom = atom<string | null>(null);
@@ -118,8 +118,24 @@ function ChooseClass() {
   );
 }
 
-export function DamagingMoveInput() {
-  const [damagingMoves, setDamagingMoves] = useAtom(damagingMovesAtomAtom);
+const List = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  gap: 16px;
+
+  & > li {
+    margin: 0;
+  }
+`;
+
+export function DamagingMoveSpellInput() {
+  const [damagingMoves, setDamagingMoves] = useAtom(damagingMovesSpellAtomAtom);
   const addDamagingMove = useCallback(() => {
     const newDamagingMove = atom<OptimiseDamagingMoveString>({
       weight: 1,
@@ -138,7 +154,8 @@ export function DamagingMoveInput() {
   return (
     <Stack>
       <ChooseClass />
-      <ul>
+      <Button onClick={addDamagingMove}>Add move</Button>
+      <List>
         {damagingMoves.map((x) => (
           <li key={x.toString()}>
             <Stack $dir="h">
@@ -147,8 +164,7 @@ export function DamagingMoveInput() {
             </Stack>
           </li>
         ))}
-      </ul>
-      <Button onClick={addDamagingMove}>Add move</Button>
+      </List>
     </Stack>
   );
 }

@@ -2,7 +2,7 @@ use dofus_characteristics::Characteristic;
 use dofus_items::{Item, ItemIndex, Items, LocalisedString, NicheItemIndex};
 use dofus_set::{
     config::{Config, DamagingMove, DamagingMovesOptimisation},
-    dofus_set::OptimiseError,
+    dofus_set::{average_base_damage, OptimiseError},
 };
 use serde::{Deserialize, Serialize};
 
@@ -64,6 +64,7 @@ pub struct OptimiseResponse {
     set_bonuses: Vec<OptimiseResponseSetBonus>,
     valid: bool,
     characteristics: Vec<i32>,
+    damaging_move_average_base_damage: Vec<f64>,
 }
 
 fn make_optimise_response(id: ItemIndex, item: &Item) -> OptimiseResponseItem {
@@ -177,6 +178,11 @@ pub fn create_optimised_set(
     Ok(OptimiseResponse {
         energy: -final_state.energy(&dofus_set_config, items, &sets),
         valid: final_state.is_valid(&dofus_set_config, &stats, items, &sets),
+        damaging_move_average_base_damage: dofus_set_config
+            .damaging_moves
+            .iter()
+            .map(|x| average_base_damage(&stats, x))
+            .collect(),
         overall_characteristics: stats,
         items: final_state
             .set()
