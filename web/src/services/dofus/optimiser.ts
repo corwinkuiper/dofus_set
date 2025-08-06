@@ -13,6 +13,7 @@ export interface OptimiseApiResponse {
   setBonuses: OptimiseApiResponseSetBonus[];
   characteristics: number[];
   valid: boolean;
+  damagingMoveAverageBaseDamage: number[];
 }
 
 export interface OptimiseApiResponseItem {

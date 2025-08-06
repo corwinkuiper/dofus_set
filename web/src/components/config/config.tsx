@@ -15,7 +15,7 @@
 import { statIndex, StatName } from "@/services/dofus/stats";
 import { maxLevelState, simpleWeightState, useImmerAtom } from "@/state/state";
 import { useAtom } from "jotai";
-import { DamagingMoveInput } from "./damagingMove";
+import { DamagingMoveInput } from "./damagingMove/damagingMove";
 import { Stack } from "../base/stack";
 import { InitialItems } from "./initialEquipment";
 import { Section } from "../base/section";
