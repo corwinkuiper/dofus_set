@@ -18,7 +18,7 @@ import { Stack } from "@/components/base/stack";
 import { useMemo, useState } from "react";
 import { styled } from "styled-components";
 
-const ITEM_REGEX = /(\d+) x \[([^\]]+)\] \(([\d,]+) kamas\)/g;
+const ITEM_REGEX = /(\d+) x \[([^\]]+)\] \(([\d, ]+) kamas\)/g;
 
 export default function Page() {
   const [input, setInput] = useState("");
@@ -27,7 +27,7 @@ export default function Page() {
     () =>
       input
         .matchAll(ITEM_REGEX)
-        .map((x) => Number(x[3].replaceAll(",", "")))
+        .map((x) => Number(x[3].replaceAll(/[, ]/g, "")))
         .reduce((a, b) => a + b, 0),
     [input]
   );
