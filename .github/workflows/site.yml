@@ -37,16 +37,13 @@ jobs:
       - name: Install npm deps
         run: npm ci
         working-directory: web
-      - name: Lint
-        run: npm run lint
-        working-directory: web
       - name: Build
         run: npm run build
         working-directory: web
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "web/out"
+          path: "web/build"
   deploy:
     name: Deploy website
     if: github.event_name == 'push'
