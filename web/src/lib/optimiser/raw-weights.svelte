@@ -19,14 +19,29 @@
     }
   }
 
+  function switchStat(statIdx: number, enabledWeightIndex: number) {
+    return (evt: Event) => {
+      const target = evt.target as HTMLInputElement;
+      const newStatIdx = Number(target.value);
+      dofusState.targetStat[newStatIdx] = dofusState.targetStat[statIdx];
+      dofusState.targetStat[statIdx] = undefined;
+      dofusState.basicStat[newStatIdx] = dofusState.basicStat[statIdx];
+      dofusState.basicStat[statIdx] = 0;
+      enabledWeights[enabledWeightIndex] = newStatIdx;
+    };
+  }
+
   let addWeightEnabled = $derived(remainingStatNames.length > 0);
 </script>
 
 <Section title="Raw input">
   <div class="inputs">
-    {#each enabledWeights as statIdx}
+    {#each enabledWeights as statIdx, enabledWeightIndex}
       <div class="input">
-        <select>
+        <select
+          value={statIdx}
+          oninput={switchStat(statIdx, enabledWeightIndex)}
+        >
           <option value={statIdx}>{StatNames[statIdx]}</option>
           {#each remainingStatNames as stat}
             <option value={stat[1]}>{stat[0]}</option>
