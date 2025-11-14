@@ -54,7 +54,7 @@
     const optimiserProfile = {
       weights: snapshot.basicStat,
       maxLevel: snapshot.level,
-      targets: new Array(51).fill(undefined),
+      targets: snapshot.targetStat,
       initialItems: snapshot.initialItems.map((x) => x?.dofusId),
       fixedItems: snapshot.fixedItems,
       bannedItems,
