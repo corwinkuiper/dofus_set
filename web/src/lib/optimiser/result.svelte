@@ -73,7 +73,7 @@
         Average base damage:
         <ul class="list">
           {#each result.damagingMoveAverageBaseDamage as baseDamage}
-            {baseDamage.toFixed(1)}
+            <li>{baseDamage.toFixed(1)}</li>
           {/each}
         </ul>
       </div>
