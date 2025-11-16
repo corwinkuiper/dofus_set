@@ -24,7 +24,7 @@
       const target = evt.target as HTMLInputElement;
       const newStatIdx = Number(target.value);
       dofusState.targetStat[newStatIdx] = dofusState.targetStat[statIdx];
-      dofusState.targetStat[statIdx] = undefined;
+      dofusState.targetStat[statIdx] = null;
       dofusState.basicStat[newStatIdx] = dofusState.basicStat[statIdx];
       dofusState.basicStat[statIdx] = 0;
       enabledWeights[enabledWeightIndex] = newStatIdx;
@@ -52,17 +52,17 @@
           bind:value={dofusState.basicStat[statIdx]}
           step="any"
         />
-        {#if dofusState.targetStat[statIdx] !== undefined}
+        {#if dofusState.targetStat[statIdx] !== null}
           <input type="number" bind:value={dofusState.targetStat[statIdx]} />
         {/if}
         <input
           type="checkbox"
-          value={dofusState.targetStat[statIdx] !== undefined}
+          value={dofusState.targetStat[statIdx] !== null}
           oninput={(evt) => {
             dofusState.targetStat[statIdx] = (evt.target as HTMLInputElement)
               .checked
               ? 0
-              : undefined;
+              : null;
           }}
         />
       </div>

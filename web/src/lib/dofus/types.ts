@@ -16,9 +16,9 @@ export interface DofusItem {
 
 export interface DofusOptimiserConfig {
   weights: number[];
-  targets: (number | undefined)[];
+  targets: (number | null)[];
   maxLevel: number;
-  initialItems: (number | undefined)[];
+  initialItems: (number | null)[];
   fixedItems: number[];
   bannedItems: number[];
   apExo: boolean;

@@ -26,10 +26,14 @@
   ];
 
   let {
-    item,
+    item = null,
     actions,
     itemSlot,
-  }: { item?: DofusItem; actions?: Snippet; itemSlot: number } = $props();
+  }: {
+    item?: DofusItem | null;
+    actions?: Snippet;
+    itemSlot: number;
+  } = $props();
 
   let itemType = $derived(slotToItemType.at(itemSlot));
 </script>

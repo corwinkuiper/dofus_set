@@ -11,11 +11,17 @@
   import Result from "$lib/optimiser/result.svelte";
   import Spell from "$lib/optimiser/spell.svelte";
   import { dofusState, optimiserConfig } from "$lib/optimiser/state.svelte";
+  import { language } from "$lib/state/lang.svelte";
+  import { persistState } from "$lib/util/persist.svelte";
 
   let optimal = $state<DofusOptimiserResult>();
   let progress = $state<{ complete: number; total: number }>();
   let cancelRunning = $state<AbortController>();
   let allItemsPromise = $state(optimiser.get_all_items());
+
+  persistState("optimise", dofusState);
+  persistState("optimise_settings", optimiserConfig);
+  persistState("lang", language);
 
   function cancel() {
     if (cancelRunning) {
@@ -55,7 +61,7 @@
       weights: snapshot.basicStat,
       maxLevel: snapshot.level,
       targets: snapshot.targetStat,
-      initialItems: snapshot.initialItems.map((x) => x?.dofusId),
+      initialItems: snapshot.initialItems.map((x) => x?.dofusId ?? null),
       fixedItems: snapshot.fixedItems,
       bannedItems,
       apExo: dofusState.apExo,
