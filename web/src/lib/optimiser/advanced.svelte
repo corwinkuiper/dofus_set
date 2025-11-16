@@ -1,7 +1,15 @@
 <script lang="ts">
   import Section from "$lib/component/section.svelte";
   import { language } from "$lib/state/lang.svelte";
-  import { dofusState, optimiserConfig } from "./state.svelte";
+  import {
+    dofusState,
+    initialDofusState,
+    optimiserConfig,
+  } from "./state.svelte";
+
+  function resetConfig() {
+    Object.assign(dofusState, initialDofusState());
+  }
 </script>
 
 <Section title="Advanced">
@@ -36,6 +44,7 @@
         <option value="fr">Français</option>
       </select>
     </label>
+    <button type="button" onclick={resetConfig}>Reset config</button>
   </div>
 </Section>
 

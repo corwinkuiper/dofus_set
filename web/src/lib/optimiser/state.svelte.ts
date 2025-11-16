@@ -1,18 +1,22 @@
 import { getStatIndexForName } from "$lib/dofus/stat-names";
 import type { DofusDamagingMove, DofusItem } from "$lib/dofus/types";
 
-const initialBasicStats: number[] = new Array(51).fill(0);
-initialBasicStats[getStatIndexForName("AP")] = 100;
-initialBasicStats[getStatIndexForName("MP")] = 100;
-initialBasicStats[getStatIndexForName("Range")] = 50;
-initialBasicStats[getStatIndexForName("Vitality")] = 0.01;
+function initialBasicStats() {
+  const initialBasicStats: number[] = new Array(51).fill(0);
+  initialBasicStats[getStatIndexForName("AP")] = 100;
+  initialBasicStats[getStatIndexForName("MP")] = 100;
+  initialBasicStats[getStatIndexForName("Range")] = 50;
+  initialBasicStats[getStatIndexForName("Vitality")] = 0.01;
+
+  return initialBasicStats;
+}
 
 interface DofusState {
   level: number;
   basicStat: number[];
-  targetStat: (number | undefined)[];
+  targetStat: (number | null)[];
   rawSpells: DofusDamagingMove[];
-  initialItems: (DofusItem | undefined)[];
+  initialItems: (DofusItem | null)[];
   fixedItems: number[];
   bannedItems: DofusItem[];
   banKhardboard: boolean;
@@ -28,26 +32,30 @@ interface DofusState {
   considerCharacteristicPoints: boolean;
 }
 
-export let dofusState = $state<DofusState>({
-  level: 149,
-  basicStat: initialBasicStats,
-  targetStat: new Array(51).fill(undefined),
-  rawSpells: [],
-  initialItems: new Array(16).fill(undefined),
-  fixedItems: [],
-  bannedItems: [],
-  banKhardboard: true,
-  banPetsmount: false,
-  banPet: false,
-  banDragoturkey: false,
-  banRhineetle: false,
-  banSeemyool: false,
-  apExo: false,
-  mpExo: false,
-  rangeExo: false,
-  multiElement: false,
-  considerCharacteristicPoints: true,
-});
+export function initialDofusState(): DofusState {
+  return {
+    level: 149,
+    basicStat: initialBasicStats(),
+    targetStat: new Array(51).fill(null),
+    rawSpells: [],
+    initialItems: new Array(16).fill(null),
+    fixedItems: [],
+    bannedItems: [],
+    banKhardboard: true,
+    banPetsmount: false,
+    banPet: false,
+    banDragoturkey: false,
+    banRhineetle: false,
+    banSeemyool: false,
+    apExo: false,
+    mpExo: false,
+    rangeExo: false,
+    multiElement: false,
+    considerCharacteristicPoints: true,
+  };
+}
+
+export let dofusState = $state<DofusState>(initialDofusState());
 
 interface OptimiserConfig {
   numberOfIterations: number;

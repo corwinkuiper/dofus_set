@@ -25,7 +25,7 @@
 <Section title="Initial items" open>
   <div class="split">
     <div>
-      {#if slotToSearch !== undefined}
+      {#if slotToSearch !== null}
         <Search itemSlot={slotToSearch} {pick} />
       {/if}
     </div>
@@ -43,9 +43,9 @@
                 togglePin(idx);
               }}
               pinActive={dofusState.fixedItems.includes(idx)}
-              bin={item !== undefined
+              bin={item !== null
                 ? () => {
-                    dofusState.initialItems[idx] = undefined;
+                    dofusState.initialItems[idx] = null;
                     dofusState.fixedItems = dofusState.fixedItems.filter(
                       (x) => x !== idx
                     );
