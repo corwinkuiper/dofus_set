@@ -67,7 +67,7 @@
       apExo: dofusState.apExo,
       mpExo: dofusState.mpExo,
       rangeExo: dofusState.rangeExo,
-      multiElement: dofusState.mpExo,
+      multiElement: dofusState.multiElement,
       changedItemWeight: 0,
       damagingMovesWeights: snapshot.rawSpells,
       considerCharacteristics: snapshot.considerCharacteristicPoints,
