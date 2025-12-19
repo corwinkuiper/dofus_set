@@ -42,16 +42,19 @@
     const bannedItemTypes = new Set();
     if (snapshot.banPetsmount) bannedItemTypes.add("Petsmount");
     if (snapshot.banPet) bannedItemTypes.add("Pet");
-    if (snapshot.banDragoturkey) bannedItemTypes.add("Dragoturkey");
-    if (snapshot.banRhineetle) bannedItemTypes.add("Rhineetle");
-    if (snapshot.banSeemyool) bannedItemTypes.add("Seemyool");
+    const bannedItemEndings: string[] = [];
+
+    if (snapshot.banDragoturkey) bannedItemEndings.push("Dragoturkey");
+    if (snapshot.banRhineetle) bannedItemEndings.push("Rhineetle");
+    if (snapshot.banSeemyool) bannedItemEndings.push("Seemyool");
 
     const bannedItems = [
       ...allItems
         .filter(
           (x) =>
             bannedItemTypes.has(x.itemType) ||
-            (snapshot.banKhardboard && x.name.en.startsWith("Khardboard"))
+            (snapshot.banKhardboard && x.name.en.startsWith("Khardboard")) ||
+            bannedItemEndings.some((end) => x.name.en.endsWith(end))
         )
         .map((x) => x.dofusId),
       ...snapshot.bannedItems.map((x) => x.dofusId),
