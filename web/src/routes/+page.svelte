@@ -130,7 +130,8 @@
     }
   }
 
-  async function onsubmit() {
+  async function onsubmit(e: SubmitEvent) {
+    e.preventDefault();
     if (cancelRunning) {
       cancel();
     } else {
